@@ -1,9 +1,11 @@
 package id.gits.vouchsdk.data.source.remote
 
-import com.google.gson.GsonBuilder
 import id.gits.vouchsdk.BuildConfig
 import id.gits.vouchsdk.data.model.BaseApiModel
-import id.gits.vouchsdk.data.model.register.MessageBodyModel
+import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
+import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
+import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
 import io.reactivex.Observable
@@ -23,11 +25,32 @@ import java.util.concurrent.TimeUnit
 
 internal interface VouchApiService {
 
-    @POST("messages/referrence")
+    @GET("config")
     @Headers("Content-Type: application/json")
-     fun postMessage(
+    fun getConfig(
+        @Header("token") token: String
+    ): Observable<BaseApiModel<ConfigResponseModel?>>
+
+    @POST("messages")
+    @Headers("Content-Type: application/json")
+    fun postReplyMessage(
         @Header("token") token: String,
         @Body data: MessageBodyModel
+    ): Observable<BaseApiModel<MessageResponseModel?>>
+
+    @GET("messages")
+    @Headers("Content-Type: application/json")
+    fun getListMessages(
+        @Header("token") token: String,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int
+    ): Observable<BaseApiModel<List<MessageResponseModel>?>>
+
+    @POST("messages/referrence")
+    @Headers("Content-Type: application/json")
+     fun referenceSend(
+        @Header("token") token: String,
+        @Body data: ReferenceSendBodyModel
     ): Observable<BaseApiModel<String?>>
 
     @POST("users/register")

@@ -1,12 +1,14 @@
 package id.gits.vouchsdk.data.source.local
 
 import android.content.Context
-import id.gits.vouchsdk.data.model.register.MessageBodyModel
+import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
+import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
+import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
 import id.gits.vouchsdk.utils.Const.PREF_API_KEY
-import id.gits.vouchsdk.utils.Const.PREF_CREDENTIAL_KEY
 import id.gits.vouchsdk.utils.Const.PREF_KEY
 import id.gits.vouchsdk.utils.Const.PREF_SOCKET_TICKET
 
@@ -15,9 +17,11 @@ import id.gits.vouchsdk.utils.Const.PREF_SOCKET_TICKET
  * Bandung, 26 Aug 2019
  */
 
-class VouchLocalDataSource(private val mContext: Context) : VouchDataSource {
+class VouchLocalDataSource(mContext: Context) : VouchDataSource {
+
 
     private val mPref = mContext.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE)
+
 
     override fun saveWebSocketTicket(token: String) {
         mPref.edit().putString(PREF_SOCKET_TICKET, token).apply()
@@ -39,12 +43,23 @@ class VouchLocalDataSource(private val mContext: Context) : VouchDataSource {
         mPref.edit().clear().apply()
     }
 
+    override fun getConfig(token: String, onSuccess: (data: ConfigResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        throwRemoteException()
+    }
+
+    override fun getListMessage(token: String, page: Int, pageSize: Int, onSuccess: (data: List<MessageResponseModel>) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        throwRemoteException()
+    }
 
     override fun registerUser(token: String, body: RegisterBodyModel, onSuccess: (data: RegisterResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
         throwRemoteException()
     }
 
-    override fun postMessage(token: String, body: MessageBodyModel, onSuccess: (data: String) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+    override fun referenceSend(token: String, body: ReferenceSendBodyModel, onSuccess: (data: String) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        throwRemoteException()
+    }
+
+    override fun replyMessage(token: String, body: MessageBodyModel, onSuccess: (data: MessageResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
         throwRemoteException()
     }
 

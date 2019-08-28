@@ -3,6 +3,11 @@ package id.gits.vouchsdk.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import android.net.NetworkInfo
+import android.support.v4.content.ContextCompat.getSystemService
+import android.net.ConnectivityManager
+
+
 
 
 /**
@@ -25,6 +30,13 @@ object Helper {
             Log.e("Error", e.message ?: e.localizedMessage)
         }
         return ""
+    }
+
+    fun checkConnection(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cm.activeNetworkInfo
+        //should check null because in airplane mode it will be null
+        return netInfo != null && netInfo.isConnected
     }
 
 

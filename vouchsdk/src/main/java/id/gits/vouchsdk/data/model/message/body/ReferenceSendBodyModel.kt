@@ -1,9 +1,9 @@
-package id.gits.vouchsdk.data.model.register
+package id.gits.vouchsdk.data.model.message.body
 
 
 import com.google.gson.annotations.SerializedName
 
-data class MessageBodyModel(
+data class ReferenceSendBodyModel(
     @SerializedName("referrence")
     val referrence: String? = ""
 )

@@ -18,3 +18,8 @@ fun Socket.addHeader(credentialToken: String) {
         }
     }
 }
+
+
+fun String?.safe(default: String = ""): String {
+    return this ?: default
+}

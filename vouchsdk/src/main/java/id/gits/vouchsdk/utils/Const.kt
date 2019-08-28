@@ -13,5 +13,9 @@ object Const {
     const val PREF_CREDENTIAL_KEY = "credential-key"
     const val PREF_API_KEY = "api-key"
     const val PREF_SOCKET_TICKET = "socket-key-ticket"
+    const val CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE"
+
+    const val PARAMS_USERNAME = "username_params"
+    const val PARAMS_PASSWORD = "password_params"
 
 }
