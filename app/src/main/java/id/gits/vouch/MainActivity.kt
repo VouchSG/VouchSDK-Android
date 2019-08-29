@@ -24,5 +24,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    fun openChat(v: View){
+        VouchSDK.setCredential("radhikayusuf","qwe123qwe123").openChatActivity(this)
+    }
 
 }

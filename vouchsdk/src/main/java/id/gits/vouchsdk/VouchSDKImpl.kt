@@ -1,6 +1,7 @@
 package id.gits.vouchsdk
 
 import android.app.Activity
+import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,12 +18,11 @@ import id.gits.vouchsdk.utils.Helper
  * Bandung, on 2019-08-27
  */
 
-class VouchSDKImpl internal constructor(val username: String, val password: String) : VouchSDK {
+class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String) : VouchSDK {
+
 
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
-
-    private lateinit var mActivity: Activity
 
 
     /**
@@ -40,25 +40,14 @@ class VouchSDKImpl internal constructor(val username: String, val password: Stri
 
 
     /**
-     * @param fragment used for callback data in mainthread
      * @param callback used for callback from request data from socket and api
-     * redirect to create(activity: Activity, callback: VouchCallback)
-     */
-    override fun create(fragment: Fragment, callback: VouchCallback) {
-        create(fragment.requireActivity(), callback)
-    }
-
-    /**
-     * @param activity used for callback data in mainthread
-     * @param callback used for callback from request data from socket and api
-     * This function used for create socket connection and register BroadCastReceiver,
+     * This function used for init socket connection and register BroadCastReceiver,
      * The BroadCastReceiver will triggered when connection status change
      */
-    override fun create(activity: Activity, callback: VouchCallback) {
-        mActivity = activity
-        mVouchCore = VouchCore.setupCore(activity, username, password, callback).build()
-        mVouchData = VouchData(activity)
-        LocalBroadcastManager.getInstance(mActivity)
+    override fun init(callback: VouchCallback) {
+        mVouchCore = VouchCore.setupCore(application, username, password, callback).build()
+        mVouchData = VouchData(application)
+        LocalBroadcastManager.getInstance(application)
             .registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
     }
 
@@ -68,24 +57,15 @@ class VouchSDKImpl internal constructor(val username: String, val password: Stri
      * before reconnect, system will
      * re-register for get new token and new ticket
      */
-    override fun reconnect(fragment: Fragment, callback: VouchCallback, forceReconnect: Boolean) {
-        reconnect(fragment.requireActivity(), callback, forceReconnect)
-    }
-
-    /**
-     * Reconnect to socket
-     * before reconnect, system will
-     * re-register for get new token and new ticket
-     */
-    override fun reconnect(activity: Activity, callback: VouchCallback, forceReconnect: Boolean) {
+    override fun reconnect(callback: VouchCallback, forceReconnect: Boolean) {
         if(forceReconnect || !isConnected()){
-            mActivity = activity
-            mVouchCore.changeActivity(mActivity, callback)
-            LocalBroadcastManager.getInstance(mActivity).registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
+            mVouchCore.changeActivity(callback)
+            LocalBroadcastManager.getInstance(application).registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
 
             mVouchCore.reconnect()
         }
     }
+
 
 
     /**
@@ -146,8 +126,8 @@ class VouchSDKImpl internal constructor(val username: String, val password: Stri
      * Close, disconnect from socket, and close socket
      * this function will disable broadcastreceiver too
      */
-    override fun close() {
-        LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(internetReceiver)
+    override fun close(application: Application) {
+        LocalBroadcastManager.getInstance(application).unregisterReceiver(internetReceiver)
         mVouchCore.disconnect()
         mVouchCore.close()
     }

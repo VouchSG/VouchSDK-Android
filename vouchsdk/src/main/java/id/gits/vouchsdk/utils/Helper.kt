@@ -2,12 +2,10 @@ package id.gits.vouchsdk.utils
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
-import android.net.NetworkInfo
-import android.support.v4.content.ContextCompat.getSystemService
+import android.graphics.Color
 import android.net.ConnectivityManager
-
-
+import android.support.annotation.ColorInt
+import android.util.Log
 
 
 /**

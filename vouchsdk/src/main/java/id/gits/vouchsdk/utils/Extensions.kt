@@ -1,5 +1,7 @@
 package id.gits.vouchsdk.utils
 
+import android.graphics.Color
+import android.support.annotation.ColorInt
 import io.socket.client.Socket
 import io.socket.engineio.client.Transport
 
@@ -19,6 +21,15 @@ fun Socket.addHeader(credentialToken: String) {
     }
 }
 
+fun String?.parseColor(@ColorInt defaultColor: Int = Color.WHITE): Int {
+    return try {
+        if (this != null) {
+            Color.parseColor(this)
+        } else defaultColor
+    } catch (e: Exception) {
+        defaultColor
+    }
+}
 
 fun String?.safe(default: String = ""): String {
     return this ?: default

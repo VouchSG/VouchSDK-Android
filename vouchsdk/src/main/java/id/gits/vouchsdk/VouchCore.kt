@@ -1,8 +1,10 @@
 package id.gits.vouchsdk
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.support.v4.app.Fragment
+import android.app.Application
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import id.gits.vouchsdk.BuildConfig.BASE_URL_SOCKET
@@ -31,7 +33,6 @@ class VouchCore internal constructor() {
 
     private var mSocket: Socket? = null
     private var mCallback: VouchCallback? = null
-    private var mActivity: Activity? = null
 
     private var mCredentialKey: String = ""
     private var mRepository: VouchRepository? = null
@@ -54,27 +55,19 @@ class VouchCore internal constructor() {
         this@VouchCore.password = password
     }
 
-    /**
-     * initialize all fields, with fragment
-     */
-    private fun initialize(fragment: Fragment, callback: VouchCallback) {
-        initialize(fragment.requireActivity(), callback)
-    }
 
     /**
      * initialize all fields
      */
-    private fun initialize(activity: Activity, callback: VouchCallback) {
+    private fun initialize(application: Application, callback: VouchCallback) {
         mCallback = callback
-        mActivity = activity
-        mRepository = Injection.createRepository(mActivity!!)
-        mCredentialKey = Helper.getCredentialKey(activity)
-        registerUser()
+        mRepository = Injection.createRepository(application)
+        mCredentialKey = Helper.getCredentialKey(application)
     }
 
     /**
      * Register user for get ticket for
-     * create socket client
+     * init socket client
      */
     private fun registerUser() {
         mRepository?.registerUser(
@@ -102,37 +95,40 @@ class VouchCore internal constructor() {
         mSocket?.apply {
 
             on(Socket.EVENT_CONNECT) {
-                mActivity?.runOnUiThread { mCallback?.onConnected() }
-                Log.wtf("Logging", "con")
+                executeOnMainThread {
+                    mCallback?.onConnected()
+                }
             }
 
             on(EVENT_NEW_MESSAGE) {
                 try {
                     val jsonObject = (it.firstOrNull() as JSONObject).toString()
                     val result = mGson.fromJson<MessageResponseModel>(jsonObject, MessageResponseModel::class.java)
-                    mActivity?.runOnUiThread { mCallback?.onReceivedNewMessage(result) }
-
-                } catch (e: Exception) {
-
-                    mActivity?.runOnUiThread {
-                        mCallback?.onError(
-                            "invalid response socket for the message object, ${e.message ?: ""}"
-                        )
+                    executeOnMainThread {
+                        mCallback?.onReceivedNewMessage(result)
                     }
 
+                } catch (e: Exception) {
+                    executeOnMainThread {
+                        mCallback?.onError("invalid response socket for the message object, ${e.message ?: ""}")
+                    }
                 }
             }
 
             on(EVENT_ERROR) {
-                mActivity?.runOnUiThread { mCallback?.onError(it.firstOrNull()?.toString() ?: "") }
+                executeOnMainThread {
+                    mCallback?.onError(it.firstOrNull()?.toString() ?: "")
+                }
             }
 
             on(Socket.EVENT_DISCONNECT) {
-                Log.wtf("Logging", "dc")
                 if (!isForceDisconnect) {
                     reconnect()
                 }
-                mActivity?.runOnUiThread { mCallback?.onDisconnected(isForceDisconnect) }
+
+                executeOnMainThread {
+                    mCallback?.onDisconnected(isForceDisconnect)
+                }
             }
 
             this@VouchCore.connect()
@@ -181,9 +177,15 @@ class VouchCore internal constructor() {
      */
     fun isConnected(): Boolean = mSocket?.connected() ?: false
 
-    fun changeActivity(activity: Activity, callback: VouchCallback) {
-        mActivity = activity
+    fun changeActivity(callback: VouchCallback) {
         mCallback = callback
+    }
+
+
+    fun executeOnMainThread(unit: () -> Unit) {
+        Handler(Looper.getMainLooper()).post {
+            unit()
+        }
     }
 
     /*========================== End of Connection Function ==============================*/
@@ -193,31 +195,24 @@ class VouchCore internal constructor() {
         @SuppressLint("StaticFieldLeak")
         private var INSTANCE: VouchCore? = null
 
-        fun setupCore(activity: Activity, callback: VouchCallback): Builder {
+        fun setupCore(application: Application, callback: VouchCallback): Builder {
             if (INSTANCE == null) {
                 INSTANCE = VouchCore()
                 INSTANCE?.setCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-                INSTANCE?.initialize(activity, callback)
+                INSTANCE?.initialize(application, callback)
             }
             return this
         }
 
-        fun setupCore(activity: Activity, username: String, password: String, callback: VouchCallback): Builder {
+        fun setupCore(application: Application, username: String, password: String, callback: VouchCallback): Builder {
             if (INSTANCE == null) {
                 INSTANCE = VouchCore()
                 INSTANCE?.setCredential(username, password)
-                INSTANCE?.initialize(activity, callback)
+                INSTANCE?.initialize(application, callback)
             }
             return this
         }
 
-        fun setupCore(fragment: Fragment, callback: VouchCallback): Builder {
-            if (INSTANCE == null) {
-                INSTANCE = VouchCore()
-                INSTANCE?.initialize(fragment.requireActivity(), callback)
-            }
-            return this
-        }
 
         fun build(): VouchCore {
             return INSTANCE!!

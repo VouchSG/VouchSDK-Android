@@ -2,19 +2,19 @@ package id.gits.vouchsdk.ui
 
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import id.gits.vouchsdk.R
-import id.gits.vouchsdk.VouchSDK
-import id.gits.vouchsdk.callback.VouchCallback
-import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.utils.Const.PARAMS_PASSWORD
 import id.gits.vouchsdk.utils.Const.PARAMS_USERNAME
+import id.gits.vouchsdk.utils.parseColor
 import id.gits.vouchsdk.utils.safe
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
 
@@ -23,27 +23,25 @@ import kotlinx.android.synthetic.main.fragment_vouch_chat.*
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-28
  */
-class VouchChatFragment : Fragment(), VouchCallback {
-
-    lateinit var mVouchSDK: VouchSDK
-    lateinit var mViewModel: VouchChatViewModel
-    lateinit var mLayoutManager: LinearLayoutManager
+class VouchChatFragment : Fragment() {
+    private lateinit var mViewModel: VouchChatViewModel
+    private lateinit var mLayoutManager: LinearLayoutManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mVouchSDK = VouchSDK.setCredential(
+
+        mViewModel = VouchChatViewModel(
+            requireActivity().application,
             arguments?.getString(PARAMS_USERNAME, "").safe(),
-            arguments?.getString(PARAMS_PASSWORD, "").safe()).createSDK()
-
-        mVouchSDK.create(this@VouchChatFragment, this@VouchChatFragment)
-        mViewModel = ViewModelProviders.of(this@VouchChatFragment).get(VouchChatViewModel::class.java)
+            arguments?.getString(PARAMS_PASSWORD, "").safe()
+        )
         observeLiveData()
-
         return inflater.inflate(R.layout.fragment_vouch_chat, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupListData()
+        mViewModel.start()
     }
 
     private fun setupListData() {
@@ -52,34 +50,43 @@ class VouchChatFragment : Fragment(), VouchCallback {
     }
 
     private fun observeLiveData() {
-        mViewModel.isRequesting.observe(this@VouchChatFragment, Observer {
+        mViewModel.apply {
 
-        })
+
+            isRequesting.observe(this@VouchChatFragment, Observer {
+                progressIndicator.visibility = if (it == true) View.VISIBLE else View.GONE
+            })
+
+            changeConnectStatus.observe(this@VouchChatFragment, Observer {
+                imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
+            })
+
+            eventShowMessage.observe(this@VouchChatFragment, Observer {
+                Snackbar.make(view ?: return@Observer, it.safe(), Snackbar.LENGTH_LONG).show()
+            })
+
+            loadConfiguration.observe(this@VouchChatFragment, Observer {
+                if (it != null) {
+                    titleChat.text = it.title
+                    toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
+                    poweredText.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
+                    backgroundContent.background = ColorDrawable(it.backgroundColorChat.parseColor(Color.WHITE))
+                }
+            })
+
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        mVouchSDK.reconnect(this, this)
+        mViewModel.reconnectSocket()
     }
 
     override fun onPause() {
         super.onPause()
-        mVouchSDK.disconnect()
+        mViewModel.disconnectSocket()
     }
 
-    override fun onConnected() {
-        mViewModel.getLayoutConfiguration()
-    }
 
-    override fun onReceivedNewMessage(message: MessageResponseModel) {
 
-    }
-
-    override fun onDisconnected(isActionFromUser: Boolean) {
-
-    }
-
-    override fun onError(message: String) {
-
-    }
 }

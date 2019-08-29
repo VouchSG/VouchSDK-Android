@@ -23,7 +23,7 @@ data class ConfigResponseModel(
     @SerializedName("closeIconURL")
     val closeIconURL: String? = "",
     @SerializedName("customChannelList")
-    val customChannelList: String? = "",
+    val customChannelList: List<Any>? = emptyList(),
     @SerializedName("defaultInput")
     val defaultInput: String? = "",
     @SerializedName("delay")
