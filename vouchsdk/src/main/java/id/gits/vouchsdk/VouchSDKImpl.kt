@@ -1,14 +1,12 @@
 package id.gits.vouchsdk
 
-import android.app.Activity
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.support.v4.app.Fragment
-import android.support.v4.content.LocalBroadcastManager
 import id.gits.vouchsdk.callback.*
+import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.utils.Const.CONNECTIVITY_CHANGE
 import id.gits.vouchsdk.utils.Helper
@@ -24,17 +22,20 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
 
+    private var isConnected = false
 
     /**
      * This BroadCastReceiver will triggered when connection status change
      */
     private val internetReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (Helper.checkConnection(context ?: return)) {
-                mVouchCore.reconnect()
-            } else {
-                disconnect()
-            }
+//            if (Helper.checkConnection(application) && !isConnected) {
+//                mVouchCore.reconnect()
+//                isConnected = true
+//            } else {
+//                disconnect()
+//                isConnected = false
+//            }
         }
     }
 
@@ -47,8 +48,7 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
     override fun init(callback: VouchCallback) {
         mVouchCore = VouchCore.setupCore(application, username, password, callback).build()
         mVouchData = VouchData(application)
-        LocalBroadcastManager.getInstance(application)
-            .registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
+        application.registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
     }
 
 
@@ -58,14 +58,12 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      * re-register for get new token and new ticket
      */
     override fun reconnect(callback: VouchCallback, forceReconnect: Boolean) {
-        if(forceReconnect || !isConnected()){
-            mVouchCore.changeActivity(callback)
-            LocalBroadcastManager.getInstance(application).registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
-
+        if (forceReconnect || !isConnected()) {
+            application.registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
             mVouchCore.reconnect()
+            mVouchCore.changeCallback(callback)
         }
     }
-
 
 
     /**
@@ -117,9 +115,17 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      * @param callback is size of list when request the data
      */
     override fun getConfig(callback: GetConfigCallback) {
-        mVouchData.getConfig(callback)
-    }
+        mVouchData.getConfig(object : GetConfigCallback {
+            override fun onSuccess(data: ConfigResponseModel) {
+                callback.onSuccess(data)
+            }
 
+            override fun onError(message: String) {
+                callback.onError(message)
+            }
+
+        })
+    }
 
 
     /**
@@ -127,7 +133,7 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      * this function will disable broadcastreceiver too
      */
     override fun close(application: Application) {
-        LocalBroadcastManager.getInstance(application).unregisterReceiver(internetReceiver)
+        application.unregisterReceiver(internetReceiver)
         mVouchCore.disconnect()
         mVouchCore.close()
     }

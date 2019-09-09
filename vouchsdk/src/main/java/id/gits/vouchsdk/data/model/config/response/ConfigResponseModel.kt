@@ -59,7 +59,7 @@ data class ConfigResponseModel(
     @SerializedName("openImmediately")
     val openImmediately: String? = "",
     @SerializedName("poweredByVouch")
-    val poweredByVouch: String? = "",
+    val poweredByVouch: Boolean? = true,
     @SerializedName("rightBubbleBgColor")
     val rightBubbleBgColor: String? = "",
     @SerializedName("rightBubbleColor")

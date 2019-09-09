@@ -12,10 +12,12 @@ import id.gits.vouchsdk.callback.VouchCallback
 import id.gits.vouchsdk.data.VouchRepository
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
+import id.gits.vouchsdk.utils.Const
 import id.gits.vouchsdk.utils.Const.EVENT_NEW_MESSAGE
 import id.gits.vouchsdk.utils.Helper
 import id.gits.vouchsdk.utils.Injection
 import id.gits.vouchsdk.utils.addHeader
+import io.reactivex.disposables.Disposable
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.client.Socket.EVENT_ERROR
@@ -37,11 +39,16 @@ class VouchCore internal constructor() {
     private var mCredentialKey: String = ""
     private var mRepository: VouchRepository? = null
     private var isForceDisconnect = false
+    private var registerDisposable: Disposable? = null
+
+    private var isConnected = false
 
     private var username: String = UUID.randomUUID().toString()
     private var password: String = UUID.randomUUID().toString()
 
     private val mGson = Gson()
+
+    private var mTresholdRegister = System.currentTimeMillis()
 
 
     /*=================== Begin of Initialize and utility Function =========================*/
@@ -65,16 +72,24 @@ class VouchCore internal constructor() {
         mCredentialKey = Helper.getCredentialKey(application)
     }
 
+
+    fun changeCallback(callback: VouchCallback) {
+        mCallback = callback
+    }
+
     /**
      * Register user for get ticket for
      * init socket client
      */
     private fun registerUser() {
-        mRepository?.registerUser(
+        registerDisposable?.dispose()
+        registerDisposable = mRepository?.registerUser(
             body = RegisterBodyModel(mCredentialKey, "", password, username),
             token = mCredentialKey,
             onSuccess = {
+                mCallback?.onRegistered()
                 createSocket()
+
             },
             onError = {
                 mCallback?.onError(it)
@@ -96,13 +111,16 @@ class VouchCore internal constructor() {
 
             on(Socket.EVENT_CONNECT) {
                 executeOnMainThread {
-                    mCallback?.onConnected()
+                    if (!isConnected) {
+                        mCallback?.onConnected()
+                    }
                 }
             }
 
             on(EVENT_NEW_MESSAGE) {
                 try {
                     val jsonObject = (it.firstOrNull() as JSONObject).toString()
+                    Log.wtf("Socket-Logging", jsonObject)
                     val result = mGson.fromJson<MessageResponseModel>(jsonObject, MessageResponseModel::class.java)
                     executeOnMainThread {
                         mCallback?.onReceivedNewMessage(result)
@@ -116,13 +134,18 @@ class VouchCore internal constructor() {
             }
 
             on(EVENT_ERROR) {
+                isConnected = false
                 executeOnMainThread {
-                    mCallback?.onError(it.firstOrNull()?.toString() ?: "")
+                    if (!(it.firstOrNull()?.toString() ?: "").contains("renew_ticket")) {
+                        mCallback?.onError(it.firstOrNull()?.toString() ?: "")
+                    }
+
                 }
             }
 
             on(Socket.EVENT_DISCONNECT) {
-                if (!isForceDisconnect) {
+                isConnected = false
+                if (!isForceDisconnect && isConnected()) {
                     reconnect()
                 }
 
@@ -177,12 +200,8 @@ class VouchCore internal constructor() {
      */
     fun isConnected(): Boolean = mSocket?.connected() ?: false
 
-    fun changeActivity(callback: VouchCallback) {
-        mCallback = callback
-    }
 
-
-    fun executeOnMainThread(unit: () -> Unit) {
+    private fun executeOnMainThread(unit: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
             unit()
         }

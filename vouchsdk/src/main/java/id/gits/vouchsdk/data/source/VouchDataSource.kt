@@ -6,6 +6,7 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import io.reactivex.disposables.Disposable
 
 
 /**
@@ -23,6 +24,10 @@ interface VouchDataSource {
         onFinish: () -> Unit = {}
     )
 
+    fun saveConfig(data: ConfigResponseModel?)
+
+    fun getLocalConfig(): ConfigResponseModel?
+
     fun replyMessage(
         token: String = "",
         body: MessageBodyModel,
@@ -37,7 +42,7 @@ interface VouchDataSource {
         onSuccess: (data: RegisterResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
         onFinish: () -> Unit = {}
-    )
+    ): Disposable
 
     fun referenceSend(
         token: String = "",

@@ -7,6 +7,7 @@ import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
+import io.reactivex.disposables.Disposable
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -18,6 +19,12 @@ class VouchRepository(
     private val remoteDataSource: VouchDataSource
 ) : VouchDataSource {
 
+
+    override fun saveConfig(data: ConfigResponseModel?) {
+        localDataSource.saveConfig(data)
+    }
+
+    override fun getLocalConfig(): ConfigResponseModel? = localDataSource.getLocalConfig()
 
     override fun getConfig(token: String, onSuccess: (data: ConfigResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
         remoteDataSource.getConfig(getApiToken(), onSuccess, onError, onFinish)
@@ -31,8 +38,8 @@ class VouchRepository(
         remoteDataSource.getListMessage(getApiToken(), page, pageSize, onSuccess, onError, onFinish)
     }
 
-    override fun registerUser(token: String, body: RegisterBodyModel, onSuccess: (data: RegisterResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
-        remoteDataSource.registerUser(token, body, { result ->
+    override fun registerUser(token: String, body: RegisterBodyModel, onSuccess: (data: RegisterResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit): Disposable {
+        return remoteDataSource.registerUser(token, body, { result ->
             result.apply {
                 saveWebSocketTicket(this@apply.websocketTicket ?: "")
                 saveApiToken(this@apply.token ?: "")

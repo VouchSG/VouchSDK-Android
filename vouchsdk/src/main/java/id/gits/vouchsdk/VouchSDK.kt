@@ -2,18 +2,16 @@ package id.gits.vouchsdk
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import id.gits.vouchsdk.callback.*
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.ui.VouchChatActivity
 import id.gits.vouchsdk.ui.VouchChatFragment
-import id.gits.vouchsdk.utils.Const
 import id.gits.vouchsdk.utils.Const.PARAMS_PASSWORD
 import id.gits.vouchsdk.utils.Const.PARAMS_USERNAME
 import java.util.*
+
 
 /**
  * @Author by Radhika Yusuf
@@ -46,6 +44,7 @@ interface VouchSDK {
 
         private var mUsername = ""
         private var mPassword = ""
+        private var isUsingAnimation = false
 
         /**
          * send user credential to SDK
@@ -56,6 +55,11 @@ interface VouchSDK {
             mUsername = if(username.isEmpty()) UUID.randomUUID().toString() else username
             mPassword = if(password.isEmpty()) UUID.randomUUID().toString() else password
 
+            return this@Builder
+        }
+
+        fun isUsingEnteranceAnimation(isUsingAnimation: Boolean): Builder {
+            this@Builder.isUsingAnimation = isUsingAnimation
             return this@Builder
         }
 
@@ -73,13 +77,18 @@ interface VouchSDK {
             }
         }
 
-        fun openChatActivity(context: Context) {
-            val intent = Intent(context, VouchChatActivity::class.java).apply {
+        fun openChatActivity(activity: Activity) {
+            val intent = Intent(activity, VouchChatActivity::class.java).apply {
                 putExtra(PARAMS_USERNAME, mUsername)
                 putExtra(PARAMS_PASSWORD, mPassword)
             }
 
-            context.startActivity(intent)
+            activity.startActivity(intent)
+
+            if (isUsingAnimation) {
+                activity.overridePendingTransition(R.anim.translate_in_anim, R.anim.translate_in_out)
+            }
+
         }
 
     }

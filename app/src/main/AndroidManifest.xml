@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="id.gits.vouch">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -25,7 +27,9 @@
 
         <activity
                 android:name="id.gits.vouchsdk.ui.VouchChatActivity"
+                android:screenOrientation="user"
                 android:theme="@style/VouchAppTheme"/>
+
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -17,27 +18,42 @@ import io.reactivex.schedulers.Schedulers
 
 object VouchRemoteDataSource : VouchDataSource {
 
-
     private val mApiService = VouchApiService.getApiService()
 
-    override fun getConfig(token: String, onSuccess: (data: ConfigResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
-        val disposable = mApiService.getConfig(token = token)
+
+    private var configDisposable: Disposable? = null
+    private var chatDisposable: Disposable? = null
+
+    override fun getConfig(
+        token: String,
+        onSuccess: (data: ConfigResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        configDisposable?.dispose()
+        configDisposable = mApiService.getConfig(token = token)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message?:"")
+                    onError(it.message ?: "")
                 }
             }, {
-                onError(it.message?:"")
+                onError(it.message ?: "")
             }, {
                 onFinish()
             })
     }
 
-    override fun replyMessage(token: String, body: MessageBodyModel, onSuccess: (data: MessageResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+    override fun replyMessage(
+        token: String,
+        body: MessageBodyModel,
+        onSuccess: (data: MessageResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
         val disposable = mApiService.postReplyMessage(token = token, data = body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -45,50 +61,70 @@ object VouchRemoteDataSource : VouchDataSource {
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message?:"")
+                    onError(it.message ?: "")
                 }
             }, {
-                onError(it.message?:"")
+                onError(it.message ?: "")
             }, {
                 onFinish()
             })
     }
 
-    override fun getListMessage(token: String, page: Int, pageSize: Int, onSuccess: (data: List<MessageResponseModel>) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
-        val disposable = mApiService.getListMessages(token = token, page = page, pageSize = pageSize)
+    override fun getListMessage(
+        token: String,
+        page: Int,
+        pageSize: Int,
+        onSuccess: (data: List<MessageResponseModel>) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        chatDisposable?.dispose()
+        chatDisposable = mApiService.getListMessages(token = token, page = page, pageSize = pageSize)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message?:"")
+                    onError(it.message ?: "")
                 }
             }, {
-                onError(it.message?:"")
+                onError(it.message ?: "")
             }, {
                 onFinish()
             })
     }
 
-    override fun registerUser(token: String, body: RegisterBodyModel, onSuccess: (data: RegisterResponseModel) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
-        val disposable = mApiService.registerUser(token = token, data = body)
+    override fun registerUser(
+        token: String,
+        body: RegisterBodyModel,
+        onSuccess: (data: RegisterResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ): Disposable {
+        return mApiService.registerUser(token = token, data = body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 if (it.code == 200 && it.data?.token != null) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message?:"")
+                    onError(it.message ?: "")
                 }
             }, {
-                onError(it.message?:"")
+                onError(it.message ?: "")
             }, {
                 onFinish()
             })
     }
 
-    override fun referenceSend(token: String, body: ReferenceSendBodyModel, onSuccess: (data: String) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+    override fun referenceSend(
+        token: String,
+        body: ReferenceSendBodyModel,
+        onSuccess: (data: String) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
         val disposable = mApiService.referenceSend(token = token, data = body.copy(referrence = "welcome"))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -96,10 +132,10 @@ object VouchRemoteDataSource : VouchDataSource {
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message?:"")
+                    onError(it.message ?: "")
                 }
             }, {
-                onError(it.message?:"")
+                onError(it.message ?: "")
             }, {
                 onFinish()
             })
@@ -125,6 +161,15 @@ object VouchRemoteDataSource : VouchDataSource {
 
     override fun revokeCredential() {
         throwLocalException()
+    }
+
+    override fun saveConfig(data: ConfigResponseModel?) {
+        throwLocalException()
+    }
+
+    override fun getLocalConfig(): ConfigResponseModel? {
+        throwLocalException()
+        return null
     }
 
     private fun throwLocalException() {

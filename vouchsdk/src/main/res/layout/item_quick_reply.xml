@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dimens_4dp">
+
+    <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/dimens_4dp"
+            android:paddingBottom="@dimen/dimens_4dp"
+            android:paddingStart="@dimen/dimens_8dp"
+            android:paddingEnd="@dimen/dimens_8dp"/>
+
+    <TextView
+            android:id="@+id/quickReplyContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimens_4dp"
+            android:paddingBottom="@dimen/dimens_4dp"
+            android:paddingStart="@dimen/dimens_8dp"
+            android:paddingEnd="@dimen/dimens_8dp"
+            android:textColor="@color/colorPrimaryChat"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/rounded_primary_bordered"
+            android:foreground="?attr/selectableItemBackground"
+            tools:text="Radhika Yusuf"/>
+
+
+</FrameLayout>

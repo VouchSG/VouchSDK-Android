@@ -17,6 +17,8 @@ class VouchData internal constructor(context: Context) {
     private val mRepository = Injection.createRepository(context)
 
 
+    fun getLocalConfig() = mRepository.getLocalConfig()
+
     fun getConfig(callback: GetConfigCallback) {
         mRepository.getConfig(onSuccess = {
             callback.onSuccess(it)

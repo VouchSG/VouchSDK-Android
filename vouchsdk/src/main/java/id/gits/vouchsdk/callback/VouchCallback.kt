@@ -10,6 +10,8 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 
 interface VouchCallback {
 
+    fun onRegistered()
+
     fun onConnected()
 
     fun onReceivedNewMessage(message: MessageResponseModel)

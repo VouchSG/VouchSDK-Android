@@ -4,12 +4,14 @@ package id.gits.vouchsdk.data.model.message.response
 import com.google.gson.annotations.SerializedName
 
 data class MessageResponseModel(
+    @SerializedName("customerInfo")
+    val customerInfo: CustomerInfoModel? = null,
     @SerializedName("allowTranslate")
     val allowTranslate: Boolean? = false,
     @SerializedName("belongsToConversation")
-    val belongsToConversation: String? = null,
+    val belongsToConversation: Any? = null,
     @SerializedName("buttons")
-    val buttons: List<Any?>? = emptyList(),
+    val buttons: List<ButtonModel>? = emptyList(),
     @SerializedName("createdAt")
     val createdAt: String? = null,
     @SerializedName("disableKeyboard")
@@ -22,6 +24,8 @@ data class MessageResponseModel(
     val entity: List<Any?>? = emptyList(),
     @SerializedName("failed")
     val failed: Boolean? = false,
+    @SerializedName("senderId")
+    val senderId: String? = null,
     @SerializedName("locationBlock")
     val locationBlocks: LocationBlockModel? = null,
     @SerializedName("_id")
