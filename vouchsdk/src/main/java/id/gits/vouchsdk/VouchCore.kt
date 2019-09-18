@@ -48,8 +48,6 @@ class VouchCore internal constructor() {
 
     private val mGson = Gson()
 
-    private var mTresholdRegister = System.currentTimeMillis()
-
 
     /*=================== Begin of Initialize and utility Function =========================*/
 
@@ -120,9 +118,9 @@ class VouchCore internal constructor() {
             on(EVENT_NEW_MESSAGE) {
                 try {
                     val jsonObject = (it.firstOrNull() as JSONObject).toString()
-                    Log.wtf("Socket-Logging", jsonObject)
                     val result = mGson.fromJson<MessageResponseModel>(jsonObject, MessageResponseModel::class.java)
                     executeOnMainThread {
+                        Log.d("SocketResponse", jsonObject)
                         mCallback?.onReceivedNewMessage(result)
                     }
 
@@ -137,7 +135,7 @@ class VouchCore internal constructor() {
                 isConnected = false
                 executeOnMainThread {
                     if (!(it.firstOrNull()?.toString() ?: "").contains("renew_ticket")) {
-                        mCallback?.onError(it.firstOrNull()?.toString() ?: "")
+//                        mCallback?.onError(it.firstOrNull()?.toString() ?: "")
                     }
 
                 }
@@ -145,7 +143,7 @@ class VouchCore internal constructor() {
 
             on(Socket.EVENT_DISCONNECT) {
                 isConnected = false
-                if (!isForceDisconnect && isConnected()) {
+                if (!isForceDisconnect && !isConnected()) {
                     reconnect()
                 }
 
@@ -215,20 +213,16 @@ class VouchCore internal constructor() {
         private var INSTANCE: VouchCore? = null
 
         fun setupCore(application: Application, callback: VouchCallback): Builder {
-            if (INSTANCE == null) {
-                INSTANCE = VouchCore()
-                INSTANCE?.setCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-                INSTANCE?.initialize(application, callback)
-            }
+            INSTANCE = VouchCore()
+            INSTANCE?.setCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+            INSTANCE?.initialize(application, callback)
             return this
         }
 
         fun setupCore(application: Application, username: String, password: String, callback: VouchCallback): Builder {
-            if (INSTANCE == null) {
-                INSTANCE = VouchCore()
-                INSTANCE?.setCredential(username, password)
-                INSTANCE?.initialize(application, callback)
-            }
+            INSTANCE = VouchCore()
+            INSTANCE?.setCredential(username, password)
+            INSTANCE?.initialize(application, callback)
             return this
         }
 

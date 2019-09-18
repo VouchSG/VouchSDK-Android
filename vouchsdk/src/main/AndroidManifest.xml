@@ -2,9 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="id.gits.vouchsdk">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
-    <application/>
+    <application>
+        <activity
+                android:name="id.gits.vouchsdk.ui.VouchChatActivity"
+                android:screenOrientation="user"
+                android:theme="@style/VouchAppTheme"/>
+
+        <activity android:name=".ui.VouchChatVideoPlayerActivity"
+                  android:screenOrientation="user"
+                  android:theme="@style/VouchDetailAppTheme"/>
+    </application>
 
 </manifest>

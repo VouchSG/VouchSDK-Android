@@ -1,6 +1,7 @@
 package id.gits.vouchsdk.data
 
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
@@ -19,9 +20,16 @@ class VouchRepository(
     private val remoteDataSource: VouchDataSource
 ) : VouchDataSource {
 
+    override fun clearData() {
+        localDataSource.clearData()
+    }
 
     override fun saveConfig(data: ConfigResponseModel?) {
         localDataSource.saveConfig(data)
+    }
+
+    override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        remoteDataSource.sendLocation(getApiToken(), body, onSuccess, onError, onFinish)
     }
 
     override fun getLocalConfig(): ConfigResponseModel? = localDataSource.getLocalConfig()

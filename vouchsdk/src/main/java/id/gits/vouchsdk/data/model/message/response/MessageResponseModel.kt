@@ -19,7 +19,7 @@ data class MessageResponseModel(
     @SerializedName("intent")
     val intent: IntentMessageModel? = null,
     @SerializedName("elements")
-    val elements: List<Any?>? = emptyList(),
+    val elements: List<GalleryElementModel>? = emptyList(),
     @SerializedName("entity")
     val entity: List<Any?>? = emptyList(),
     @SerializedName("failed")
@@ -31,7 +31,7 @@ data class MessageResponseModel(
     @SerializedName("_id")
     val id: String? = null,
     @SerializedName("lists")
-    val lists: List<Any?>? = emptyList(),
+    val lists: List<ElementListModel>? = emptyList(),
     @SerializedName("mediaUrl")
     val mediaUrl: String? = null,
     @SerializedName("msgType")

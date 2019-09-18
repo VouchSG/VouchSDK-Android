@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import id.gits.vouchsdk.VouchSDK
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,8 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     fun openChat(v: View) {
         VouchSDK
-//            .setCredential("radhika", "qwe123qwe123")
-            .isUsingEnteranceAnimation(true)
+            .setCredential(username = username.text.toString(), password = password.text.toString())
+            .isUsingEntranceAnimation(true)
             .openChatActivity(this)
     }
 

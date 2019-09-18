@@ -89,13 +89,12 @@
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerViewChat"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/dimens_104dp"
                 android:clipToPadding="false"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"/>
 
 
         <FrameLayout
@@ -124,6 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dimens_8dp"
                 android:visibility="gone"
+                tools:visibility="visible"
                 app:layout_constraintBottom_toTopOf="@id/poweredText">
 
             <LinearLayout
@@ -135,13 +135,31 @@
                     android:paddingBottom="@dimen/dimens_8dp"
                     android:orientation="horizontal">
 
-                <ImageView
+
+                <FrameLayout
                         android:id="@+id/attachmentButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/dimens_40dp"
                         android:layout_height="@dimen/dimens_40dp"
-                        android:padding="@dimen/dimens_8dp"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_gravity="bottom"
-                        android:src="@drawable/ic_attachment_chat"/>
+                        android:foreground="?attr/selectableItemBackground">
+
+                    <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/backgroundAttachment"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:src="@drawable/circle_gray"
+                            app:riv_corner_radius="@dimen/dimens_40dp"/>
+
+                    <ImageView
+                            android:id="@+id/imageAttachment"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:src="@drawable/ic_attachment_chat"
+                            android:padding="@dimen/dimens_8dp"
+                            android:layout_gravity="bottom"/>
+                </FrameLayout>
 
                 <EditText
                         android:id="@+id/fieldContent"

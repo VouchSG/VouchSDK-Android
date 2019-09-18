@@ -34,3 +34,8 @@ interface ReplyMessageCallback {
     fun onSuccess(data: MessageResponseModel)
     fun onError(message: String)
 }
+
+interface LocationMessageCallback {
+    fun onSuccess()
+    fun onError(message: String)
+}

@@ -25,11 +25,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-                android:name="id.gits.vouchsdk.ui.VouchChatActivity"
-                android:screenOrientation="user"
-                android:theme="@style/VouchAppTheme"/>
-
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import id.gits.vouchsdk.callback.*
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.utils.Const.CONNECTIVITY_CHANGE
 import id.gits.vouchsdk.utils.Helper
@@ -22,20 +23,16 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
 
-    private var isConnected = false
-
     /**
      * This BroadCastReceiver will triggered when connection status change
      */
     private val internetReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-//            if (Helper.checkConnection(application) && !isConnected) {
-//                mVouchCore.reconnect()
-//                isConnected = true
-//            } else {
-//                disconnect()
-//                isConnected = false
-//            }
+            if (Helper.checkConnection(application)) {
+                mVouchCore.reconnect()
+            } else {
+                disconnect()
+            }
         }
     }
 
@@ -83,7 +80,7 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
 
     /**
      * Send a new message
-     * @param message is content of the message
+     * @param message is title of the message
      * @param callback is callback listener from the API
      */
     override fun referenceSend(message: String, callback: ReferenceSendCallback) {
@@ -108,6 +105,16 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      */
     override fun replyMessage(body: MessageBodyModel, callback: ReplyMessageCallback) {
         mVouchData.replyMessage(body, callback)
+    }
+
+
+    /**
+     * Send Current user location
+     * @param body
+     * @param callback
+     */
+    override fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback) {
+        mVouchData.sendLocation(body, callback = callback)
     }
 
 

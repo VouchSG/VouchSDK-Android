@@ -1,6 +1,7 @@
 package id.gits.vouchsdk.data.source
 
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
@@ -17,6 +18,8 @@ import io.reactivex.disposables.Disposable
 
 interface VouchDataSource {
 
+    fun clearData()
+
     fun getConfig(
         token: String = "",
         onSuccess: (data: ConfigResponseModel) -> Unit = {},
@@ -25,6 +28,13 @@ interface VouchDataSource {
     )
 
     fun saveConfig(data: ConfigResponseModel?)
+
+    fun sendLocation(
+        token: String,
+        body: LocationBodyModel,
+        onSuccess: (data: Any) -> Unit = {},
+        onError: (message: String) -> Unit = {},
+        onFinish: () -> Unit = {})
 
     fun getLocalConfig(): ConfigResponseModel?
 

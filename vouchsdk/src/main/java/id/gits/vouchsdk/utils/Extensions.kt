@@ -1,15 +1,28 @@
 package id.gits.vouchsdk.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.text.TextUtils
-import android.widget.ImageView
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.View
+import android.widget.*
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import id.gits.vouchsdk.utils.Const.SG_LOCALE
 import io.socket.client.Socket
 import io.socket.engineio.client.Transport
@@ -23,29 +36,96 @@ import java.util.*
  */
 
 
-fun Fragment.openDialPhone(phoneNumber: String){
+fun Fragment.openDialPhone(phoneNumber: String) {
     val intent = Intent(Intent.ACTION_DIAL)
     intent.data = Uri.parse("tel:$phoneNumber")
     startActivity(intent)
 }
 
-fun Fragment.openWebUrl(url: String){
+fun Fragment.openWebUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(url)
     startActivity(intent)
 }
 
-fun Context.openWebUrl(url: String){
+fun Context.openWebUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(url)
     startActivity(intent)
 }
 
 fun ImageView.setImageUrl(url: String) {
-    if (url.isNotEmpty()) {
-        Glide.with(this).load(url).into(this)
+    Glide.with(this).load(url).centerCrop().into(this)
+}
+
+fun Activity.getScreenWidth(): Int {
+    val displayMetrics = DisplayMetrics()
+    windowManager.defaultDisplay.getMetrics(displayMetrics)
+    return displayMetrics.widthPixels
+}
+
+fun View.setFontFamily(font: String) {
+    if (font.isEmpty()) {
+        return
     }
 
+    try {
+        when (this) {
+            is TextView -> {
+                typeface = Typeface.createFromAsset(context.resources.assets, "fonts/${font.toLowerCase()}.ttf")
+            }
+            is EditText -> {
+                typeface = Typeface.createFromAsset(context.resources.assets, "fonts/${font.toLowerCase()}.ttf")
+            }
+            is RadioButton -> {
+                typeface = Typeface.createFromAsset(context.resources.assets, "fonts/${font.toLowerCase()}.ttf")
+            }
+            is Button -> {
+                typeface = Typeface.createFromAsset(context.resources.assets, "fonts/${font.toLowerCase()}.ttf")
+            }
+        }
+    } catch (e: Exception) {
+        showErrorInflateFont()
+    }
+}
+
+private fun showErrorInflateFont() = Log.e("FONTFACE", "error when set font face")
+
+fun Activity.getScreenHeight(): Int {
+    val displayMetrics = DisplayMetrics()
+    windowManager.defaultDisplay.getMetrics(displayMetrics)
+    return displayMetrics.heightPixels
+}
+
+fun ImageView.setImageUrls(url: String, screenWidth: Int, screenHeight: Int) {
+    Glide.with(this).asBitmap().load(url).centerCrop().into(object : CustomViewTarget<ImageView, Bitmap>(this) {
+        override fun onLoadFailed(errorDrawable: Drawable?) {
+
+        }
+
+        override fun onResourceCleared(placeholder: Drawable?) {
+
+        }
+
+        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+            var width = resource.width
+            var height = resource.height
+
+
+            while (width > (screenWidth / 2) && height > (screenHeight / 2)) {
+                if (width > (screenWidth / 2)) width /= 2
+                if (height > (screenHeight / 2)) height /= 2
+            }
+
+            this@setImageUrls.layoutParams?.width = width
+            this@setImageUrls.layoutParams?.height = height
+        }
+
+    })
+}
+
+fun ImageView.setImageUrlFromVideo(url: String) {
+    Glide.with(this).load(url).error(ColorDrawable(Color.BLACK)).into(this)
 }
 
 fun Int.basicToColorStateList(): ColorStateList {
@@ -60,11 +140,17 @@ fun Int.basicToColorStateList(): ColorStateList {
 }
 
 fun String.reformatFullDate(format: String, locale: Locale = SG_LOCALE): String {
-    val dateTimeMillis = if (!TextUtils.isEmpty(this)) {
-        SimpleDateFormat(Const.DATE_TIME_FORMAT, locale).parse(this).time
-    } else {
-        System.currentTimeMillis()
+    var dateTimeMillis = 0L
+    try {
+        dateTimeMillis = if (!TextUtils.isEmpty(this)) {
+            SimpleDateFormat(Const.DATE_TIME_FORMAT, locale).parse(this).time
+        } else {
+            System.currentTimeMillis()
+        }
+    } catch (e: Exception) {
+        return "-"
     }
+
 
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = dateTimeMillis

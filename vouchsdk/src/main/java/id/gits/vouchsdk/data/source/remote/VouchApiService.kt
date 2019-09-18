@@ -3,6 +3,7 @@ package id.gits.vouchsdk.data.source.remote
 import id.gits.vouchsdk.BuildConfig
 import id.gits.vouchsdk.data.model.BaseApiModel
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
@@ -52,6 +53,14 @@ internal interface VouchApiService {
         @Header("token") token: String,
         @Body data: ReferenceSendBodyModel
     ): Observable<BaseApiModel<String?>>
+
+
+    @POST("location")
+    @Headers("Content-Type: application/json")
+     fun sendLocation(
+        @Header("token") token: String,
+        @Body data: LocationBodyModel
+    ): Observable<BaseApiModel<Any?>>
 
     @POST("users/register")
     @Headers("Content-Type: application/json")

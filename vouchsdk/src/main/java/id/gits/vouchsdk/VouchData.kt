@@ -2,6 +2,7 @@ package id.gits.vouchsdk
 
 import android.content.Context
 import id.gits.vouchsdk.callback.*
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
@@ -71,6 +72,16 @@ class VouchData internal constructor(context: Context) {
     fun replyMessage(body: MessageBodyModel, callback: ReplyMessageCallback) {
         mRepository.replyMessage(body = body, onSuccess = {
             callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+
+    fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback){
+        mRepository.sendLocation(token = "", body = body, onSuccess = {
+            callback.onSuccess()
         }, onError = {
             callback.onError(it)
         }, onFinish = {

@@ -23,7 +23,7 @@ class VouchChatActivity : AppCompatActivity() {
 
     private fun replaceFragment() {
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.frameContent, VouchSDK.setCredential(intent.getStringExtra(PARAMS_USERNAME), intent.getStringExtra(PARAMS_PASSWORD)).createChatFragment())
+            replace(R.id.frameContent, VouchSDK.createChatFragment())
         }.commit()
     }
 

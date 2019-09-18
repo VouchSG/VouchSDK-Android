@@ -5,11 +5,13 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import id.gits.vouchsdk.callback.*
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.ui.VouchChatActivity
 import id.gits.vouchsdk.ui.VouchChatFragment
 import id.gits.vouchsdk.utils.Const.PARAMS_PASSWORD
 import id.gits.vouchsdk.utils.Const.PARAMS_USERNAME
+import id.gits.vouchsdk.utils.Injection
 import java.util.*
 
 
@@ -38,6 +40,8 @@ interface VouchSDK {
 
     fun replyMessage(body: MessageBodyModel, callback: ReplyMessageCallback)
 
+    fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback)
+
     fun getConfig(callback: GetConfigCallback)
 
     companion object Builder {
@@ -58,7 +62,7 @@ interface VouchSDK {
             return this@Builder
         }
 
-        fun isUsingEnteranceAnimation(isUsingAnimation: Boolean): Builder {
+        fun isUsingEntranceAnimation(isUsingAnimation: Boolean): Builder {
             this@Builder.isUsingAnimation = isUsingAnimation
             return this@Builder
         }

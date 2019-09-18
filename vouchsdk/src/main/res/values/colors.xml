@@ -10,7 +10,9 @@
 
 
     <color name="colorWhite">#FFF</color>
+    <color name="colorBlack">#000</color>
     <color name="colorBackgroundMaterial">#F2F2F2</color>
     <color name="colorTextPrimary">#202020</color>
+    <color name="colorTextDate">#313131</color>
     <color name="colorBackgroundChat">#E7E7E7</color>
 </resources>

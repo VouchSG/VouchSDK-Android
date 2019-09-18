@@ -3,6 +3,7 @@ package id.gits.vouchsdk.data.source.local
 import android.content.Context
 import com.google.gson.Gson
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
@@ -25,6 +26,14 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
 
     private val mPref = mContext.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE)
     private val mGson = Gson()
+
+    override fun clearData() {
+        mPref.edit().clear().apply()
+    }
+
+    override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun saveConfig(data: ConfigResponseModel?) {
         mPref.edit().putString(PREF_USER_CONFIG, mGson.toJson(data)).apply()

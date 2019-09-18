@@ -9,6 +9,10 @@
         <item name="colorAccent">@color/colorAccentChat</item>
     </style>
 
+    <style name="VouchDetailAppTheme" parent="VouchAppTheme">
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
     <style name="VouchButton" parent="Widget.AppCompat.Button">
         <!-- Customize your theme here. -->
         <item name="android:clickable">true</item>

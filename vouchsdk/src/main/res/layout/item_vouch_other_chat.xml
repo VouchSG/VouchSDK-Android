@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -40,26 +38,52 @@
             android:visibility="visible"
             android:orientation="vertical">
 
-        <com.devbrackets.android.exomedia.ui.widget.VideoView
-                android:id="@+id/videoView"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:visibility="gone"
-                app:useDefaultControls="true"/>
+        <FrameLayout
+                android:id="@+id/packVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-        <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/imageContent"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                app:riv_border_color="#C2C2C2"
-                app:riv_border_width="@dimen/dimens_1dp"
-                app:riv_corner_radius="@dimen/dimens_8dp"
-                android:visibility="gone"
-                tools:src="@drawable/ic_mic_white_24dp"/>
+            <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/imageVideo"
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="180dp"
+                    app:riv_corner_radius="@dimen/dimens_8dp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:background="@drawable/rounded_black"
+                    android:focusableInTouchMode="true"
+                    android:transitionName="videoTransition"/>
+
+            <ImageView
+                    android:id="@+id/playVideo"
+                    android:layout_width="@dimen/dimens_40dp"
+                    android:layout_height="@dimen/dimens_40dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_play_arrow_white_24dp"/>
+        </FrameLayout>
+
+        <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/dimens_8dp">
+
+            <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/imageContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="@dimen/dimens_240dp"
+                    android:maxHeight="@dimen/dimens_400dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
+                    app:riv_border_color="#C2C2C2"
+                    app:riv_border_width="@dimen/dimens_1dp"
+                    app:riv_corner_radius="@dimen/dimens_8dp"
+                    android:visibility="gone"
+                    tools:src="@drawable/ic_mic_white_24dp"/>
+
+        </android.support.v7.widget.CardView>
 
     </LinearLayout>
 
@@ -83,6 +107,53 @@
 
     </android.support.v7.widget.CardView>
 
+    <android.support.v7.widget.CardView
+            android:id="@+id/cardAudio"
+            android:layout_width="@dimen/dimens_240dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/dimens_4dp"
+            android:layout_marginEnd="@dimen/dimens_8dp"
+            android:visibility="gone">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dimens_8dp"
+                android:orientation="horizontal">
+
+            <id.gits.vouchsdk.utils.widget.SquareRoundedImageView
+                    android:id="@+id/playAudio"
+                    android:layout_width="@dimen/dimens_32dp"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dimens_4dp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:src="@drawable/ic_play_arrow_black_24dp"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/dimens_8dp"
+                    android:layout_marginEnd="@dimen/dimens_8dp"
+                    android:textColor="@color/colorTextPrimary"
+                    android:text="0:00"/>
+
+            <SeekBar
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progressTint="@color/colorPrimaryDarkChat"
+                    android:thumbTint="@color/colorPrimaryDarkChat"
+                    tools:progress="50"
+                    android:max="100"
+                    android:layout_gravity="center_vertical"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
 
     <TextView
             android:id="@+id/dateTime"
@@ -92,6 +163,7 @@
             android:layout_marginStart="@dimen/dimens_4dp"
             android:layout_marginEnd="@dimen/dimens_4dp"
             android:textSize="@dimen/size_10sp"
+            android:textColor="@color/colorTextDate"
             tools:text="19 Aug, 19:00"/>
 
 

@@ -1,6 +1,7 @@
 package id.gits.vouchsdk.data.source.remote
 
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
+import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
@@ -17,6 +18,27 @@ import io.reactivex.schedulers.Schedulers
  */
 
 object VouchRemoteDataSource : VouchDataSource {
+
+    override fun clearData() {
+
+    }
+
+    override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+        val dis = mApiService.sendLocation(token = token, data = body)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (it.code == 200 && it.data != null) {
+                    onSuccess(it.data)
+                } else {
+                    onError(it.message ?: "")
+                }
+            }, {
+                onError(it.message ?: "")
+            }, {
+                onFinish()
+            })
+    }
 
     private val mApiService = VouchApiService.getApiService()
 

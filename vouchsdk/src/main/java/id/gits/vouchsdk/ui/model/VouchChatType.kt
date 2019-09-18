@@ -9,7 +9,10 @@ enum class VouchChatType {
     TYPE_TEXT,
     TYPE_IMAGE,
     TYPE_VIDEO,
+    TYPE_AUDIO,
+    TYPE_LIST,
     TYPE_QUICK_REPLY,
+    TYPE_GALLERY,
     TYPE_BUTTON,
 
 }
