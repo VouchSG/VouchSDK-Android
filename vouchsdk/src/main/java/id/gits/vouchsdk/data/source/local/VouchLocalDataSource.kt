@@ -32,7 +32,7 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
     }
 
     override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun saveConfig(data: ConfigResponseModel?) {
