@@ -3,7 +3,6 @@ package id.gits.vouchsdk.ui
 
 import android.Manifest
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -26,19 +25,17 @@ import android.widget.ImageView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import id.gits.vouchsdk.R
+import id.gits.vouchsdk.VouchSDK
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.ui.VouchChatEnum.*
 import id.gits.vouchsdk.ui.adapter.VouchChatAdapter
 import id.gits.vouchsdk.ui.model.VouchChatModel
-import id.gits.vouchsdk.utils.*
 import id.gits.vouchsdk.ui.model.VouchChatType.TYPE_LIST
+import id.gits.vouchsdk.utils.*
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_PHONE
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_POSTBACK
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_WEB
 import id.gits.vouchsdk.utils.Const.PAGE_SIZE
-import id.gits.vouchsdk.VouchSDK
-import id.gits.vouchsdk.utils.Const.PARAMS_PASSWORD
-import id.gits.vouchsdk.utils.Const.PARAMS_USERNAME
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
 
 
