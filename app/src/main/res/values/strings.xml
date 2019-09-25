@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">VouchSDK Sample</string>
     <string name="open_chat">Open Chat</string>
+    <string name="text_vouch_chat_example">VOUCH CHAT EXAMPLE</string>
 </resources>
