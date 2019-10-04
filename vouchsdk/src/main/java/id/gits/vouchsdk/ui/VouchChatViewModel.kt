@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.location.Location
+import android.net.Uri
 import android.os.Handler
 import com.google.android.gms.tasks.OnSuccessListener
 import id.gits.vouchsdk.VouchSDK
@@ -13,17 +14,21 @@ import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.response.ButtonModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import id.gits.vouchsdk.ui.model.VouchChatModel
 import id.gits.vouchsdk.ui.model.VouchChatType
 import id.gits.vouchsdk.utils.Const.PAGE_SIZE
 import id.gits.vouchsdk.utils.safe
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-28
  */
 class VouchChatViewModel(application: Application) : AndroidViewModel(application), VouchCallback, OnSuccessListener<Location> {
-
 
     lateinit var mVouchSDK: VouchSDK
 
@@ -32,7 +37,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     val bDataChat: MutableList<VouchChatModel> = mutableListOf()
     val isRequesting = MutableLiveData<Boolean>()
 
-    var isPaginating:Boolean = false
+    var isPaginating: Boolean = false
     var isLastPage: Boolean = false
 
     val changeConnectStatus = MutableLiveData<Boolean>()
@@ -44,9 +49,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     val eventUpdateList = MutableLiveData<VouchChatUpdateEvent>()
 
-
     private var currentPage = 1
-
 
     fun start() {
         mVouchSDK.init(this@VouchChatViewModel)
@@ -130,7 +133,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             if (!message.quickReplies.isNullOrEmpty()) {
                 insertDataQuickReply(message)
             }
-        }, 800)
+        }, 1000)
     }
 
     override fun onDisconnected(isActionFromUser: Boolean) {
@@ -150,10 +153,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     override fun onSuccess(location: Location?) {
-        currentLocation =  Pair(location?.latitude?:0.0, location?.longitude?:0.0)
+        currentLocation =  Pair(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
         sendLocation()
     }
-
 
     /**
      * General function for add
@@ -177,7 +179,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             insertDataButton(message.buttons ?: emptyList(), appendInLast)
         }
     }
-
 
     /**
      * Insert Pending message
@@ -333,7 +334,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }, 800)
     }
 
-
     fun sendReplyMessage(body: MessageBodyModel) {
         if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
             removeDataChat(0)
@@ -354,5 +354,16 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun sendImageMessage(body: MultipartBody.Part) {
 
+        mVouchSDK.sendImage(body, object : ImageMessageCallback {
+            override fun onSuccess(data: UploadImageResponseModel) {
+                println(data)
+            }
+
+            override fun onError(message: String) {
+                println(message)
+            }
+        })
+    }
 }

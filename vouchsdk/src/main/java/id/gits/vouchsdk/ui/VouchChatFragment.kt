@@ -3,17 +3,24 @@ package id.gits.vouchsdk.ui
 
 import android.Manifest
 import android.arch.lifecycle.Observer
+import android.content.ComponentName
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.FileProvider
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
@@ -37,6 +44,13 @@ import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_POSTBACK
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_WEB
 import id.gits.vouchsdk.utils.Const.PAGE_SIZE
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 
 /**
@@ -45,12 +59,10 @@ import kotlinx.android.synthetic.main.fragment_vouch_chat.*
  */
 class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener, MediaPlayer.OnPreparedListener {
 
-
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
     private var mMediaPlayer: MediaPlayer? = null
     private var mLocationService: FusedLocationProviderClient? = null
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = createViewModel()
@@ -58,11 +70,9 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         return inflater.inflate(R.layout.fragment_vouch_chat, container, false)
     }
 
-
     private fun createViewModel(): VouchChatViewModel {
         return VouchChatViewModel(requireActivity().application).apply { mVouchSDK = VouchSDK.createSDK(requireActivity().application) }
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -71,6 +81,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.start()
 
         buttonGreeting.setOnClickListener(this@VouchChatFragment)
+        attachmentButton.setOnClickListener(this@VouchChatFragment)
         sendButton.setOnClickListener(this@VouchChatFragment)
     }
 
@@ -89,7 +100,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 val visibleItemCount = mLayoutManager.childCount
                 val totalItemCount = mLayoutManager.itemCount
                 val firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition()
-
 
                 if ((visibleItemCount + firstVisibleItemPosition >= totalItemCount
                             && firstVisibleItemPosition >= 0
@@ -199,7 +209,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     override fun onClickQuickReply(data: MessageBodyModel) {
         if (data.msgType == "location") {
-            checkMapsPermissions(this@VouchChatFragment)
+            checkMapsPermissions()
         } else {
             mViewModel.sendReplyMessage(data)
         }
@@ -237,11 +247,13 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 mViewModel.sendReplyMessage(MessageBodyModel(msgType = "text", text = fieldContent.text.trim().toString(), type = "text"))
                 fieldContent.setText("")
             }
+            R.id.attachmentButton -> {
+                CameraGalleryHelper.openImagePickerOption(requireActivity())
+            }
             else -> {
             }
         }
     }
-
 
     override fun onClickChatButton(type: String, data: VouchChatModel) {
         when (type) {
@@ -273,7 +285,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, imageView)
     }
 
-
     override fun afterTextChanged(s: Editable?) = Unit
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -289,21 +300,65 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             } else {
                 imageSend.setImageResource(R.drawable.ic_mic_white_24dp)
             }
-
-
         }
 
         imageSend.setColorFilter(mViewModel.loadConfiguration.value?.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 5115) {
+            grantResults.forEach {
+                if (it != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+            }
+        }
+    }
 
-    private fun checkMapsPermissions(fragment: Fragment): Boolean {
+    fun sendImageChat(imageUri: Uri) {
+        var path = ""
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cr = requireContext().contentResolver
+        val metaCursor = cr.query(imageUri, projection, null, null, null)
+        if (metaCursor != null) {
+            try {
+                if (metaCursor.moveToFirst()) {
+                    val index = metaCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    println(index)
+                    println(metaCursor.getString(index))
+                }
+            } catch (ex: Exception) {
+                path = imageUri.path
+                ex.printStackTrace()
+            } finally {
+                metaCursor.close()
+            }
+        }
+        println(path)
+
+        val bitmap = MediaStore.Images.Media.getBitmap(context?.contentResolver, imageUri)
+        ivPreview.setImageBitmap(bitmap)
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val image = stream.toByteArray()
+        val imageStream = requireContext().contentResolver.openInputStream(imageUri)
+        val requestFile = InputStreamRequestBody(
+            requireContext().contentResolver, imageUri)
+        val mimeType = context?.contentResolver?.getType(imageUri)
+        println(mimeType)
+        val requestBody = image.toRequestBody(contentType = MultipartBody.FORM)
+        val requestPart = MultipartBody.Part.createFormData("file", "", requestBody)
+        mViewModel.sendImageMessage(requestPart)
+    }
+
+    private fun checkMapsPermissions(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val fineLocationPermissionState = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
             val coarseLocationPermissionState = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-            val externalStoragePermissionGranted = fineLocationPermissionState == PackageManager.PERMISSION_GRANTED
+            val mapsPermissionGranted = fineLocationPermissionState == PackageManager.PERMISSION_GRANTED
                     && coarseLocationPermissionState == PackageManager.PERMISSION_GRANTED
-            if (!externalStoragePermissionGranted) {
+            if (!mapsPermissionGranted) {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 5115)
                 return false
             } else {
@@ -316,17 +371,5 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             return true
         }
         return true
-
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 5115) {
-            grantResults.forEach {
-                if (it != PackageManager.PERMISSION_GRANTED) {
-                    return
-                }
-            }
-        }
     }
 }

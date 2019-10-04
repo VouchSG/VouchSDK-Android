@@ -2,13 +2,12 @@ package id.gits.vouchsdk.callback
 
 import id.gits.vouchsdk.data.model.config.response.ConfigResponseModel
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
-
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 
 /**
  * @author Radhika Yusuf Alifiansyah
  * Bandung, 26 Aug 2019
  */
-
 
 interface ReferenceSendCallback {
     fun onSuccess()
@@ -37,5 +36,10 @@ interface ReplyMessageCallback {
 
 interface LocationMessageCallback {
     fun onSuccess()
+    fun onError(message: String)
+}
+
+interface ImageMessageCallback {
+    fun onSuccess(data: UploadImageResponseModel)
     fun onError(message: String)
 }

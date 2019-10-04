@@ -7,7 +7,9 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import io.reactivex.disposables.Disposable
+import okhttp3.MultipartBody
 
 
 /**
@@ -67,6 +69,14 @@ interface VouchDataSource {
         page: Int,
         pageSize: Int,
         onSuccess: (data: List<MessageResponseModel>) -> Unit = {},
+        onError: (message: String) -> Unit = {},
+        onFinish: () -> Unit = {}
+    )
+
+    fun sendImage(
+        token: String = "",
+        body: MultipartBody.Part,
+        onSuccess: (data: UploadImageResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
         onFinish: () -> Unit = {}
     )

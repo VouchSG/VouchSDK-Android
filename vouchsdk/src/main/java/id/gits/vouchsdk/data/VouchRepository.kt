@@ -7,8 +7,10 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
 import io.reactivex.disposables.Disposable
+import okhttp3.MultipartBody
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -56,6 +58,16 @@ class VouchRepository(
         }, onError, onFinish)
     }
 
+    override fun sendImage(
+        token: String,
+        body: MultipartBody.Part,
+        onSuccess: (data: UploadImageResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        remoteDataSource.sendImage(getApiToken(), body, onSuccess, onError, onFinish)
+    }
+
     override fun referenceSend(token: String, body: ReferenceSendBodyModel, onSuccess: (data: String) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
         remoteDataSource.referenceSend(getApiToken(), body, onSuccess, onError, onFinish)
     }
@@ -76,10 +88,7 @@ class VouchRepository(
         return localDataSource.getApiToken()
     }
 
-
     override fun revokeCredential() {
         localDataSource.revokeCredential()
     }
-
-
 }

@@ -20,7 +20,7 @@ object Helper {
             val app =
                 context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
             val bundle = app.metaData
-            return bundle.getString("sg.vouch.chat", "kosong") ?: "kosong"
+            return bundle.getString("sg.vouch.chat", "empty") ?: "empty"
 
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e("Error", e.message ?: e.localizedMessage)

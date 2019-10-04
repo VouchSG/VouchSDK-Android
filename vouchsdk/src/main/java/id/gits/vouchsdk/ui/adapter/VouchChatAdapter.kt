@@ -29,12 +29,14 @@ import android.widget.ImageView
 import id.gits.vouchsdk.utils.*
 import java.io.IOException
 
-
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-09-03
  */
-class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val mListener: VouchChatClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class VouchChatAdapter(
+    private val mViewModel: VouchChatViewModel,
+    private val mListener: VouchChatClickListener
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var mData: List<VouchChatModel> = mViewModel.bDataChat
     private var viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
@@ -56,51 +58,63 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
     }
 
     override fun getItemCount(): Int {
-        return mData.size + (if(!mViewModel.isLastPage && mData.isNotEmpty()) 1 else 0)
+        return mData.size + (if (!mViewModel.isLastPage && mData.isNotEmpty()) 1 else 0)
     }
 
     override fun getItemViewType(position: Int): Int {
         return if (position == mData.size && !mViewModel.isLastPage) {
-            return R.layout.item_vouch_loading
+            R.layout.item_vouch_loading
         } else {
             when (mData[position].type) {
-                TYPE_BUTTON -> {
-                    return R.layout.item_vouch_button
-                }
-                TYPE_QUICK_REPLY -> {
-                    return R.layout.item_vouch_quick_reply
-                }
-                TYPE_GALLERY -> {
-                    return R.layout.item_vouch_gallery
-                }
-                TYPE_LIST -> {
-                    return R.layout.item_vouch_list
-                }
-                else -> {
-                    if (mData[position].isMyChat) R.layout.item_vouch_my_chat else R.layout.item_vouch_other_chat
-                }
+                TYPE_BUTTON -> R.layout.item_vouch_button
+                TYPE_QUICK_REPLY -> R.layout.item_vouch_quick_reply
+                TYPE_GALLERY -> R.layout.item_vouch_gallery
+                TYPE_LIST -> R.layout.item_vouch_list
+                else -> if (mData[position].isMyChat) R.layout.item_vouch_my_chat else R.layout.item_vouch_other_chat
             }
         }
     }
 
     class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
 
-        fun bind(data: VouchChatModel, viewModel: VouchChatViewModel, mListener: VouchChatClickListener, viewPool: RecyclerView.RecycledViewPool, mChildViewPool: RecyclerView.RecycledViewPool) {
+        fun bind(
+            data: VouchChatModel,
+            viewModel: VouchChatViewModel,
+            mListener: VouchChatClickListener,
+            viewPool: RecyclerView.RecycledViewPool,
+            mChildViewPool: RecyclerView.RecycledViewPool
+        ) {
             mView.apply {
-                when {
-                    data.type == TYPE_QUICK_REPLY -> {
-                        recyclerQuickReply.layoutManager = FlexboxLayoutManager(mView.context).apply { flexDirection = FlexDirection.ROW; justifyContent = JustifyContent.CENTER; }
-                        recyclerQuickReply.adapter = VouchQuickReplyAdapter(viewModel, mListener).apply { mData.addAll(data.quickReplies); notifyDataSetChanged() }
+                when (data.type) {
+                    TYPE_QUICK_REPLY -> {
+                        recyclerQuickReply.layoutManager =
+                            FlexboxLayoutManager(mView.context).apply {
+                                flexDirection = FlexDirection.ROW
+                                justifyContent = JustifyContent.CENTER
+                            }
+                        recyclerQuickReply.adapter = VouchQuickReplyAdapter(
+                            viewModel,
+                            mListener
+                        ).apply { mData.addAll(data.quickReplies); notifyDataSetChanged() }
                     }
-                    data.type == TYPE_BUTTON -> {
+                    TYPE_BUTTON -> {
                         vouchButtonItem.text = data.title
                         vouchButtonItem.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         vouchButtonItem.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
-                        borderButton.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                        buttonItem.setOnClickListener { mListener.onClickChatButton(data.typeValue, data) }
+                        borderButton.setColorFilter(
+                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(),
+                            PorterDuff.Mode.SRC_IN
+                        )
+                        buttonItem.setOnClickListener {
+                            mListener.onClickChatButton(
+                                data.typeValue,
+                                data
+                            )
+                        }
 
                         if (data.isLastListContent) {
-                            buttonDateTime.text = data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
+                            buttonDateTime.text =
+                                data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
                         } else {
@@ -109,19 +123,33 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
 
 
                     }
-                    data.type == TYPE_GALLERY -> {
-                        recyclerGallery.layoutManager = LinearLayoutManager(mView.context, LinearLayoutManager.HORIZONTAL, false)
-                        recyclerGallery.adapter = VouchGalleryAdapter(viewModel, mListener, mChildViewPool).apply { mData.addAll(data.galleryElements); notifyDataSetChanged() }
+                    TYPE_GALLERY -> {
+                        recyclerGallery.layoutManager = LinearLayoutManager(
+                            mView.context,
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+                        recyclerGallery.adapter = VouchGalleryAdapter(
+                            viewModel,
+                            mListener,
+                            mChildViewPool
+                        ).apply { mData.addAll(data.galleryElements); notifyDataSetChanged() }
                         recyclerGallery.setRecycledViewPool(viewPool)
                     }
-                    data.type == TYPE_LIST -> {
-                        separatorView.visibility = if(data.isLastListContent) View.GONE else View.VISIBLE
+                    TYPE_LIST -> {
+                        separatorView.visibility =
+                            if (data.isLastListContent) View.GONE else View.VISIBLE
                         titleList.text = data.title
                         titleList.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
                         vouchButtonList.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
-                        borderButtonList.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                        buttonList.setOnClickListener { mListener.onClickChatButton(data.typeValue, data) }
+                        borderButtonList.setColorFilter(
+                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(),
+                            PorterDuff.Mode.SRC_IN
+                        )
+                        buttonList.setOnClickListener {
+                            mListener.onClickChatButton(data.typeValue, data)
+                        }
 
                         if (data.isFirstListContent) {
                             (parentListContent.layoutParams as RecyclerView.LayoutParams).topMargin = 32
@@ -137,15 +165,16 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                             roundedBottom.visibility = View.GONE
                         }
 
-                        if(!data.isHaveOutsideButton && data.isLastListContent){
-                            listDateTime.text = data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
+                        if (!data.isHaveOutsideButton && data.isLastListContent) {
+                            listDateTime.text =
+                                data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
                             listDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             listDateTime.visibility = View.VISIBLE
                         } else {
                             listDateTime.visibility = View.GONE
                         }
 
-                        if(data.subTitle.isEmpty()){
+                        if (data.subTitle.isEmpty()) {
                             subTitleList.visibility = View.GONE
                         } else {
                             subTitleList.text = data.subTitle
@@ -153,7 +182,7 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                             subTitleList.visibility = View.VISIBLE
                         }
 
-                        if(data.buttonTitle.isEmpty()){
+                        if (data.buttonTitle.isEmpty()) {
                             buttonList.visibility = View.GONE
                         } else {
                             vouchButtonList.text = data.buttonTitle
@@ -161,7 +190,7 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                             buttonList.visibility = View.VISIBLE
                         }
 
-                        if(data.mediaUrl.isEmpty()){
+                        if (data.mediaUrl.isEmpty()) {
                             imageList.visibility = View.GONE
                         } else {
                             imageList.setImageUrl(data.mediaUrl)
@@ -169,20 +198,22 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                         }
                     }
                     else -> if (data.isMyChat) {
-
                         myCardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor())
                         myChatContent.setTextColor(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor())
-                        pendingTime.setColorFilter(viewModel.loadConfiguration.value?.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                        pendingTime.setColorFilter(
+                            viewModel.loadConfiguration.value?.sendIconColor.parseColor(),
+                            PorterDuff.Mode.SRC_IN
+                        )
 
                         myChatContent.text = data.title
                         myDateTime.text = data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
                         myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
-                        pendingTime.visibility = if(data.isPendingMessage) View.VISIBLE else View.GONE
-                        myDateTime.visibility = if(!data.isPendingMessage) View.VISIBLE else View.GONE
-
-
+                        pendingTime.visibility =
+                            if (data.isPendingMessage) View.VISIBLE else View.GONE
+                        myDateTime.visibility =
+                            if (!data.isPendingMessage) View.VISIBLE else View.GONE
                     } else {
                         cardBubble.visibility = View.GONE
                         imageContent.visibility = View.GONE
@@ -199,14 +230,25 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                                 packVideo.visibility = View.VISIBLE
                                 imageVideo.visibility = View.VISIBLE
                                 imageVideo.setImageUrl(data.mediaUrl)
-                                imageVideo.setOnClickListener { mListener.onClickPlayVideo(data, it as ImageView) }
-                                playVideo.setOnClickListener { mListener.onClickPlayVideo(data, it as ImageView) }
+                                imageVideo.setOnClickListener {
+                                    mListener.onClickPlayVideo(
+                                        data,
+                                        it as ImageView
+                                    )
+                                }
+                                playVideo.setOnClickListener {
+                                    mListener.onClickPlayVideo(data, it as ImageView)
+                                }
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
                                 val mediaPlayer = MediaPlayer()
                                 try {
-                                    mediaPlayer.setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                                    mediaPlayer.setAudioAttributes(
+                                        AudioAttributes.Builder()
+                                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                            .build()
+                                    )
                                     mediaPlayer.setDataSource(data.mediaUrl)
                                     playAudio.setOnClickListener {
                                         if (mediaPlayer.isPlaying) {
@@ -215,7 +257,8 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                                             mListener.onClickPlayAudio(mediaPlayer)
                                         }
                                     }
-                                } catch (e: IOException) {}
+                                } catch (e: IOException) {
+                                }
                             }
                             else -> {
                                 cardBubble.visibility = View.VISIBLE
@@ -231,11 +274,9 @@ class VouchChatAdapter(private val mViewModel: VouchChatViewModel, private val m
                         chatContent.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())
                     }
                 }
-
             }
         }
     }
 
     class VouchChatLoading(private val mView: View) : RecyclerView.ViewHolder(mView)
-
 }

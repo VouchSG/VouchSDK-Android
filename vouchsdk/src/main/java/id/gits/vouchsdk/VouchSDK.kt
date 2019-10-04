@@ -12,14 +12,13 @@ import id.gits.vouchsdk.ui.VouchChatFragment
 import id.gits.vouchsdk.utils.Const.PARAMS_PASSWORD
 import id.gits.vouchsdk.utils.Const.PARAMS_USERNAME
 import id.gits.vouchsdk.utils.Injection
+import okhttp3.MultipartBody
 import java.util.*
-
 
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-27
  */
-
 
 /* VouchSDK, this class is first layer of vouchSDK for programmer */
 interface VouchSDK {
@@ -41,6 +40,8 @@ interface VouchSDK {
     fun replyMessage(body: MessageBodyModel, callback: ReplyMessageCallback)
 
     fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback)
+
+    fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback)
 
     fun getConfig(callback: GetConfigCallback)
 

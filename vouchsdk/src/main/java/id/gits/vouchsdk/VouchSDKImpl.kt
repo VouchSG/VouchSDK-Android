@@ -11,6 +11,7 @@ import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.utils.Const.CONNECTIVITY_CHANGE
 import id.gits.vouchsdk.utils.Helper
+import okhttp3.MultipartBody
 
 /**
  * @Author by Radhika Yusuf
@@ -114,7 +115,16 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      * @param callback
      */
     override fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback) {
-        mVouchData.sendLocation(body, callback = callback)
+        mVouchData.sendLocation(body, callback)
+    }
+
+    /**
+     * Send Current user location
+     * @param body
+     * @param callback
+     */
+    override fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback) {
+        mVouchData.sendImage(body, callback)
     }
 
 

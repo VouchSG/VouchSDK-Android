@@ -5,8 +5,10 @@ import id.gits.vouchsdk.callback.*
 import id.gits.vouchsdk.data.model.message.body.LocationBodyModel
 import id.gits.vouchsdk.data.model.message.body.MessageBodyModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.utils.*
+import okhttp3.MultipartBody
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -89,5 +91,13 @@ class VouchData internal constructor(context: Context) {
         })
     }
 
+    fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback) {
+        mRepository.sendImage(body = body, onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
 
+        })
+    }
 }

@@ -9,7 +9,9 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import io.reactivex.Observable
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -54,7 +56,6 @@ internal interface VouchApiService {
         @Body data: ReferenceSendBodyModel
     ): Observable<BaseApiModel<String?>>
 
-
     @POST("location")
     @Headers("Content-Type: application/json")
      fun sendLocation(
@@ -69,6 +70,12 @@ internal interface VouchApiService {
         @Body data: RegisterBodyModel
     ): Observable<BaseApiModel<RegisterResponseModel?>>
 
+    @Multipart
+    @POST("upload")
+    fun sendImage(
+        @Header("token") token: String,
+        @Part body: MultipartBody.Part
+    ): Observable<BaseApiModel<UploadImageResponseModel>>
 
     companion object Factory {
 

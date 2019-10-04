@@ -19,7 +19,11 @@ import kotlinx.android.synthetic.main.item_gallery_element.view.*
  * @Author by Radhika Yusuf
  * Bandung, on 2019-09-10
  */
-class VouchGalleryAdapter(val mViewModel: VouchChatViewModel, private val mListener: VouchChatClickListener, private val mViewPool: RecyclerView.RecycledViewPool) : RecyclerView.Adapter<VouchGalleryAdapter.VouchGalleryItem>() {
+class VouchGalleryAdapter(
+    val mViewModel: VouchChatViewModel,
+    private val mListener: VouchChatClickListener,
+    private val mViewPool: RecyclerView.RecycledViewPool
+) : RecyclerView.Adapter<VouchGalleryAdapter.VouchGalleryItem>() {
 
     val mData: MutableList<GalleryElementModel> = mutableListOf()
 
@@ -28,14 +32,15 @@ class VouchGalleryAdapter(val mViewModel: VouchChatViewModel, private val mListe
     override fun onBindViewHolder(holder: VouchGalleryItem, position: Int) {
         holder.bind(mData[position], mViewModel, mListener, mViewPool)
 
-        holder.itemView.cardGallery.measure(0,0)
-        highestItem = if(highestItem > holder.itemView.cardGallery.measuredHeight) highestItem else holder.itemView.cardGallery.measuredHeight
+        holder.itemView.cardGallery.measure(0, 0)
+        highestItem = if (highestItem > holder.itemView.cardGallery.measuredHeight) highestItem
+        else holder.itemView.cardGallery.measuredHeight
         holder.itemView.cardGallery.layoutParams?.height = highestItem
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VouchGalleryItem {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_gallery_element, null, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_gallery_element, null, false)
         return VouchGalleryItem(view)
     }
 
@@ -43,10 +48,14 @@ class VouchGalleryAdapter(val mViewModel: VouchChatViewModel, private val mListe
         return mData.size
     }
 
-
     class VouchGalleryItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
 
-        fun bind(data: GalleryElementModel, viewModel: VouchChatViewModel, listener: VouchChatClickListener, mViewPool: RecyclerView.RecycledViewPool) {
+        fun bind(
+            data: GalleryElementModel,
+            viewModel: VouchChatViewModel,
+            listener: VouchChatClickListener,
+            mViewPool: RecyclerView.RecycledViewPool
+        ) {
             mView.imageGallery.setImageUrl(data.imageUrl.safe())
             mView.titleGallery.text = data.title
             mView.descGallery.text = data.subtitle
@@ -55,7 +64,12 @@ class VouchGalleryAdapter(val mViewModel: VouchChatViewModel, private val mListe
             mView.descGallery.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
             mView.recyclerGalleryButton.layoutManager = LinearLayoutManager(mView.context)
-            mView.recyclerGalleryButton.adapter = VouchGalleryButtonAdapter(viewModel, listener).apply { mData.addAll(data.buttons?: emptyList()) }
+            mView.recyclerGalleryButton.adapter =
+                VouchGalleryButtonAdapter(viewModel, listener).apply {
+                    mData.addAll(
+                        data.buttons ?: emptyList()
+                    )
+                }
         }
 
     }

@@ -7,10 +7,12 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.MultipartBody
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -41,7 +43,6 @@ object VouchRemoteDataSource : VouchDataSource {
     }
 
     private val mApiService = VouchApiService.getApiService()
-
 
     private var configDisposable: Disposable? = null
     private var chatDisposable: Disposable? = null
@@ -148,6 +149,29 @@ object VouchRemoteDataSource : VouchDataSource {
         onFinish: () -> Unit
     ) {
         val disposable = mApiService.referenceSend(token = token, data = body.copy(referrence = "welcome"))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (it.code == 200 && it.data != null) {
+                    onSuccess(it.data)
+                } else {
+                    onError(it.message ?: "")
+                }
+            }, {
+                onError(it.message ?: "")
+            }, {
+                onFinish()
+            })
+    }
+
+    override fun sendImage(
+        token: String,
+        body: MultipartBody.Part,
+        onSuccess: (data: UploadImageResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        val disposable = mApiService.sendImage(token, body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

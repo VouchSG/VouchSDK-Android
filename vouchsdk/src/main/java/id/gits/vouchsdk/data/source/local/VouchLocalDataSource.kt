@@ -9,12 +9,14 @@ import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.message.body.ReferenceSendBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
 import id.gits.vouchsdk.data.model.register.RegisterResponseModel
+import id.gits.vouchsdk.data.model.message.response.UploadImageResponseModel
 import id.gits.vouchsdk.data.source.VouchDataSource
 import id.gits.vouchsdk.utils.Const.PREF_API_KEY
 import id.gits.vouchsdk.utils.Const.PREF_KEY
 import id.gits.vouchsdk.utils.Const.PREF_SOCKET_TICKET
 import id.gits.vouchsdk.utils.Const.PREF_USER_CONFIG
 import io.reactivex.disposables.Disposable
+import okhttp3.MultipartBody
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -114,8 +116,17 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
         throwRemoteException()
     }
 
+    override fun sendImage(
+        token: String,
+        body: MultipartBody.Part,
+        onSuccess: (data: UploadImageResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        throwRemoteException()
+    }
+
     private fun throwRemoteException() {
         throw Exception("This function only available on RemoteDataSource")
     }
-
 }
