@@ -19,6 +19,7 @@ import id.gits.vouchsdk.ui.model.VouchChatModel
 import id.gits.vouchsdk.ui.model.VouchChatType
 import id.gits.vouchsdk.utils.Const.PAGE_SIZE
 import id.gits.vouchsdk.utils.safe
+import kotlinx.android.synthetic.main.fragment_vouch_chat.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -189,10 +190,23 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
+     * Insert Pending image
+     */
+    private fun insertPendingImage(imageUrl: String) {
+        bDataChat.add(0, VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = imageUrl, isPendingMessage = true))
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+    }
+
+    /**
      * Update sender message
      */
     private fun updateUserMessage(position: Int, data: MessageResponseModel) {
-        bDataChat[position] = VouchChatModel(data.text.safe(), "", true, VouchChatType.TYPE_TEXT, data.createdAt.safe(), mediaUrl = data.mediaUrl ?: "")
+        val chat = when (data.msgType) {
+            "text" -> VouchChatModel(data.text.safe(), "", true, VouchChatType.TYPE_TEXT, data.createdAt.safe(), mediaUrl = data.mediaUrl ?: "")
+            "image" -> VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, data.createdAt.safe(), mediaUrl = data.text.safe())
+            else -> VouchChatModel(data.text.safe(), "", true, VouchChatType.TYPE_TEXT, data.createdAt.safe(), mediaUrl = data.mediaUrl ?: "")
+        }
+        bDataChat[position] = chat
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
     }
 
@@ -218,7 +232,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             VouchChatModel(it.text.safe(), "", it.senderId != null, type, it.createdAt.safe(), mediaUrl = it.mediaUrl ?: "")
         }
 
-        if(appendInLast){
+        if (appendInLast){
             bDataChat.addAll(content)
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size)
         } else {
@@ -259,7 +273,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Add new chat gallery into list
      */
     private fun insertDataGallery(data: MessageResponseModel, appendInLast: Boolean = false) {
-        if(appendInLast){
+        if (appendInLast){
             bDataChat.add(VouchChatModel(isMyChat = false, type = VouchChatType.TYPE_GALLERY, createdAt = data.createdAt.safe(), galleryElements = data.elements ?: emptyList()))
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
         } else {
@@ -339,18 +353,36 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             removeDataChat(0)
         }
 
-        if (body.msgType == "text") {
-            insertPendingMessage(body.text.safe())
+        when (body.msgType) {
+            "text" -> {
+                insertPendingMessage(body.text.safe())
 
-            mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
-                override fun onSuccess(data: MessageResponseModel) = Unit
+                mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
+                    override fun onSuccess(data: MessageResponseModel) {
+                        println("type text => $data")
+//                        updateUserMessage(0, data)
+                    }
 
-                override fun onError(message: String) {
-                    eventShowMessage.value = message
-                }
+                    override fun onError(message: String) {
+                        eventShowMessage.value = message
+                    }
+                })
+            }
 
-            })
+            "image" -> {
+                insertPendingImage(body.text.safe())
 
+                mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
+                    override fun onSuccess(data: MessageResponseModel) {
+                        println("type image => $data")
+                        updateUserMessage(0, data)
+                    }
+
+                    override fun onError(message: String) {
+                        eventShowMessage.value = message
+                    }
+                })
+            }
         }
     }
 
@@ -358,11 +390,17 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onSuccess(data: UploadImageResponseModel) {
-                println(data)
+                val message = MessageBodyModel(
+                    msgType = "image",
+                    text = data.url,
+                    type = "text"
+                )
+
+                sendReplyMessage(message)
             }
 
             override fun onError(message: String) {
-                println(message)
+                eventShowMessage.value = message
             }
         })
     }

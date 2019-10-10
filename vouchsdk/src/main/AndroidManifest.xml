@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="id.gits.vouchsdk">
+    package="id.gits.vouchsdk">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <application>
+    <application
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true">
         <activity
-                android:name="id.gits.vouchsdk.ui.VouchChatActivity"
-                android:screenOrientation="user"
-                android:theme="@style/VouchAppTheme"/>
+            android:name="id.gits.vouchsdk.ui.VouchChatActivity"
+            android:screenOrientation="user"
+            android:theme="@style/VouchAppTheme"
+            android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name=".ui.VouchChatVideoPlayerActivity"
-                  android:screenOrientation="user"
-                  android:theme="@style/VouchDetailAppTheme"/>
+        <activity
+            android:name=".ui.VouchChatVideoPlayerActivity"
+            android:screenOrientation="user"
+            android:theme="@style/VouchDetailAppTheme" />
     </application>
 
 </manifest>

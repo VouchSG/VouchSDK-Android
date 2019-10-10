@@ -29,31 +29,22 @@
             tools:visibility="visible" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_gravity="center"
-            android:background="@color/colorWhite"
-            android:scaleType="centerCrop"
-            app:riv_border_color="#C2C2C2"
-            app:riv_border_width="@dimen/dimens_1dp"
-            app:riv_corner_radius="@dimen/dimens_8dp"
-            tools:src="@drawable/ic_mic_white_24dp" />
-    </LinearLayout>
-
     <android.support.v7.widget.CardView
         android:id="@+id/myCardBubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dimens_8dp"
         app:cardCornerRadius="@dimen/dimens_4dp">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/myChatImage"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:background="@color/colorWhite"
+            android:scaleType="centerCrop"
+            app:riv_border_color="#C2C2C2"
+            tools:src="@drawable/ic_mic_white_24dp" />
 
         <TextView
             android:id="@+id/myChatContent"

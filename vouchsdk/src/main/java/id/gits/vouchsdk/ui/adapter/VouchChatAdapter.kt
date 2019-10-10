@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_quick_reply.view.*
 import android.media.MediaPlayer
 import android.widget.ImageView
+import com.bumptech.glide.Glide
 import id.gits.vouchsdk.utils.*
 import java.io.IOException
 
@@ -114,14 +115,12 @@ class VouchChatAdapter(
 
                         if (data.isLastListContent) {
                             buttonDateTime.text =
-                                data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
+                                data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
                         } else {
                             buttonDateTime.visibility = View.GONE
                         }
-
-
                     }
                     TYPE_GALLERY -> {
                         recyclerGallery.layoutManager = LinearLayoutManager(
@@ -167,7 +166,7 @@ class VouchChatAdapter(
 
                         if (!data.isHaveOutsideButton && data.isLastListContent) {
                             listDateTime.text =
-                                data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
+                                data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             listDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             listDateTime.visibility = View.VISIBLE
                         } else {
@@ -205,11 +204,26 @@ class VouchChatAdapter(
                             PorterDuff.Mode.SRC_IN
                         )
 
-                        myChatContent.text = data.title
-                        myDateTime.text = data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
-                        myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
-                        myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                        when (data.type) {
+                            TYPE_TEXT -> {
+                                myChatContent.text = data.title
+                                myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                                myCardBubble.setContentPadding(0, 0, 0, 0)
+                            }
+                            TYPE_IMAGE -> {
+                                val density = mView.context?.resources?.displayMetrics?.density
+                                val padding = (4 * density!!).toInt()
+                                myCardBubble.setContentPadding(padding, padding, padding, padding)
+                                myChatImage.setImageUrl(data.mediaUrl)
+                            }
+                            else -> {}
+                        }
 
+                        myChatImage.visibility = if (TYPE_IMAGE == data.type) View.VISIBLE else View.GONE
+                        myChatContent.visibility = if (TYPE_TEXT == data.type) View.VISIBLE else View.GONE
+
+                        myDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
+                        myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         pendingTime.visibility =
                             if (data.isPendingMessage) View.VISIBLE else View.GONE
                         myDateTime.visibility =
@@ -266,7 +280,7 @@ class VouchChatAdapter(
                         }
 
                         chatContent.text = data.title
-                        dateTime.text = data.createdAt.reformatFullDate("EEE, dd MMM HH:mm:ss")
+                        dateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         dateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 

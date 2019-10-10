@@ -14,7 +14,7 @@ android {
 
         buildConfigField "String", "BASE_URL_SOCKET", "\"https://staging.vouch.sg/\""
         buildConfigField "String", "BASE_URL_API", "\"https://staging.vouch.sg/api/v2/widget/\""
-        buildConfigField "String", "BASE_URL_TEMP", "\"https://d69a56ab.ngrok.io/api/v2/widget/\""
+        buildConfigField "String", "BASE_URL_TEMP", "\"https://ca760241.ngrok.io/api/v2/widget/\""
     }
 
     buildTypes {

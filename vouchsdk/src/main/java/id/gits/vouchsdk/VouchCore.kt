@@ -2,7 +2,6 @@ package id.gits.vouchsdk
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -12,7 +11,6 @@ import id.gits.vouchsdk.callback.VouchCallback
 import id.gits.vouchsdk.data.VouchRepository
 import id.gits.vouchsdk.data.model.message.response.MessageResponseModel
 import id.gits.vouchsdk.data.model.register.RegisterBodyModel
-import id.gits.vouchsdk.utils.Const
 import id.gits.vouchsdk.utils.Const.EVENT_NEW_MESSAGE
 import id.gits.vouchsdk.utils.Helper
 import id.gits.vouchsdk.utils.Injection
@@ -199,9 +197,9 @@ class VouchCore internal constructor() {
     fun isConnected(): Boolean = mSocket?.connected() ?: false
 
 
-    private fun executeOnMainThread(unit: () -> Unit) {
+    private fun executeOnMainThread(block: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
-            unit()
+            block()
         }
     }
 

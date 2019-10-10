@@ -38,4 +38,8 @@ object Const {
     const val CHAT_BUTTON_TYPE_PHONE = "phone_number"
     const val CHAT_BUTTON_TYPE_ELEMENT = "element_share"
 
+    const val MIME_TYPE_JPEG = "image/jpeg"
+    const val URI_SCHEME_FILE = "file"
+    const val URI_SCHEME_CONTENT = "file"
+    const val IMAGE_UPLOAD_KEY = "file"
 }

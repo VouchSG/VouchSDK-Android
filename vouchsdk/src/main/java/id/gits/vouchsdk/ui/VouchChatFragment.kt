@@ -3,8 +3,6 @@ package id.gits.vouchsdk.ui
 
 import android.Manifest
 import android.arch.lifecycle.Observer
-import android.content.ComponentName
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -14,13 +12,13 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
-import android.provider.OpenableColumns
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.FileProvider
+import android.support.v4.graphics.BitmapCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
@@ -42,40 +40,56 @@ import id.gits.vouchsdk.utils.*
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_PHONE
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_POSTBACK
 import id.gits.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_WEB
+import id.gits.vouchsdk.utils.Const.IMAGE_UPLOAD_KEY
+import id.gits.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import id.gits.vouchsdk.utils.Const.PAGE_SIZE
+import id.gits.vouchsdk.utils.Const.URI_SCHEME_FILE
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.ByteArrayOutputStream
-import java.io.File
+import java.io.*
+import java.nio.ByteBuffer
 
 
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-28
  */
-class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener, MediaPlayer.OnPreparedListener {
+class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
+    MediaPlayer.OnPreparedListener {
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
     private var mMediaPlayer: MediaPlayer? = null
     private var mLocationService: FusedLocationProviderClient? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         mViewModel = createViewModel()
         observeLiveData()
         return inflater.inflate(R.layout.fragment_vouch_chat, container, false)
     }
 
     private fun createViewModel(): VouchChatViewModel {
-        return VouchChatViewModel(requireActivity().application).apply { mVouchSDK = VouchSDK.createSDK(requireActivity().application) }
+        return VouchChatViewModel(requireActivity().application).apply {
+            mVouchSDK = VouchSDK.createSDK(requireActivity().application)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        recyclerViewChat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom) {
+                Handler().post { (v as RecyclerView).smoothScrollToPosition(0) }
+            }
+        }
         setupListData()
         setupTextListener()
         mViewModel.start()
@@ -106,7 +120,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                             && totalItemCount >= PAGE_SIZE
                             && mViewModel.isRequesting.value == false)
                     && !mViewModel.isPaginating
-                    && !mViewModel.isLastPage) {
+                    && !mViewModel.isLastPage
+                ) {
                     mViewModel.isPaginating = true
 
                     Handler().postDelayed({
@@ -127,7 +142,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             changeConnectStatus.observe(this@VouchChatFragment, Observer {
                 imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
-                inputField.visibility = if(it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
+                inputField.visibility =
+                    if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
             })
 
             eventShowMessage.observe(this@VouchChatFragment, Observer {
@@ -141,10 +157,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
                     poweredText.setFontFamily(it.fontStyle.safe())
                     poweredText.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
-                    poweredText.visibility = if(it.poweredByVouch == true) View.VISIBLE else View.GONE
+                    poweredText.visibility =
+                        if (it.poweredByVouch == true) View.VISIBLE else View.GONE
                     poweredText.setFontFamily(it.fontStyle.safe())
 
-                    backgroundContent.background = ColorDrawable(it.backgroundColorChat.parseColor(Color.WHITE))
+                    backgroundContent.background =
+                        ColorDrawable(it.backgroundColorChat.parseColor(Color.WHITE))
                     imageProfileChat.setImageUrl(it.avatar?:"")
 
                     inputField.setCardBackgroundColor(it.inputTextBackgroundColor.parseColor())
@@ -157,9 +175,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     backgroundAttachment.setImageDrawable(ColorDrawable(it.attachmentButtonColor.parseColor()))
 
                     imageSend.setColorFilter(it.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                    imageAttachment.setColorFilter(it.attachmentIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    imageAttachment.setColorFilter(
+                        it.attachmentIconColor.parseColor(),
+                        PorterDuff.Mode.SRC_IN
+                    )
 
-                    buttonGreeting.text = it.greetingButtonTitle?:"Get Started"
+                    buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
                     buttonGreeting.setBackgroundColor(it.btnBgColor.parseColor())
                     buttonGreeting.setTextColor(it.xButtonColor.parseColor())
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
@@ -170,9 +191,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             })
 
             eventChangeStateToGreeting.observe(this@VouchChatFragment, Observer {
-                frameGreeting.visibility = if(it == true) View.VISIBLE else View.GONE
-                inputField.visibility = if(it == true) View.GONE else View.VISIBLE
-
+                frameGreeting.visibility = if (it == true) View.VISIBLE else View.GONE
+                inputField.visibility = if (it == true) View.GONE else View.VISIBLE
             })
 
             eventUpdateList.observe(this@VouchChatFragment, Observer {
@@ -183,10 +203,16 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                             if (it.startPosition == 0) recyclerViewChat.smoothScrollToPosition(0)
                         }
                         TYPE_UPDATE -> {
-                            recyclerViewChat.adapter?.notifyItemRangeChanged(it.startPosition, it.endPosition?:it.startPosition + 1)
+                            recyclerViewChat.adapter?.notifyItemRangeChanged(
+                                it.startPosition,
+                                it.endPosition ?: it.startPosition + 1
+                            )
                         }
                         TYPE_REMOVE -> {
-                            recyclerViewChat.adapter?.notifyItemRangeRemoved(it.startPosition, it.endPosition?:it.startPosition + 1)
+                            recyclerViewChat.adapter?.notifyItemRangeRemoved(
+                                it.startPosition,
+                                it.endPosition ?: it.startPosition + 1
+                            )
                         }
                         TYPE_FORCE_UPDATE -> {
                             recyclerViewChat.adapter?.notifyDataSetChanged()
@@ -234,7 +260,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         (recyclerViewChat.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition().let {
-            mViewModel.lastScrollPosition = if(it < 0) 0 else it
+            mViewModel.lastScrollPosition = if (it < 0) 0 else it
         }
     }
 
@@ -244,7 +270,13 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 mViewModel.sendReference()
             }
             R.id.sendButton -> {
-                mViewModel.sendReplyMessage(MessageBodyModel(msgType = "text", text = fieldContent.text.trim().toString(), type = "text"))
+                mViewModel.sendReplyMessage(
+                    MessageBodyModel(
+                        msgType = "text",
+                        text = fieldContent.text.trim().toString(),
+                        type = "text"
+                    )
+                )
                 fieldContent.setText("")
             }
             R.id.attachmentButton -> {
@@ -258,7 +290,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun onClickChatButton(type: String, data: VouchChatModel) {
         when (type) {
             CHAT_BUTTON_TYPE_POSTBACK -> {
-                mViewModel.sendReplyMessage(MessageBodyModel(msgType = "text", payload = data.payload, text = if(data.type == TYPE_LIST) data.buttonTitle else data.title, type = "quick_reply"))
+                mViewModel.sendReplyMessage(
+                    MessageBodyModel(
+                        msgType = "text",
+                        payload = data.payload,
+                        text = if (data.type == TYPE_LIST) data.buttonTitle else data.title,
+                        type = "quick_reply"
+                    )
+                )
             }
             CHAT_BUTTON_TYPE_WEB -> {
                 openWebUrl(data.payload)
@@ -302,10 +341,17 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             }
         }
 
-        imageSend.setColorFilter(mViewModel.loadConfiguration.value?.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+        imageSend.setColorFilter(
+            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(),
+            PorterDuff.Mode.SRC_IN
+        )
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 5115) {
             grantResults.forEach {
@@ -317,49 +363,104 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     fun sendImageChat(imageUri: Uri) {
-        var path = ""
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cr = requireContext().contentResolver
-        val metaCursor = cr.query(imageUri, projection, null, null, null)
-        if (metaCursor != null) {
+        val resolver = context?.contentResolver
+        val scheme = imageUri.scheme
+        val requestBody: RequestBody?
+        val requestPart: MultipartBody.Part?
+
+        if (scheme != null && scheme == URI_SCHEME_FILE) {
             try {
-                if (metaCursor.moveToFirst()) {
-                    val index = metaCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                    println(index)
-                    println(metaCursor.getString(index))
-                }
-            } catch (ex: Exception) {
-                path = imageUri.path
-                ex.printStackTrace()
-            } finally {
-                metaCursor.close()
+                val bitmap = MediaStore.Images.Media.getBitmap(resolver, imageUri)
+                val stream = FileOutputStream(imageUri.path)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream)
+                stream.flush()
+                stream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            val file = File(imageUri.path)
+            requestBody = file.asRequestBody(MIME_TYPE_JPEG.toMediaTypeOrNull())
+            requestPart =
+                MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
+        } else {
+            val mimeType = resolver?.getType(imageUri)
+            val inputStream = resolver?.openInputStream(imageUri)
+            val file = createFileFromInputStream(inputStream!!, mimeType)
+
+            requestBody = file!!.asRequestBody(mimeType?.toMediaTypeOrNull())
+            requestPart =
+                MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
+        }
+
+        mViewModel.sendImageMessage(requestPart)
+
+        val bitmap = MediaStore.Images.Media.getBitmap(resolver, imageUri)
+        ivPreview.setImageBitmap(bitmap)
+        ivPreview.visibility = View.GONE
+    }
+
+    private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
+        try {
+            val millis = System.currentTimeMillis()
+            val path = context?.externalCacheDir
+            val fileName = "$millis${createFileExtensionFromMimeType(mimeType)}"
+            val file = File(path, fileName)
+
+            val outputStream = FileOutputStream(file)
+            val buffer = ByteArray(1024)
+            var length = inputStream.read(buffer)
+
+            while (length > 0) {
+                outputStream.write(buffer, 0, length)
+                length = inputStream.read(buffer)
+            }
+
+            outputStream.close()
+            inputStream.close()
+
+            return file
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return null
+    }
+
+    private fun createFileExtensionFromMimeType(mimeType: String?): String {
+        if (mimeType == null) return ""
+
+        if (mimeType.contains("image/")) {
+            return when (val type = mimeType.removePrefix("image/")) {
+                "vnd.microsoft.icon" -> ".ico"
+                "svg+xml" -> ".svg"
+                else -> ".$type"
             }
         }
-        println(path)
 
-        val bitmap = MediaStore.Images.Media.getBitmap(context?.contentResolver, imageUri)
-        ivPreview.setImageBitmap(bitmap)
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        val image = stream.toByteArray()
-        val imageStream = requireContext().contentResolver.openInputStream(imageUri)
-        val requestFile = InputStreamRequestBody(
-            requireContext().contentResolver, imageUri)
-        val mimeType = context?.contentResolver?.getType(imageUri)
-        println(mimeType)
-        val requestBody = image.toRequestBody(contentType = MultipartBody.FORM)
-        val requestPart = MultipartBody.Part.createFormData("file", "", requestBody)
-        mViewModel.sendImageMessage(requestPart)
+        return ""
     }
 
     private fun checkMapsPermissions(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val fineLocationPermissionState = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-            val coarseLocationPermissionState = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-            val mapsPermissionGranted = fineLocationPermissionState == PackageManager.PERMISSION_GRANTED
-                    && coarseLocationPermissionState == PackageManager.PERMISSION_GRANTED
+            val fineLocationPermissionState = ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            val coarseLocationPermissionState = ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            val mapsPermissionGranted =
+                fineLocationPermissionState == PackageManager.PERMISSION_GRANTED
+                        && coarseLocationPermissionState == PackageManager.PERMISSION_GRANTED
             if (!mapsPermissionGranted) {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 5115)
+                requestPermissions(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ), 5115
+                )
                 return false
             } else {
                 if (mViewModel.currentLocation.first == 0.0 && mViewModel.currentLocation.second == 0.0) {

@@ -111,7 +111,6 @@ fun ImageView.setImageUrls(url: String, screenWidth: Int, screenHeight: Int) {
             var width = resource.width
             var height = resource.height
 
-
             while (width > (screenWidth / 2) && height > (screenHeight / 2)) {
                 if (width > (screenWidth / 2)) width /= 2
                 if (height > (screenHeight / 2)) height /= 2
@@ -120,7 +119,6 @@ fun ImageView.setImageUrls(url: String, screenWidth: Int, screenHeight: Int) {
             this@setImageUrls.layoutParams?.width = width
             this@setImageUrls.layoutParams?.height = height
         }
-
     })
 }
 
@@ -140,28 +138,30 @@ fun Int.basicToColorStateList(): ColorStateList {
 }
 
 fun String.reformatFullDate(format: String, locale: Locale = SG_LOCALE): String {
-    var dateTimeMillis = 0L
-    try {
-        dateTimeMillis = if (!TextUtils.isEmpty(this)) {
-            SimpleDateFormat(Const.DATE_TIME_FORMAT, locale).parse(this).time
-        } else {
-            System.currentTimeMillis()
-        }
-    } catch (e: Exception) {
-        return "-"
+
+    /*val sdf = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
+    val serverTime = sdf.parse(this)
+
+    val dateTimeMillis = if (this.isNotEmpty()) {
+        sdf.parse(this).time
+    } else {
+        System.currentTimeMillis()
     }
 
+    val dateServer = Date(dateTimeMillis)
 
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = dateTimeMillis
 
     return if (dateTimeMillis != 0.toLong()) {
-        SimpleDateFormat(format, locale)
-            .format(calendar.time)
+        SimpleDateFormat(format, locale).format(calendar.time)
     } else {
-        SimpleDateFormat(format, locale)
-            .format(System.currentTimeMillis())
-    }
+        SimpleDateFormat(format, locale).format(System.currentTimeMillis())
+    }*/
+
+    val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
+    val date = Date(System.currentTimeMillis())
+    return SimpleDateFormat(format, locale).format(date)
 }
 
 

@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerQuickReply"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:paddingTop="@dimen/dimens_8dp"
-            android:paddingStart="@dimen/dimens_16dp"
-            android:paddingEnd="@dimen/dimens_16dp">
-
-    </android.support.v7.widget.RecyclerView>
-
-
+        android:id="@+id/recyclerQuickReply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/dimens_16dp"
+        android:paddingTop="@dimen/dimens_8dp"
+        android:paddingEnd="@dimen/dimens_16dp" />
 </FrameLayout>
