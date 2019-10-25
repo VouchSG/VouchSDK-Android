@@ -1,0 +1,102 @@
+package sg.vouch.vouchsdk
+
+import android.content.Context
+import sg.vouch.vouchsdk.callback.*
+import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
+import sg.vouch.vouchsdk.utils.*
+import okhttp3.MultipartBody
+
+/**
+ * @author Radhika Yusuf Alifiansyah
+ * Bandung, 26 Aug 2019
+ */
+
+class VouchData internal constructor(context: Context) {
+
+    private val mRepository = Injection.createRepository(context)
+
+
+    fun getLocalConfig() = mRepository.getLocalConfig()
+
+    fun getConfig(callback: GetConfigCallback) {
+        mRepository.getConfig(onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+
+    fun referenceSend(message: String, callback: ReferenceSendCallback) {
+        mRepository.referenceSend(body = ReferenceSendBodyModel(referrence = message), onSuccess = {
+            callback.onSuccess()
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+
+
+    fun registerAccount(credentialKey: String, username: String, password: String, callback: RegisterCallback) {
+        mRepository.registerUser(
+            body = RegisterBodyModel(
+                apikey = credentialKey,
+                info = "",
+                password = password,
+                userid = username
+            ), onSuccess = {
+                callback.onSuccess(it.token ?: "", it.websocketTicket ?: "")
+            }, onError = {
+                callback.onError(it)
+            }, onFinish = {
+
+            })
+    }
+
+    fun getListMessage(page: Int, pageSize: Int, callback: MessageCallback) {
+
+        mRepository.getListMessage(page = page, pageSize = pageSize, onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+
+    }
+
+    fun replyMessage(body: MessageBodyModel, callback: ReplyMessageCallback) {
+        mRepository.replyMessage(body = body, onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+
+    fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback){
+        mRepository.sendLocation(token = "", body = body, onSuccess = {
+            callback.onSuccess()
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+
+    fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback) {
+        mRepository.sendImage(body = body, onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onFinish = {
+
+        })
+    }
+}

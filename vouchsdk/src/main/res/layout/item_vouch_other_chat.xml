@@ -114,7 +114,7 @@
             android:orientation="horizontal"
             android:padding="@dimen/dimens_8dp">
 
-            <id.gits.vouchsdk.utils.widget.SquareRoundedImageView
+            <sg.vouch.vouchsdk.utils.widget.SquareRoundedImageView
                 android:id="@+id/playAudio"
                 android:layout_width="@dimen/dimens_32dp"
                 android:layout_height="wrap_content"

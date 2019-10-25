@@ -73,7 +73,7 @@
                 app:layout_constraintTop_toBottomOf="@id/titleList"
                 tools:text="The International 2019 is the concluding" />
 
-            <id.gits.vouchsdk.utils.widget.SquareRoundedImageView
+            <sg.vouch.vouchsdk.utils.widget.SquareRoundedImageView
                 android:id="@+id/imageList"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

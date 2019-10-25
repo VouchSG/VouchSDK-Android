@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="id.gits.vouch">
+          package="sg.vouch.vouch">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -16,7 +16,7 @@
             android:name="sg.vouch.chat"
             android:value="pmWWS8E.LHWbcHHPHvxV8jAs6qldAsf6qtlJ3ZtIwxF"/>
 
-        <activity android:name=".MainActivity">
+        <activity android:name="sg.vouch.vouch.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW"/>
