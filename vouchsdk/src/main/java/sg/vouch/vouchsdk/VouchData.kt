@@ -77,7 +77,9 @@ class VouchData internal constructor(private val context: Context) {
             callback.onError(it)
         }, onFinish = {
 
-        }, onUnAuthorize = {})
+        }, onUnAuthorize = {
+            callback.onUnAuthorize()
+        })
     }
 
     fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback) {
