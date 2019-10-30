@@ -32,6 +32,7 @@ interface MessageCallback {
 interface ReplyMessageCallback {
     fun onSuccess(data: MessageResponseModel)
     fun onError(message: String)
+    fun onUnAuthorize()
 }
 
 interface LocationMessageCallback {

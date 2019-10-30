@@ -5,22 +5,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.utils.Const.CONNECTIVITY_CHANGE
 import sg.vouch.vouchsdk.utils.Helper
-import okhttp3.MultipartBody
 
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-27
  */
 
-class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String) : VouchSDK {
-
-
+class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String) :
+    VouchSDK {
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
 
@@ -144,6 +143,13 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
         })
     }
 
+    /**
+     * Register user
+     * @param callback is callback listener from the API
+     */
+    override fun registerUser(callback: RegisterCallback) {
+        mVouchData.registerUser(callback)
+    }
 
     /**
      * Close, disconnect from socket, and close socket
@@ -154,6 +160,4 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
         mVouchCore.disconnect()
         mVouchCore.close()
     }
-
-
 }

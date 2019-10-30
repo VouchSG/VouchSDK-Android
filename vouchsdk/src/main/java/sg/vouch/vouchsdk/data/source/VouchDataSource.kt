@@ -1,15 +1,15 @@
 package sg.vouch.vouchsdk.data.source
 
+import io.reactivex.disposables.Disposable
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
-import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
-import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
-import io.reactivex.disposables.Disposable
-import okhttp3.MultipartBody
 
 
 /**
@@ -23,7 +23,7 @@ interface VouchDataSource {
     fun clearData()
 
     fun getConfig(
-        token: String = "",
+        apiKey: String = "",
         onSuccess: (data: ConfigResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
         onFinish: () -> Unit = {}
@@ -36,7 +36,8 @@ interface VouchDataSource {
         body: LocationBodyModel,
         onSuccess: (data: Any) -> Unit = {},
         onError: (message: String) -> Unit = {},
-        onFinish: () -> Unit = {})
+        onFinish: () -> Unit = {}
+    )
 
     fun getLocalConfig(): ConfigResponseModel?
 
@@ -45,6 +46,7 @@ interface VouchDataSource {
         body: MessageBodyModel,
         onSuccess: (data: MessageResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
+        onUnAuthorize: () -> Unit,
         onFinish: () -> Unit = {}
     )
 
@@ -88,6 +90,20 @@ interface VouchDataSource {
     fun saveApiToken(token: String)
 
     fun getApiToken(): String
+
+    fun saveApiKey(apiKey: String)
+
+    fun getLastMessage(): MessageBodyModel?
+
+    fun saveLastMessage(body: MessageBodyModel?)
+
+    fun saveUsernameAndPassword(username: String, password: String)
+
+    fun getUsername(): String
+
+    fun getPassword(): String
+
+    fun getApiKey(): String
 
     fun revokeCredential()
 

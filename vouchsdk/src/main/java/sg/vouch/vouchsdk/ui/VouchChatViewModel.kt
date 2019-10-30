@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import android.os.Handler
 import com.google.android.gms.tasks.OnSuccessListener
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.VouchSDK
 import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
@@ -17,16 +18,18 @@ import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
+import sg.vouch.vouchsdk.utils.Injection
 import sg.vouch.vouchsdk.utils.safe
-import okhttp3.MultipartBody
 
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-28
  */
-class VouchChatViewModel(application: Application) : AndroidViewModel(application), VouchCallback, OnSuccessListener<Location> {
+class VouchChatViewModel(application: Application) : AndroidViewModel(application), VouchCallback,
+    OnSuccessListener<Location> {
 
     lateinit var mVouchSDK: VouchSDK
+    private val mRepository = Injection.createRepository(application)
 
     var lastScrollPosition: Int = -1
 
@@ -149,7 +152,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     override fun onSuccess(location: Location?) {
-        currentLocation =  Pair(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
+        currentLocation = Pair(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
         sendLocation()
     }
 
@@ -180,7 +183,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Insert Pending message
      */
     private fun insertPendingMessage(message: String) {
-        bDataChat.add(0, VouchChatModel(message, "", true, VouchChatType.TYPE_TEXT, "-", mediaUrl = "", isPendingMessage = true))
+        bDataChat.add(
+            0,
+            VouchChatModel(message, "", true, VouchChatType.TYPE_TEXT, "-", mediaUrl = "", isPendingMessage = true)
+        )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
 
@@ -188,7 +194,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Insert Pending image
      */
     private fun insertPendingImage(imageUrl: String) {
-        bDataChat.add(0, VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = imageUrl, isPendingMessage = true))
+        bDataChat.add(
+            0,
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = imageUrl, isPendingMessage = true)
+        )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
 
@@ -197,9 +206,30 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      */
     private fun updateUserMessage(position: Int, data: MessageResponseModel) {
         val chat = when (data.msgType) {
-            "text" -> VouchChatModel(data.text.safe(), "", true, VouchChatType.TYPE_TEXT, data.createdAt.safe(), mediaUrl = data.mediaUrl ?: "")
-            "image" -> VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, data.createdAt.safe(), mediaUrl = data.text.safe())
-            else -> VouchChatModel(data.text.safe(), "", true, VouchChatType.TYPE_TEXT, data.createdAt.safe(), mediaUrl = data.mediaUrl ?: "")
+            "text" -> VouchChatModel(
+                data.text.safe(),
+                "",
+                true,
+                VouchChatType.TYPE_TEXT,
+                data.createdAt.safe(),
+                mediaUrl = data.mediaUrl ?: ""
+            )
+            "image" -> VouchChatModel(
+                "",
+                "",
+                true,
+                VouchChatType.TYPE_IMAGE,
+                data.createdAt.safe(),
+                mediaUrl = data.text.safe()
+            )
+            else -> VouchChatModel(
+                data.text.safe(),
+                "",
+                true,
+                VouchChatType.TYPE_TEXT,
+                data.createdAt.safe(),
+                mediaUrl = data.mediaUrl ?: ""
+            )
         }
         bDataChat[position] = chat
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
@@ -224,12 +254,20 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     VouchChatType.TYPE_TEXT
                 }
             }
-            VouchChatModel(it.text.safe(), "", it.senderId != null, type, it.createdAt.safe(), mediaUrl = it.mediaUrl ?: "")
+            VouchChatModel(
+                it.text.safe(),
+                "",
+                it.senderId != null,
+                type,
+                it.createdAt.safe(),
+                mediaUrl = it.mediaUrl ?: ""
+            )
         }
 
-        if (appendInLast){
+        if (appendInLast) {
             bDataChat.addAll(content)
-            eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size)
+            eventUpdateList.value =
+                VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size)
         } else {
             bDataChat.addAll(0, content)
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
@@ -241,10 +279,28 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      */
     private fun insertDataQuickReply(data: MessageResponseModel, appendInLast: Boolean = false) {
         if (appendInLast) {
-            bDataChat.add(VouchChatModel(title = data.text.safe(), isMyChat = false, type = VouchChatType.TYPE_QUICK_REPLY, createdAt = data.createdAt.safe(), quickReplies = data.quickReplies ?: emptyList()))
-            eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
+            bDataChat.add(
+                VouchChatModel(
+                    title = data.text.safe(),
+                    isMyChat = false,
+                    type = VouchChatType.TYPE_QUICK_REPLY,
+                    createdAt = data.createdAt.safe(),
+                    quickReplies = data.quickReplies ?: emptyList()
+                )
+            )
+            eventUpdateList.value =
+                VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
         } else {
-            bDataChat.add(0, VouchChatModel(title = data.text.safe(), isMyChat = false, type = VouchChatType.TYPE_QUICK_REPLY, createdAt = data.createdAt.safe(), quickReplies = data.quickReplies ?: emptyList()))
+            bDataChat.add(
+                0,
+                VouchChatModel(
+                    title = data.text.safe(),
+                    isMyChat = false,
+                    type = VouchChatType.TYPE_QUICK_REPLY,
+                    createdAt = data.createdAt.safe(),
+                    quickReplies = data.quickReplies ?: emptyList()
+                )
+            )
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
         }
     }
@@ -255,10 +311,42 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     private fun insertDataList(data: MessageResponseModel, appendInLast: Boolean = false) {
         (data.lists ?: emptyList()).forEachIndexed { pos, it ->
             if (appendInLast) {
-                bDataChat.add(VouchChatModel(title = it.title.safe(), subTitle = it.subtitle.safe(), isMyChat = false, type = VouchChatType.TYPE_LIST, createdAt = data.createdAt.safe(), mediaUrl = it.imageUrl.safe(), buttonTitle = it.buttons?.firstOrNull()?.title.safe(), payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(), typeValue = it.buttons?.firstOrNull()?.type.safe(), isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(), isFirstListContent = pos == 0, isLastListContent = pos == (data.lists ?: emptyList()).size - 1))
-                eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
+                bDataChat.add(
+                    VouchChatModel(
+                        title = it.title.safe(),
+                        subTitle = it.subtitle.safe(),
+                        isMyChat = false,
+                        type = VouchChatType.TYPE_LIST,
+                        createdAt = data.createdAt.safe(),
+                        mediaUrl = it.imageUrl.safe(),
+                        buttonTitle = it.buttons?.firstOrNull()?.title.safe(),
+                        payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(),
+                        typeValue = it.buttons?.firstOrNull()?.type.safe(),
+                        isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
+                        isFirstListContent = pos == 0,
+                        isLastListContent = pos == (data.lists ?: emptyList()).size - 1
+                    )
+                )
+                eventUpdateList.value =
+                    VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
             } else {
-                bDataChat.add(0, VouchChatModel(title = it.title.safe(), subTitle = it.subtitle.safe(), isMyChat = false, type = VouchChatType.TYPE_LIST, createdAt = data.createdAt.safe(), mediaUrl = it.imageUrl.safe(), buttonTitle = it.buttons?.firstOrNull()?.title.safe(), payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(), typeValue = it.buttons?.firstOrNull()?.type.safe(), isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(), isFirstListContent = pos == 0, isLastListContent = pos == (data.lists ?: emptyList()).size - 1))
+                bDataChat.add(
+                    0,
+                    VouchChatModel(
+                        title = it.title.safe(),
+                        subTitle = it.subtitle.safe(),
+                        isMyChat = false,
+                        type = VouchChatType.TYPE_LIST,
+                        createdAt = data.createdAt.safe(),
+                        mediaUrl = it.imageUrl.safe(),
+                        buttonTitle = it.buttons?.firstOrNull()?.title.safe(),
+                        payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(),
+                        typeValue = it.buttons?.firstOrNull()?.type.safe(),
+                        isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
+                        isFirstListContent = pos == 0,
+                        isLastListContent = pos == (data.lists ?: emptyList()).size - 1
+                    )
+                )
                 eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
             }
         }
@@ -268,11 +356,27 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Add new chat gallery into list
      */
     private fun insertDataGallery(data: MessageResponseModel, appendInLast: Boolean = false) {
-        if (appendInLast){
-            bDataChat.add(VouchChatModel(isMyChat = false, type = VouchChatType.TYPE_GALLERY, createdAt = data.createdAt.safe(), galleryElements = data.elements ?: emptyList()))
-            eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
+        if (appendInLast) {
+            bDataChat.add(
+                VouchChatModel(
+                    isMyChat = false,
+                    type = VouchChatType.TYPE_GALLERY,
+                    createdAt = data.createdAt.safe(),
+                    galleryElements = data.elements ?: emptyList()
+                )
+            )
+            eventUpdateList.value =
+                VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
         } else {
-            bDataChat.add(0, VouchChatModel(isMyChat = false, type = VouchChatType.TYPE_GALLERY, createdAt = data.createdAt.safe(), galleryElements = data.elements ?: emptyList()))
+            bDataChat.add(
+                0,
+                VouchChatModel(
+                    isMyChat = false,
+                    type = VouchChatType.TYPE_GALLERY,
+                    createdAt = data.createdAt.safe(),
+                    galleryElements = data.elements ?: emptyList()
+                )
+            )
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
         }
     }
@@ -282,11 +386,35 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      */
     private fun insertDataButton(data: List<ButtonModel>, appendInLast: Boolean = false) {
         data.forEachIndexed { pos, it ->
-            if(appendInLast){
-                bDataChat.add(VouchChatModel(title = it.title.safe(), subTitle = "", isMyChat = false, type = VouchChatType.TYPE_BUTTON, payload = it.payload ?: it.url.safe(), typeValue = it.type.safe(), isFirstListContent = pos == 0, isLastListContent = pos == data.size - 1))
-                eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
+            if (appendInLast) {
+                bDataChat.add(
+                    VouchChatModel(
+                        title = it.title.safe(),
+                        subTitle = "",
+                        isMyChat = false,
+                        type = VouchChatType.TYPE_BUTTON,
+                        payload = it.payload ?: it.url.safe(),
+                        typeValue = it.type.safe(),
+                        isFirstListContent = pos == 0,
+                        isLastListContent = pos == data.size - 1
+                    )
+                )
+                eventUpdateList.value =
+                    VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size - 1)
             } else {
-                bDataChat.add(0, VouchChatModel(title = it.title.safe(), subTitle = "", isMyChat = false, type = VouchChatType.TYPE_BUTTON, payload = it.payload ?: it.url.safe(), typeValue = it.type.safe(), isFirstListContent = pos == 0, isLastListContent = pos == data.size - 1))
+                bDataChat.add(
+                    0,
+                    VouchChatModel(
+                        title = it.title.safe(),
+                        subTitle = "",
+                        isMyChat = false,
+                        type = VouchChatType.TYPE_BUTTON,
+                        payload = it.payload ?: it.url.safe(),
+                        typeValue = it.type.safe(),
+                        isFirstListContent = pos == 0,
+                        isLastListContent = pos == data.size - 1
+                    )
+                )
                 eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
             }
 
@@ -295,7 +423,12 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun updateDataChat(data: List<MessageResponseModel>, position: Int, endPosition: Int? = null) {
         bDataChat.addAll(data.map {
-            VouchChatModel(title = it.text.safe(), isMyChat = false, type = VouchChatType.TYPE_TEXT, createdAt = it.createdAt.safe())
+            VouchChatModel(
+                title = it.text.safe(),
+                isMyChat = false,
+                type = VouchChatType.TYPE_TEXT,
+                createdAt = it.createdAt.safe()
+            )
         })
         eventUpdateList.value =
             VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position, endPosition = endPosition)
@@ -312,7 +445,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         } else {
             bDataChat.removeAt(position)
         }
-        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_REMOVE, startPosition = position, endPosition = endPosition)
+        eventUpdateList.value =
+            VouchChatUpdateEvent(type = VouchChatEnum.TYPE_REMOVE, startPosition = position, endPosition = endPosition)
     }
 
     fun sendReference() {
@@ -330,16 +464,18 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
         insertPendingMessage("Getting Location")
         Handler().postDelayed({
-            mVouchSDK.sendLocation(LocationBodyModel(currentLocation.first, currentLocation.second), object : LocationMessageCallback{
-                override fun onSuccess() {
-                    removeDataChat(0)
-                }
+            mVouchSDK.sendLocation(
+                LocationBodyModel(currentLocation.first, currentLocation.second),
+                object : LocationMessageCallback {
+                    override fun onSuccess() {
+                        removeDataChat(0)
+                    }
 
-                override fun onError(message: String) {
+                    override fun onError(message: String) {
 
-                }
+                    }
 
-            })
+                })
         }, 800)
     }
 
@@ -353,6 +489,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 insertPendingMessage(body.text.safe())
 
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
+                    override fun onUnAuthorize() {
+                        registerUser()
+                    }
+
                     override fun onSuccess(data: MessageResponseModel) {
                         println("type text => $data")
 //                        updateUserMessage(0, data)
@@ -368,6 +508,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 insertPendingImage(body.text.safe())
 
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
+                    override fun onUnAuthorize() {
+                        registerUser()
+                    }
+
                     override fun onSuccess(data: MessageResponseModel) {
                         println("type image => $data")
                         updateUserMessage(0, data)
@@ -379,6 +523,19 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 })
             }
         }
+    }
+
+    fun registerUser() {
+        mVouchSDK.registerUser(object : RegisterCallback {
+            override fun onSuccess(token: String, socketTicket: String) {
+                sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
+            }
+
+            override fun onError(message: String) {
+                eventShowMessage.value = message
+            }
+
+        })
     }
 
     fun sendImageMessage(body: MultipartBody.Part) {
