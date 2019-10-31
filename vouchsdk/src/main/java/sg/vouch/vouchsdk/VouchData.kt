@@ -75,10 +75,10 @@ class VouchData internal constructor(private val context: Context) {
             callback.onSuccess(it)
         }, onError = {
             callback.onError(it)
-        }, onFinish = {
-
         }, onUnAuthorize = {
             callback.onUnAuthorize()
+        }, onFinish = {
+
         })
     }
 

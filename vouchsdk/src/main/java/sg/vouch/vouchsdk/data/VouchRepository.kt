@@ -59,7 +59,7 @@ class VouchRepository(
         onUnAuthorize: () -> Unit,
         onFinish: () -> Unit
     ) {
-        remoteDataSource.replyMessage(getApiToken(), body, onSuccess, onError, onFinish)
+        remoteDataSource.replyMessage(getApiToken(), body, onSuccess, onError, onUnAuthorize, onFinish)
         saveLastMessage(body)
     }
 

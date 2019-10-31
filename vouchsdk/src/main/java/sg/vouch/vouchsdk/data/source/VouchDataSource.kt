@@ -46,7 +46,7 @@ interface VouchDataSource {
         body: MessageBodyModel,
         onSuccess: (data: MessageResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
-        onUnAuthorize: () -> Unit,
+        onUnAuthorize: () -> Unit = {},
         onFinish: () -> Unit = {}
     )
 
