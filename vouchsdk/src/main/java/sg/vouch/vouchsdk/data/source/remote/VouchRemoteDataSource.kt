@@ -1,18 +1,19 @@
 package sg.vouch.vouchsdk.data.source.remote
 
-import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
-import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
-import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
-import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
-import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
-import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
-import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
-import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
-import sg.vouch.vouchsdk.data.source.VouchDataSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MultipartBody
+import retrofit2.HttpException
+import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
+import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
+import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
+import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
+import sg.vouch.vouchsdk.data.source.VouchDataSource
 
 /**
  * @author Radhika Yusuf Alifiansyah
@@ -25,7 +26,13 @@ object VouchRemoteDataSource : VouchDataSource {
 
     }
 
-    override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+    override fun sendLocation(
+        token: String,
+        body: LocationBodyModel,
+        onSuccess: (data: Any) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
         val dis = mApiService.sendLocation(token = token, data = body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -48,13 +55,13 @@ object VouchRemoteDataSource : VouchDataSource {
     private var chatDisposable: Disposable? = null
 
     override fun getConfig(
-        token: String,
+        apiKey: String,
         onSuccess: (data: ConfigResponseModel) -> Unit,
         onError: (message: String) -> Unit,
         onFinish: () -> Unit
     ) {
         configDisposable?.dispose()
-        configDisposable = mApiService.getConfig(token = token)
+        configDisposable = mApiService.getConfig(apiKey = apiKey)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -75,6 +82,7 @@ object VouchRemoteDataSource : VouchDataSource {
         body: MessageBodyModel,
         onSuccess: (data: MessageResponseModel) -> Unit,
         onError: (message: String) -> Unit,
+        onUnAuthorize: () -> Unit,
         onFinish: () -> Unit
     ) {
         val disposable = mApiService.postReplyMessage(token = token, data = body)
@@ -83,11 +91,18 @@ object VouchRemoteDataSource : VouchDataSource {
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
+                } else if (it.code == 401) {
+                    onUnAuthorize()
                 } else {
                     onError(it.message ?: "")
                 }
             }, {
-                onError(it.message ?: "")
+                val e = it as HttpException
+                if (e.code() == 401) {
+                    onUnAuthorize()
+                } else {
+                    onError(it.message ?: "")
+                }
             }, {
                 onFinish()
             })
@@ -205,6 +220,15 @@ object VouchRemoteDataSource : VouchDataSource {
         return ""
     }
 
+    override fun saveApiKey(apiKey: String) {
+        throwLocalException()
+    }
+
+    override fun getApiKey(): String {
+        throwLocalException()
+        return ""
+    }
+
     override fun revokeCredential() {
         throwLocalException()
     }
@@ -216,6 +240,29 @@ object VouchRemoteDataSource : VouchDataSource {
     override fun getLocalConfig(): ConfigResponseModel? {
         throwLocalException()
         return null
+    }
+
+    override fun getLastMessage(): MessageBodyModel? {
+        throwLocalException()
+        return null
+    }
+
+    override fun saveLastMessage(body: MessageBodyModel?) {
+        throwLocalException()
+    }
+
+    override fun saveUsernameAndPassword(username: String, password: String) {
+        throwLocalException()
+    }
+
+    override fun getUsername(): String {
+        throwLocalException()
+        return ""
+    }
+
+    override fun getPassword(): String {
+        throwLocalException()
+        return ""
     }
 
     private fun throwLocalException() {

@@ -1,15 +1,5 @@
 package sg.vouch.vouchsdk.data.source.remote
 
-import sg.vouch.vouchsdk.BuildConfig
-import sg.vouch.vouchsdk.data.model.BaseApiModel
-import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
-import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
-import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
-import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
-import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
-import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
-import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
-import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import io.reactivex.Observable
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -18,6 +8,16 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import sg.vouch.vouchsdk.BuildConfig
+import sg.vouch.vouchsdk.data.model.BaseApiModel
+import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
+import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
+import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
+import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
 import java.util.concurrent.TimeUnit
 
 
@@ -31,7 +31,7 @@ internal interface VouchApiService {
     @GET("config")
     @Headers("Content-Type: application/json")
     fun getConfig(
-        @Header("token") token: String
+        @Header("api-key") apiKey: String
     ): Observable<BaseApiModel<ConfigResponseModel?>>
 
     @POST("messages")
@@ -51,14 +51,14 @@ internal interface VouchApiService {
 
     @POST("messages/referrence")
     @Headers("Content-Type: application/json")
-     fun referenceSend(
+    fun referenceSend(
         @Header("token") token: String,
         @Body data: ReferenceSendBodyModel
     ): Observable<BaseApiModel<String?>>
 
     @POST("location")
     @Headers("Content-Type: application/json")
-     fun sendLocation(
+    fun sendLocation(
         @Header("token") token: String,
         @Body data: LocationBodyModel
     ): Observable<BaseApiModel<Any?>>

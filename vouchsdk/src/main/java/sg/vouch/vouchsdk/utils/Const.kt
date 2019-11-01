@@ -15,10 +15,14 @@ object Const {
 
     const val PREF_KEY = "vouch-pref-key"
     const val PREF_CREDENTIAL_KEY = "credential-key"
+    const val PREF_TOKEN = "token"
     const val PREF_API_KEY = "api-key"
+    const val PREF_LAST_MESSAGE = "last-message"
     const val PREF_SOCKET_TICKET = "socket-key-ticket"
     const val PREF_USER_CONFIG = "pref-config"
     const val CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE"
+    const val PREF_USERNAME = "username-key"
+    const val PREF_PASSWORD = "password-key"
 
     const val PARAMS_USERNAME = "username_params"
     const val PARAMS_PASSWORD = "password_params"

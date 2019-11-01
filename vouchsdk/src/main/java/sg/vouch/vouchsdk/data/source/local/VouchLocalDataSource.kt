@@ -2,29 +2,33 @@ package sg.vouch.vouchsdk.data.source.local
 
 import android.content.Context
 import com.google.gson.Gson
+import io.reactivex.disposables.Disposable
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
-import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
-import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.data.source.VouchDataSource
 import sg.vouch.vouchsdk.utils.Const.PREF_API_KEY
 import sg.vouch.vouchsdk.utils.Const.PREF_KEY
+import sg.vouch.vouchsdk.utils.Const.PREF_LAST_MESSAGE
+import sg.vouch.vouchsdk.utils.Const.PREF_PASSWORD
 import sg.vouch.vouchsdk.utils.Const.PREF_SOCKET_TICKET
+import sg.vouch.vouchsdk.utils.Const.PREF_TOKEN
+import sg.vouch.vouchsdk.utils.Const.PREF_USERNAME
 import sg.vouch.vouchsdk.utils.Const.PREF_USER_CONFIG
-import io.reactivex.disposables.Disposable
-import okhttp3.MultipartBody
+import sg.vouch.vouchsdk.utils.Helper
 
 /**
  * @author Radhika Yusuf Alifiansyah
  * Bandung, 26 Aug 2019
  */
 
-class VouchLocalDataSource(mContext: Context) : VouchDataSource {
-
+class VouchLocalDataSource(private val mContext: Context) : VouchDataSource {
 
     private val mPref = mContext.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE)
     private val mGson = Gson()
@@ -33,7 +37,13 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
         mPref.edit().clear().apply()
     }
 
-    override fun sendLocation(token: String, body: LocationBodyModel, onSuccess: (data: Any) -> Unit, onError: (message: String) -> Unit, onFinish: () -> Unit) {
+    override fun sendLocation(
+        token: String,
+        body: LocationBodyModel,
+        onSuccess: (data: Any) -> Unit,
+        onError: (message: String) -> Unit,
+        onFinish: () -> Unit
+    ) {
 
     }
 
@@ -55,11 +65,41 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
     }
 
     override fun saveApiToken(token: String) {
-        mPref.edit().putString(PREF_API_KEY, token).apply()
+        mPref.edit().putString(PREF_TOKEN, token).apply()
     }
 
     override fun getApiToken(): String {
-        return mPref.getString(PREF_API_KEY, "") ?: ""
+        return mPref.getString(PREF_TOKEN, "") ?: ""
+    }
+
+    override fun saveApiKey(apiKey: String) {
+        mPref.edit().putString(PREF_API_KEY, apiKey).apply()
+    }
+
+    override fun getApiKey(): String {
+        return mPref.getString(PREF_API_KEY, Helper.getCredentialKey(mContext)) ?: ""
+    }
+
+    override fun getLastMessage(): MessageBodyModel? {
+        val stringData = mPref.getString(PREF_LAST_MESSAGE, "{}")
+        return mGson.fromJson<MessageBodyModel>(stringData, MessageBodyModel::class.java)
+    }
+
+    override fun saveLastMessage(body: MessageBodyModel?) {
+        mPref.edit().putString(PREF_LAST_MESSAGE, mGson.toJson(body)).apply()
+    }
+
+    override fun saveUsernameAndPassword(username: String, password: String) {
+        mPref.edit().putString(PREF_USERNAME, username).apply()
+        mPref.edit().putString(PREF_PASSWORD, password).apply()
+    }
+
+    override fun getUsername(): String {
+        return mPref.getString(PREF_USERNAME, "") ?: ""
+    }
+
+    override fun getPassword(): String {
+        return mPref.getString(PREF_PASSWORD, "") ?: ""
     }
 
     override fun revokeCredential() {
@@ -67,7 +107,7 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
     }
 
     override fun getConfig(
-        token: String,
+        apiKey: String,
         onSuccess: (data: ConfigResponseModel) -> Unit,
         onError: (message: String) -> Unit,
         onFinish: () -> Unit
@@ -111,6 +151,7 @@ class VouchLocalDataSource(mContext: Context) : VouchDataSource {
         body: MessageBodyModel,
         onSuccess: (data: MessageResponseModel) -> Unit,
         onError: (message: String) -> Unit,
+        onUnAuthorize: () -> Unit,
         onFinish: () -> Unit
     ) {
         throwRemoteException()

@@ -44,7 +44,9 @@ interface VouchSDK {
 
     fun getConfig(callback: GetConfigCallback)
 
-    companion object Builder {
+    fun registerUser(callback: RegisterCallback)
+
+        companion object Builder {
 
         private var mUsername = ""
         private var mPassword = ""
