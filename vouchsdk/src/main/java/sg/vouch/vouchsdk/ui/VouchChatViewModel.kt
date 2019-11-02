@@ -528,6 +528,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     fun registerUser() {
         mVouchSDK.registerUser(object : RegisterCallback {
             override fun onSuccess(token: String, socketTicket: String) {
+                removeDataChat(0)
                 sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
             }
 
