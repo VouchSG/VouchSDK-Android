@@ -86,7 +86,7 @@ class VouchRepository(
                 saveWebSocketTicket(this@apply.websocketTicket ?: "")
                 saveApiToken(this@apply.token ?: "")
                 saveApiKey(token)
-                saveUsernameAndPassword(body.userid?:"", body.password?:"")
+                saveUsernameAndPassword(body.userid ?: "", body.password ?: "")
             }
             onSuccess(result)
         }, onError, onFinish)
@@ -97,9 +97,10 @@ class VouchRepository(
         body: MultipartBody.Part,
         onSuccess: (data: UploadImageResponseModel) -> Unit,
         onError: (message: String) -> Unit,
+        onUnAuthorize: () -> Unit,
         onFinish: () -> Unit
     ) {
-        remoteDataSource.sendImage(getApiToken(), body, onSuccess, onError, onFinish)
+        remoteDataSource.sendImage(getApiToken(), body, onSuccess, onError, onUnAuthorize, onFinish)
     }
 
     override fun referenceSend(

@@ -6,6 +6,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
+import io.reactivex.disposables.Disposable
+import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.client.Socket.EVENT_ERROR
+import org.json.JSONObject
 import sg.vouch.vouchsdk.BuildConfig.BASE_URL_SOCKET
 import sg.vouch.vouchsdk.callback.VouchCallback
 import sg.vouch.vouchsdk.data.VouchRepository
@@ -15,11 +20,6 @@ import sg.vouch.vouchsdk.utils.Const.EVENT_NEW_MESSAGE
 import sg.vouch.vouchsdk.utils.Helper
 import sg.vouch.vouchsdk.utils.Injection
 import sg.vouch.vouchsdk.utils.addHeader
-import io.reactivex.disposables.Disposable
-import io.socket.client.IO
-import io.socket.client.Socket
-import io.socket.client.Socket.EVENT_ERROR
-import org.json.JSONObject
 import java.util.*
 
 
@@ -96,7 +96,7 @@ class VouchCore internal constructor() {
     /**
      * Create Socket Client
      */
-    private fun createSocket() {
+    fun createSocket() {
         isForceDisconnect = false
         mSocket?.close()
 

@@ -184,6 +184,7 @@ object VouchRemoteDataSource : VouchDataSource {
         body: MultipartBody.Part,
         onSuccess: (data: UploadImageResponseModel) -> Unit,
         onError: (message: String) -> Unit,
+        onUnAuthorize: () -> Unit,
         onFinish: () -> Unit
     ) {
         val disposable = mApiService.sendImage(token, body)
@@ -192,11 +193,18 @@ object VouchRemoteDataSource : VouchDataSource {
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
+                } else if (it.code == 401) {
+                    onUnAuthorize()
                 } else {
                     onError(it.message ?: "")
                 }
             }, {
-                onError(it.message ?: "")
+                val e = it as HttpException
+                if (e.code() == 401) {
+                    onUnAuthorize()
+                } else {
+                    onError(it.message ?: "")
+                }
             }, {
                 onFinish()
             })

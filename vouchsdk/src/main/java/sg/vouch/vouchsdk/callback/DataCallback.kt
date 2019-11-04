@@ -43,4 +43,5 @@ interface LocationMessageCallback {
 interface ImageMessageCallback {
     fun onSuccess(data: UploadImageResponseModel)
     fun onError(message: String)
+    fun onUnAuthorize()
 }

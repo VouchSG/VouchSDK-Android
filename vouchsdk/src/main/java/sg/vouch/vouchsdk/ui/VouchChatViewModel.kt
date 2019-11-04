@@ -7,6 +7,7 @@ import android.location.Location
 import android.os.Handler
 import com.google.android.gms.tasks.OnSuccessListener
 import okhttp3.MultipartBody
+import sg.vouch.vouchsdk.VouchCore
 import sg.vouch.vouchsdk.VouchSDK
 import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
@@ -29,6 +30,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     OnSuccessListener<Location> {
 
     lateinit var mVouchSDK: VouchSDK
+    private lateinit var mVouchCore: VouchCore
+
     private val mRepository = Injection.createRepository(application)
 
     var lastScrollPosition: Int = -1
@@ -50,7 +53,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var currentPage = 1
 
+    var mMultipartImage: MultipartBody.Part? = null
+
     fun start() {
+        mVouchCore = VouchCore()
         mVouchSDK.init(this@VouchChatViewModel)
     }
 
@@ -490,7 +496,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
                     override fun onUnAuthorize() {
-                        registerUser()
+                        mMultipartImage = null
+                        retryRegisterUser()
                     }
 
                     override fun onSuccess(data: MessageResponseModel) {
@@ -506,10 +513,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             "image" -> {
                 insertPendingImage(body.text.safe())
-
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
                     override fun onUnAuthorize() {
-                        registerUser()
+                        mMultipartImage = null
+                        retryRegisterUser()
                     }
 
                     override fun onSuccess(data: MessageResponseModel) {
@@ -525,11 +532,16 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun registerUser() {
+    fun retryRegisterUser() {
         mVouchSDK.registerUser(object : RegisterCallback {
             override fun onSuccess(token: String, socketTicket: String) {
-                removeDataChat(0)
-                sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
+                mVouchCore.createSocket()
+                if (mMultipartImage == null) {
+                    removeDataChat(0)
+                    sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
+                } else {
+                    sendImageMessage(mMultipartImage ?: MultipartBody.Part.createFormData("", ""))
+                }
             }
 
             override fun onError(message: String) {
@@ -540,8 +552,12 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun sendImageMessage(body: MultipartBody.Part) {
-
+        mMultipartImage = body
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
+            override fun onUnAuthorize() {
+                retryRegisterUser()
+            }
+
             override fun onSuccess(data: UploadImageResponseModel) {
                 val message = MessageBodyModel(
                     msgType = "image",
