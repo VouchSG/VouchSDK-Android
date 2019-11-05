@@ -440,6 +440,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position, endPosition = endPosition)
     }
 
+    /**
+     * Remove chat
+     */
     private fun removeDataChat(position: Int, endPosition: Int? = null) {
         if (position == -1) {
             return
@@ -485,6 +488,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }, 800)
     }
 
+    /**
+     * Send message
+     */
     fun sendReplyMessage(body: MessageBodyModel) {
         if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
             removeDataChat(0)
@@ -532,6 +538,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * Retry to register
+     */
     fun retryRegisterUser() {
         mVouchSDK.registerUser(object : RegisterCallback {
             override fun onSuccess(token: String, socketTicket: String) {
@@ -551,6 +560,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
 
+    /**
+     * Send image to server
+     */
     fun sendImageMessage(body: MultipartBody.Part) {
         mMultipartImage = body
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
