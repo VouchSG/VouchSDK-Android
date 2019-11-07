@@ -80,6 +80,7 @@ interface VouchDataSource {
         body: MultipartBody.Part,
         onSuccess: (data: UploadImageResponseModel) -> Unit = {},
         onError: (message: String) -> Unit = {},
+        onUnAuthorize: () -> Unit = {},
         onFinish: () -> Unit = {}
     )
 

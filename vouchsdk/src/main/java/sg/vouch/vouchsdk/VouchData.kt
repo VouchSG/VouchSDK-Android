@@ -16,6 +16,7 @@ import sg.vouch.vouchsdk.utils.Injection
  */
 
 class VouchData internal constructor(private val context: Context) {
+    private lateinit var mVouchCore: VouchCore
 
     private val mRepository = Injection.createRepository(context)
 
@@ -97,6 +98,8 @@ class VouchData internal constructor(private val context: Context) {
             callback.onSuccess(it)
         }, onError = {
             callback.onError(it)
+        }, onUnAuthorize = {
+            callback.onUnAuthorize()
         }, onFinish = {
 
         })
