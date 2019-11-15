@@ -1,6 +1,5 @@
 package sg.vouch.vouchsdk.ui
 
-
 import android.Manifest
 import android.arch.lifecycle.Observer
 import android.content.pm.PackageManager
@@ -8,7 +7,10 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
+import android.media.AudioFormat
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,6 +50,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import java.io.*
 
 
@@ -55,12 +59,13 @@ import java.io.*
  * Bandung, on 2019-08-28
  */
 class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
-    MediaPlayer.OnPreparedListener {
+    MediaPlayer.OnPreparedListener, VoiceRecordDialog.VoiceRecordDialogCallback {
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
     private var mMediaPlayer: MediaPlayer? = null
     private var mLocationService: FusedLocationProviderClient? = null
+    private var mSendButtonStatus = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +97,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         buttonGreeting.setOnClickListener(this@VouchChatFragment)
         attachmentButton.setOnClickListener(this@VouchChatFragment)
         sendButton.setOnClickListener(this@VouchChatFragment)
+        recordButton.setOnClickListener(this)
     }
 
     private fun setupTextListener() {
@@ -265,20 +271,26 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 mViewModel.sendReference()
             }
             R.id.sendButton -> {
-                mViewModel.sendReplyMessage(
-                    MessageBodyModel(
-                        msgType = "text",
-                        text = fieldContent.text.trim().toString(),
-                        type = "text"
+                if (mSendButtonStatus) {
+                    mViewModel.sendReplyMessage(
+                        MessageBodyModel(
+                            msgType = "text",
+                            text = fieldContent.text.trim().toString(),
+                            type = "text"
+                        )
                     )
-                )
-                fieldContent.setText("")
+                    fieldContent.setText("")
+                } else {
+                    if (checkAudioRecordPermission()) {
+                        VoiceRecordDialog.newInstance().show(childFragmentManager,
+                            "VouchChatFragment@VoiceRecordDialog")
+                    }
+                }
             }
             R.id.attachmentButton -> {
                 CameraGalleryHelper.openImagePickerOption(requireActivity())
             }
-            else -> {
-            }
+            else -> { }
         }
     }
 
@@ -325,14 +337,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         s?.toString().safe().trim().isNotEmpty().let {
-            sendButton.isEnabled = it
-            sendButton.isClickable = it
-            sendButton.isFocusable = it
-
             if (it) {
                 imageSend.setImageResource(R.drawable.ic_send_white_24dp)
+                mSendButtonStatus = it
             } else {
                 imageSend.setImageResource(R.drawable.ic_mic_white_24dp)
+                mSendButtonStatus = !it
             }
         }
 
@@ -355,6 +365,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             }
         }
+    }
+
+    override fun onGettingBase64Audio(base64Audio: String) {
+        mViewModel.sendAudioMessage(SendAudioBodyModel(base64Audio))
     }
 
     fun sendImageChat(imageUri: Uri) {
@@ -397,9 +411,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
         try {
-            val millis = System.currentTimeMillis()
             val path = context?.externalCacheDir
-            val fileName = "$millis${createFileExtensionFromMimeType(mimeType)}"
+            val fileName = "image_temp${createFileExtensionFromMimeType(mimeType)}"
             val file = File(path, fileName)
 
             val outputStream = FileOutputStream(file)
@@ -466,6 +479,28 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             }
             return true
         }
+        return true
+    }
+
+    private fun checkAudioRecordPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val audioRecordPermissionState = ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.RECORD_AUDIO
+            )
+
+            val audioRecordPermissionGranted
+                    = audioRecordPermissionState == PackageManager.PERMISSION_GRANTED
+
+            if (!audioRecordPermissionGranted) {
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 5115)
+
+                return false
+            }
+
+            return true
+        }
+
         return true
     }
 }

@@ -12,6 +12,7 @@ import sg.vouch.vouchsdk.ui.VouchChatFragment
 import sg.vouch.vouchsdk.utils.Const.PARAMS_PASSWORD
 import sg.vouch.vouchsdk.utils.Const.PARAMS_USERNAME
 import okhttp3.MultipartBody
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import java.util.*
 
 /**
@@ -41,6 +42,8 @@ interface VouchSDK {
     fun sendLocation(body: LocationBodyModel, callback: LocationMessageCallback)
 
     fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback)
+
+    fun sendAudio(body: SendAudioBodyModel, callback: AudioMessageCallback)
 
     fun getConfig(callback: GetConfigCallback)
 

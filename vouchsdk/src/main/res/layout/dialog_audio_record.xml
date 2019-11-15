@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimens_200dp"
+    app:behavior_peekHeight="@dimen/dimens_200dp"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    app:layout_minHeight="@dimen/dimens_200dp">
+
+    <ImageView
+        android:id="@+id/closeImage"
+        android:layout_width="@dimen/dimens_32dp"
+        android:layout_height="@dimen/dimens_32dp"
+        android:layout_marginTop="@dimen/dimens_8dp"
+        android:layout_marginEnd="@dimen/dimens_8dp"
+        android:padding="@dimen/dimens_2dp"
+        android:src="@drawable/ic_close_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/recordButton"
+        android:layout_width="@dimen/dimens_72dp"
+        android:layout_height="@dimen/dimens_72dp"
+        android:background="@drawable/bg_button_rec_audio"
+        android:src="@drawable/ic_mic_white_24dp"
+        android:tint="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textDurationRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dimens_8dp"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="@dimen/size_12sp"
+        app:layout_constraintBottom_toTopOf="@id/recordButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="01:00" />
+</android.support.constraint.ConstraintLayout>

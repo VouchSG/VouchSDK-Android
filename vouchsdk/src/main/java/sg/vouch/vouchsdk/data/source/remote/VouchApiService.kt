@@ -14,7 +14,9 @@ import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.SendAudioResponseModel
 import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
@@ -69,6 +71,13 @@ internal interface VouchApiService {
         @Header("token") token: String,
         @Body data: RegisterBodyModel
     ): Observable<BaseApiModel<RegisterResponseModel?>>
+
+    @POST("messages/voice")
+    @Headers("Content-Type: application/json")
+    fun sendAudio(
+        @Header("token") token: String,
+        @Body body: SendAudioBodyModel
+    ): Observable<BaseApiModel<SendAudioResponseModel>>
 
     @Multipart
     @POST("upload")

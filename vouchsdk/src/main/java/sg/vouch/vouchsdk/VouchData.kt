@@ -6,6 +6,7 @@ import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.utils.Helper
 import sg.vouch.vouchsdk.utils.Injection
@@ -95,6 +96,18 @@ class VouchData internal constructor(private val context: Context) {
 
     fun sendImage(body: MultipartBody.Part, callback: ImageMessageCallback) {
         mRepository.sendImage(body = body, onSuccess = {
+            callback.onSuccess(it)
+        }, onError = {
+            callback.onError(it)
+        }, onUnAuthorize = {
+            callback.onUnAuthorize()
+        }, onFinish = {
+
+        })
+    }
+
+    fun sendAudio(body: SendAudioBodyModel, callback: AudioMessageCallback) {
+        mRepository.sendAudio(body = body, onSuccess = {
             callback.onSuccess(it)
         }, onError = {
             callback.onError(it)

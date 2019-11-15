@@ -7,5 +7,6 @@ data class CustomerInfoModel(
     @SerializedName("firstname")
     val firstname: String? = "",
     @SerializedName("picture")
-    val picture: String? = ""
+    val picture: String? = "",
+    val fromMe: Boolean = false
 )
