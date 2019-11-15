@@ -9,7 +9,9 @@ import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.ReferenceSendBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.SendAudioResponseModel
 import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
@@ -188,6 +190,37 @@ object VouchRemoteDataSource : VouchDataSource {
         onFinish: () -> Unit
     ) {
         val disposable = mApiService.sendImage(token, body)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (it.code == 200 && it.data != null) {
+                    onSuccess(it.data)
+                } else if (it.code == 401) {
+                    onUnAuthorize()
+                } else {
+                    onError(it.message ?: "")
+                }
+            }, {
+                val e = it as HttpException
+                if (e.code() == 401) {
+                    onUnAuthorize()
+                } else {
+                    onError(it.message ?: "")
+                }
+            }, {
+                onFinish()
+            })
+    }
+
+    override fun sendAudio(
+        token: String,
+        body: SendAudioBodyModel,
+        onSuccess: (data: SendAudioResponseModel) -> Unit,
+        onError: (message: String) -> Unit,
+        onUnAuthorize: () -> Unit,
+        onFinish: () -> Unit
+    ) {
+        val disposable = mApiService.sendAudio(token, body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

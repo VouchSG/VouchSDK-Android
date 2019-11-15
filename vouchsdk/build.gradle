@@ -1,14 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'com.jfrog.bintray'
-//apply plugin: 'maven-publish'
-//apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
-apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.alfonsAzhari'
 
 android {
     compileSdkVersion 28
-
 
     defaultConfig {
         minSdkVersion 21
@@ -84,14 +82,4 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-}
-
-publish {
-    userOrg = 'alfons-azhari'
-    groupId = 'sg.vouch.vouchsdk'
-    repoName = 'VouchSDK'
-    artifactId = 'vouchsdk'
-    publishVersion = '0.0.1'
-    desc = 'This is vouch chat SDK'
-    website = 'https://github.com/VouchSG/VouchSDK-Android'
 }

@@ -10,6 +10,7 @@ import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.utils.Const.CONNECTIVITY_CHANGE
 import sg.vouch.vouchsdk.utils.Helper
 
@@ -118,7 +119,7 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
     }
 
     /**
-     * Send Current user location
+     * Send Image from gallery or camera
      * @param body
      * @param callback
      */
@@ -126,6 +127,14 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
         mVouchData.sendImage(body, callback)
     }
 
+    /**
+     * Send audio from voice recording
+     * @param body
+     * @param callback
+     */
+    override fun sendAudio(body: SendAudioBodyModel, callback: AudioMessageCallback) {
+        mVouchData.sendAudio(body, callback)
+    }
 
     /**
      * @param callback is size of list when request the data

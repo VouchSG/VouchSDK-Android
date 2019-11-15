@@ -13,8 +13,10 @@ import sg.vouch.vouchsdk.callback.*
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.body.LocationBodyModel
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.data.model.message.response.ButtonModel
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.SendAudioResponseModel
 import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType
@@ -352,7 +354,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     VouchChatModel(
                         title = it.title.safe(),
                         subTitle = it.subtitle.safe(),
-                        isMyChat = false,
+                        isMyChat = data.customerInfo?.fromMe!!,
                         type = VouchChatType.TYPE_LIST,
                         createdAt = data.createdAt.safe(),
                         mediaUrl = it.imageUrl.safe(),
@@ -372,7 +374,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     VouchChatModel(
                         title = it.title.safe(),
                         subTitle = it.subtitle.safe(),
-                        isMyChat = false,
+                        isMyChat = data.customerInfo?.fromMe!!,
                         type = VouchChatType.TYPE_LIST,
                         createdAt = data.createdAt.safe(),
                         mediaUrl = it.imageUrl.safe(),
@@ -396,7 +398,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         if (appendInLast) {
             bDataChat.add(
                 VouchChatModel(
-                    isMyChat = false,
+                    isMyChat = data.customerInfo?.fromMe!!,
                     type = VouchChatType.TYPE_GALLERY,
                     createdAt = data.createdAt.safe(),
                     galleryElements = data.elements ?: emptyList()
@@ -408,7 +410,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             bDataChat.add(
                 0,
                 VouchChatModel(
-                    isMyChat = false,
+                    isMyChat = data.customerInfo?.fromMe!!,
                     type = VouchChatType.TYPE_GALLERY,
                     createdAt = data.createdAt.safe(),
                     galleryElements = data.elements ?: emptyList()
@@ -619,6 +621,21 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 )
 
                 sendReplyMessage(message)
+            }
+
+            override fun onError(message: String) {
+                eventShowMessage.value = message
+            }
+        })
+    }
+
+    fun sendAudioMessage(body: SendAudioBodyModel) {
+        mVouchSDK.sendAudio(body, object : AudioMessageCallback {
+            override fun onUnAuthorize() {
+                retryRegisterUser()
+            }
+
+            override fun onSuccess(data: SendAudioResponseModel) {
             }
 
             override fun onError(message: String) {

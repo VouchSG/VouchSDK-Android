@@ -114,89 +114,122 @@
             android:id="@+id/ivPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/inputField" />
+            app:layout_constraintBottom_toTopOf="@id/inputSection" />
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/inputField"
+        <LinearLayout
+            android:id="@+id/inputSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimens_8dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/poweredText"
-            tools:visibility="visible">
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/poweredText">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
+                android:id="@+id/inputField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/dimens_16dp"
-                android:paddingTop="@dimen/dimens_8dp"
-                android:paddingEnd="@dimen/dimens_16dp"
-                android:paddingBottom="@dimen/dimens_8dp">
+                android:layout_marginTop="@dimen/dimens_8dp"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-                <FrameLayout
-                    android:id="@+id/attachmentButton"
-                    android:layout_width="@dimen/dimens_40dp"
-                    android:layout_height="@dimen/dimens_40dp"
-                    android:layout_gravity="bottom"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/backgroundAttachment"
-                        android:layout_width="@dimen/dimens_40dp"
-                        android:layout_height="@dimen/dimens_40dp"
-                        android:src="@drawable/circle_gray"
-                        app:riv_corner_radius="@dimen/dimens_40dp" />
-
-                    <ImageView
-                        android:id="@+id/imageAttachment"
-                        android:layout_width="@dimen/dimens_40dp"
-                        android:layout_height="@dimen/dimens_40dp"
-                        android:layout_gravity="bottom"
-                        android:padding="@dimen/dimens_8dp"
-                        android:src="@drawable/ic_attachment_chat" />
-                </FrameLayout>
-
-                <EditText
-                    android:id="@+id/fieldContent"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:background="@color/colorWhite"
-                    android:hint="@string/text_type_something"
-                    android:inputType="textLongMessage|textMultiLine"
-                    android:maxLines="5"
-                    android:padding="@dimen/dimens_8dp"
-                    android:textSize="@dimen/size_12sp" />
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/dimens_16dp"
+                    android:paddingTop="@dimen/dimens_8dp"
+                    android:paddingEnd="@dimen/dimens_16dp"
+                    android:paddingBottom="@dimen/dimens_8dp">
 
-                <FrameLayout
-                    android:id="@+id/sendButton"
-                    android:layout_width="@dimen/dimens_40dp"
-                    android:layout_height="@dimen/dimens_40dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/backgroundSend"
-                        android:layout_width="@dimen/dimens_40dp"
-                        android:layout_height="@dimen/dimens_40dp"
-                        android:src="@drawable/circle_gray"
-                        app:riv_corner_radius="@dimen/dimens_40dp" />
-
-                    <ImageView
-                        android:id="@+id/imageSend"
+                    <FrameLayout
+                        android:id="@+id/attachmentButton"
                         android:layout_width="@dimen/dimens_40dp"
                         android:layout_height="@dimen/dimens_40dp"
                         android:layout_gravity="bottom"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/backgroundAttachment"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:src="@drawable/circle_gray"
+                            app:riv_corner_radius="@dimen/dimens_40dp" />
+
+                        <ImageView
+                            android:id="@+id/imageAttachment"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:layout_gravity="bottom"
+                            android:padding="@dimen/dimens_8dp"
+                            android:src="@drawable/ic_attachment_chat" />
+                    </FrameLayout>
+
+                    <EditText
+                        android:id="@+id/fieldContent"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="@color/colorWhite"
+                        android:hint="@string/text_type_something"
+                        android:inputType="textLongMessage|textMultiLine"
+                        android:maxLines="5"
                         android:padding="@dimen/dimens_8dp"
-                        android:src="@drawable/ic_mic_white_24dp" />
-                </FrameLayout>
-            </LinearLayout>
-        </android.support.v7.widget.CardView>
+                        android:textSize="@dimen/size_12sp" />
+
+                    <FrameLayout
+                        android:id="@+id/sendButton"
+                        android:layout_width="@dimen/dimens_40dp"
+                        android:layout_height="@dimen/dimens_40dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/backgroundSend"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:src="@drawable/circle_gray"
+                            app:riv_corner_radius="@dimen/dimens_40dp" />
+
+                        <ImageView
+                            android:id="@+id/imageSend"
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:layout_gravity="bottom"
+                            android:padding="@dimen/dimens_8dp"
+                            android:src="@drawable/ic_mic_white_24dp" />
+                    </FrameLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <RelativeLayout
+                android:id="@+id/containerAudioRec"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimens_152dp"
+                android:visibility="gone">
+
+                <ImageButton
+                    android:id="@+id/recordButton"
+                    android:layout_width="@dimen/dimens_72dp"
+                    android:layout_height="@dimen/dimens_72dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/bg_button_rec_audio"
+                    android:src="@drawable/ic_mic_white_24dp" />
+
+                <TextView
+                    android:id="@+id/textDurationRecord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@id/recordButton"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="@dimen/dimens_8dp"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="@dimen/size_12sp"
+                    tools:text="01:00" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/poweredText"

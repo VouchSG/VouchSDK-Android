@@ -2,6 +2,7 @@ package sg.vouch.vouchsdk.callback
 
 import sg.vouch.vouchsdk.data.model.config.response.ConfigResponseModel
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.SendAudioResponseModel
 import sg.vouch.vouchsdk.data.model.message.response.UploadImageResponseModel
 
 /**
@@ -42,6 +43,12 @@ interface LocationMessageCallback {
 
 interface ImageMessageCallback {
     fun onSuccess(data: UploadImageResponseModel)
+    fun onError(message: String)
+    fun onUnAuthorize()
+}
+
+interface AudioMessageCallback {
+    fun onSuccess(data: SendAudioResponseModel)
     fun onError(message: String)
     fun onUnAuthorize()
 }
