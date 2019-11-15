@@ -29,6 +29,7 @@ import sg.vouch.vouchsdk.utils.safe
 class VouchChatViewModel(application: Application) : AndroidViewModel(application), VouchCallback,
     OnSuccessListener<Location> {
 
+
     lateinit var mVouchSDK: VouchSDK
     private lateinit var mVouchCore: VouchCore
 
@@ -41,6 +42,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     var isPaginating: Boolean = false
     var isLastPage: Boolean = false
+    var isTyping: Boolean = false
 
     val changeConnectStatus = MutableLiveData<Boolean>()
     val eventShowMessage = MutableLiveData<String>()
@@ -184,7 +186,36 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             insertDataButton(message.buttons ?: emptyList(), appendInLast)
         }
     }
+    /**
+     * Insert GIF Typing
+     */
+    override fun onTyping(typing: Boolean) {
+        if(typing != isTyping){
+            isTyping = typing
+            if(typing) {
+                Handler().postDelayed({
+                    bDataChat.add(
+                        0,
+                        VouchChatModel(
+                            "",
+                            "",
+                            false,
+                            VouchChatType.TYPE_TYPING,
+                            "-",
+                            mediaUrl = "",
+                            isPendingMessage = true
+                        )
+                    )
+                    eventUpdateList.value =
+                        VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+                }, 1000)
 
+            }else{
+                removeThinking()
+            }
+        }
+
+    }
     /**
      * Insert Pending message
      */
@@ -438,6 +469,16 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         })
         eventUpdateList.value =
             VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position, endPosition = endPosition)
+    }
+    /**
+     * Remove thinking
+     */
+    private fun removeThinking(){
+        val b: List<Int> = bDataChat.mapIndexed { i, b -> if (b.type == VouchChatType.TYPE_TYPING) i else null }.filterNotNull().toList()
+        for(position in b){
+            removeDataChat(position)
+        }
+
     }
 
     /**

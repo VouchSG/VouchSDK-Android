@@ -14,5 +14,6 @@ enum class VouchChatType {
     TYPE_QUICK_REPLY,
     TYPE_GALLERY,
     TYPE_BUTTON,
+    TYPE_TYPING
 
 }

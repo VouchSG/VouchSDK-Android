@@ -15,8 +15,10 @@ import sg.vouch.vouchsdk.BuildConfig.BASE_URL_SOCKET
 import sg.vouch.vouchsdk.callback.VouchCallback
 import sg.vouch.vouchsdk.data.VouchRepository
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
+import sg.vouch.vouchsdk.data.model.message.response.TypingResponseModel
 import sg.vouch.vouchsdk.data.model.register.RegisterBodyModel
 import sg.vouch.vouchsdk.utils.Const.EVENT_NEW_MESSAGE
+import sg.vouch.vouchsdk.utils.Const.EVENT_NEW_TYPING
 import sg.vouch.vouchsdk.utils.Helper
 import sg.vouch.vouchsdk.utils.Injection
 import sg.vouch.vouchsdk.utils.addHeader
@@ -120,6 +122,22 @@ class VouchCore internal constructor() {
                     executeOnMainThread {
                         Log.d("SocketResponse", jsonObject)
                         mCallback?.onReceivedNewMessage(result)
+                    }
+
+                } catch (e: Exception) {
+                    executeOnMainThread {
+                        mCallback?.onError("invalid response socket for the message object, ${e.message ?: ""}")
+                    }
+                }
+            }
+
+            on(EVENT_NEW_TYPING) {
+                try {
+                    val jsonObject = (it.firstOrNull() as JSONObject).toString()
+                    val result = mGson.fromJson<TypingResponseModel>(jsonObject, TypingResponseModel::class.java)
+                    executeOnMainThread {
+                        Log.d("SocketResponse", jsonObject)
+                        mCallback?.onTyping(result.message!!.typing)
                     }
 
                 } catch (e: Exception) {

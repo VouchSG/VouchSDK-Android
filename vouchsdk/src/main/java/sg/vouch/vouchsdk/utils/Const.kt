@@ -12,6 +12,7 @@ object Const {
     const val REGISTER_TRESHOLD = 1000 * 100 * 3
 
     const val EVENT_NEW_MESSAGE = "newMsg"
+    const val EVENT_NEW_TYPING = "typing"
 
     const val PREF_KEY = "vouch-pref-key"
     const val PREF_CREDENTIAL_KEY = "credential-key"

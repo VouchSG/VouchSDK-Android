@@ -88,6 +88,18 @@
         android:layout_marginEnd="@dimen/dimens_8dp"
         app:cardCornerRadius="@dimen/dimens_4dp">
 
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
+            android:id="@+id/thinking"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="thinking.json"
+            app:lottie_loop="true" />
+
         <TextView
             android:id="@+id/chatContent"
             android:layout_width="wrap_content"

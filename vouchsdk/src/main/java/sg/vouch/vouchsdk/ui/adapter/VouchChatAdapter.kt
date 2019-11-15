@@ -273,6 +273,11 @@ class VouchChatAdapter(
                                 } catch (e: IOException) {
                                 }
                             }
+                            data.type == TYPE_TYPING -> {
+                                cardBubble.visibility = View.VISIBLE
+                                thinking.visibility = View.VISIBLE
+                                chatContent.visibility = View.GONE
+                            }
                             else -> {
                                 cardBubble.visibility = View.VISIBLE
                             }

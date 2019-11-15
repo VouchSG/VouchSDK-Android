@@ -16,6 +16,8 @@ interface VouchCallback {
 
     fun onReceivedNewMessage(message: MessageResponseModel)
 
+    fun onTyping(typing: Boolean)
+
     fun onDisconnected(isActionFromUser: Boolean)
 
     fun onError(message: String)
