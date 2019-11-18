@@ -136,6 +136,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     override fun onReceivedNewMessage(message: MessageResponseModel) {
+        if(!bDataChat.isEmpty() && bDataChat[0].type == VouchChatType.TYPE_TYPING){
+            removeDataChat(0)
+        }
         Handler().postDelayed({
             eventChangeStateToGreeting.value = false
             insertDataByFiltered(message)
@@ -212,8 +215,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
                 }, 1000)
 
-            }else{
-                removeThinking()
+             }
+            else {
+                if (!bDataChat.isEmpty() && bDataChat[0].type == VouchChatType.TYPE_TYPING) {
+                    removeDataChat(0)
+                }
             }
         }
 
@@ -471,16 +477,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         })
         eventUpdateList.value =
             VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position, endPosition = endPosition)
-    }
-    /**
-     * Remove thinking
-     */
-    private fun removeThinking(){
-        val b: List<Int> = bDataChat.mapIndexed { i, b -> if (b.type == VouchChatType.TYPE_TYPING) i else null }.filterNotNull().toList()
-        for(position in b){
-            removeDataChat(position)
-        }
-
     }
 
     /**

@@ -46,6 +46,7 @@ import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Const.URI_SCHEME_FILE
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
+import net.alhazmy13.mediapicker.Video.VideoPicker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -280,6 +281,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                         )
                     )
                     fieldContent.setText("")
+                    mSendButtonStatus = false
                 } else {
                     if (checkAudioRecordPermission()) {
                         VoiceRecordDialog.newInstance().show(childFragmentManager,
@@ -288,7 +290,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             }
             R.id.attachmentButton -> {
-                CameraGalleryHelper.openImagePickerOption(requireActivity())
+//                CameraGalleryHelper.openImagePickerOption(requireActivity())
+
+                VideoPicker.Builder(requireActivity())
+                        .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
+                        .directory(VideoPicker.Directory.DEFAULT)
+                        .extension(VideoPicker.Extension.MP4)
+                        .enableDebuggingMode(true)
+                        .build()
             }
             else -> { }
         }

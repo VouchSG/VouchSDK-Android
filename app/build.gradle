@@ -41,4 +41,5 @@ dependencies {
 //    implementation 'com.github.VouchSG:VouchSDK-Android:0.0.1'
     implementation project(path: ':vouchsdk')
 //    implementation 'sg.vouch.vouchsdk:vouchsdk:0.0.1'
+
 }

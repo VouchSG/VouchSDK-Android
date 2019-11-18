@@ -233,6 +233,9 @@ class VouchChatAdapter(
                         imageVideo.visibility = View.GONE
                         cardAudio.visibility = View.GONE
                         packVideo.visibility = View.GONE
+                        thinking.visibility = View.GONE
+
+                        dateTime.visibility = View.VISIBLE
 
                         when {
                             data.type == TYPE_IMAGE -> {
@@ -274,9 +277,8 @@ class VouchChatAdapter(
                                 }
                             }
                             data.type == TYPE_TYPING -> {
-                                cardBubble.visibility = View.VISIBLE
                                 thinking.visibility = View.VISIBLE
-                                chatContent.visibility = View.GONE
+                                dateTime.visibility = View.GONE
                             }
                             else -> {
                                 cardBubble.visibility = View.VISIBLE
