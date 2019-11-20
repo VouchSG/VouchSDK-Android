@@ -201,12 +201,12 @@ object VouchRemoteDataSource : VouchDataSource {
                     onError(it.message ?: "")
                 }
             }, {
-                val e = it as HttpException
-                if (e.code() == 401) {
-                    onUnAuthorize()
-                } else {
+//                val e = it as HttpException
+//                if (e.code() == 401) {
+//                    onUnAuthorize()
+//                } else {
                     onError(it.message ?: "")
-                }
+//                }
             }, {
                 onFinish()
             })

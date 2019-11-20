@@ -215,11 +215,21 @@ class VouchChatAdapter(
                                 myCardBubble.setContentPadding(padding, padding, padding, padding)
                                 myChatImage.setImageUrl(data.mediaUrl)
                             }
+                            TYPE_VIDEO -> {
+                                myImageVideo.setImageUrl(data.mediaUrl)
+                                myImageVideo.setOnClickListener {
+                                    mListener.onClickPlayVideo(
+                                        data,
+                                        it as ImageView
+                                    )
+                                }
+                            }
                             else -> {}
                         }
 
                         myChatImage.visibility = if (TYPE_IMAGE == data.type) View.VISIBLE else View.GONE
                         myChatContent.visibility = if (TYPE_TEXT == data.type) View.VISIBLE else View.GONE
+                        myPackVideo.visibility = if (TYPE_VIDEO == data.type) View.VISIBLE else View.GONE
 
                         myDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())

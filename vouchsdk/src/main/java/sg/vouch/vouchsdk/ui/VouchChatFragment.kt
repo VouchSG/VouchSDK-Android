@@ -52,6 +52,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
+import sg.vouch.vouchsdk.ui.model.AttachmentDialog
+import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_MP4
 import java.io.*
 
 
@@ -290,14 +292,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             }
             R.id.attachmentButton -> {
-//                CameraGalleryHelper.openImagePickerOption(requireActivity())
-
-                VideoPicker.Builder(requireActivity())
-                        .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
-                        .directory(VideoPicker.Directory.DEFAULT)
-                        .extension(VideoPicker.Extension.MP4)
-                        .enableDebuggingMode(true)
-                        .build()
+                AttachmentDialog.newInstance().show(childFragmentManager,
+                    "VouchChatFragment@AttachmentDialog")
             }
             else -> { }
         }
@@ -380,6 +376,21 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.sendAudioMessage(SendAudioBodyModel(base64Audio))
     }
 
+    fun sendVideoChat(videoUri : Uri){
+        val resolver = context?.contentResolver
+        val requestBody: RequestBody?
+        val requestPart: MultipartBody.Part?
+        val mimeType = resolver?.getType(videoUri)
+        val inputStream = resolver?.openInputStream(videoUri)
+        val file = File(videoUri.path)
+
+        requestBody = file.asRequestBody(MIME_TYPE_MP4.toMediaTypeOrNull())
+        requestPart =
+            MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
+
+        mViewModel.sendImageMessage("video", requestPart, videoUri.path)
+
+    }
     fun sendImageChat(imageUri: Uri) {
         val resolver = context?.contentResolver
         val scheme = imageUri.scheme
@@ -411,7 +422,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
         }
 
-        mViewModel.sendImageMessage(requestPart)
+        mViewModel.sendImageMessage("image", requestPart, imageUri.path)
 
         val bitmap = MediaStore.Images.Media.getBitmap(resolver, imageUri)
         ivPreview.setImageBitmap(bitmap)

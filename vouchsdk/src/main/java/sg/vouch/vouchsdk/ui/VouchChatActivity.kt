@@ -7,10 +7,11 @@ import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.VouchSDK
 import com.theartofdev.edmodo.cropper.CropImage
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import net.alhazmy13.mediapicker.Video.VideoPicker
-
+import java.io.File
 
 
 /**
@@ -47,6 +48,12 @@ class VouchChatActivity : AppCompatActivity() {
         else if (requestCode === VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode === Activity.RESULT_OK) {
             val mPaths = data!!.getStringArrayListExtra(VideoPicker.EXTRA_VIDEO_PATH)
             Toast.makeText(baseContext, mPaths[0], Toast.LENGTH_SHORT).show()
+
+            val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                    as VouchChatFragment
+
+
+            fragment.sendVideoChat(Uri.fromFile(File(mPaths[0])))
         }
     }
 }

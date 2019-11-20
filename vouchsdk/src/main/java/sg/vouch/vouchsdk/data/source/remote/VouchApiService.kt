@@ -101,8 +101,8 @@ internal interface VouchApiService {
                         val newRequest = request.newBuilder().build()
                         chain.proceed(newRequest)
                     }
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(120, TimeUnit.SECONDS)
                     .build()
             } else {
                 OkHttpClient.Builder()
@@ -111,8 +111,8 @@ internal interface VouchApiService {
                         val newRequest = request.newBuilder().build()
                         chain.proceed(newRequest)
                     }
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(120, TimeUnit.SECONDS)
                     .build()
             }
 

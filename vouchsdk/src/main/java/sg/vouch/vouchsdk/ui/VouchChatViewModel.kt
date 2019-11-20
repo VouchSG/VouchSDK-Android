@@ -246,6 +246,14 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
 
+    private fun insertPendingVideo(videoUrl: String) {
+        bDataChat.add(
+            0,
+            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true)
+        )
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+    }
+
     /**
      * Update sender message
      */
@@ -264,6 +272,14 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 "",
                 true,
                 VouchChatType.TYPE_IMAGE,
+                data.createdAt.safe(),
+                mediaUrl = data.text.safe()
+            )
+            "video" -> VouchChatModel(
+                "",
+                "",
+                true,
+                VouchChatType.TYPE_VIDEO,
                 data.createdAt.safe(),
                 mediaUrl = data.text.safe()
             )
@@ -557,7 +573,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             "image" -> {
-                insertPendingImage(body.text.safe())
+//                insertPendingImage(body.text.safe())
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
                     override fun onUnAuthorize() {
                         mMultipartImage = null
@@ -574,6 +590,25 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                 })
             }
+            "video" -> {
+//                insertPendingVideo(body.text.safe())
+                mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
+                    override fun onUnAuthorize() {
+                        mMultipartImage = null
+                        retryRegisterUser()
+                    }
+
+                    override fun onSuccess(data: MessageResponseModel) {
+                        println("type video => $data")
+                        updateUserMessage(0, data)
+                    }
+
+                    override fun onError(message: String) {
+                        eventShowMessage.value = message
+                    }
+                })
+            }
+
         }
     }
 
@@ -588,7 +623,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     removeDataChat(0)
                     sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
                 } else {
-                    sendImageMessage(mMultipartImage ?: MultipartBody.Part.createFormData("", ""))
+                    sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
                 }
             }
 
@@ -602,7 +637,12 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Send image to server
      */
-    fun sendImageMessage(body: MultipartBody.Part) {
+    fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String) {
+        if(msgType=="image") {
+            insertPendingImage(path)
+        }else if(msgType=="video") {
+            insertPendingVideo(path)
+        }
         mMultipartImage = body
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onUnAuthorize() {
@@ -611,9 +651,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onSuccess(data: UploadImageResponseModel) {
                 val message = MessageBodyModel(
-                    msgType = "image",
+                    msgType = msgType,
                     text = data.url,
-                    type = "text"
+                    type = msgType
                 )
 
                 sendReplyMessage(message)

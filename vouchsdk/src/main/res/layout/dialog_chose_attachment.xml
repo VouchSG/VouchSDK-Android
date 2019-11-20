@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimens_160dp"
+    app:behavior_peekHeight="@dimen/dimens_160dp"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    app:layout_minHeight="@dimen/dimens_160dp">
+
+    <ImageView
+        android:id="@+id/closeImage"
+        android:layout_width="@dimen/dimens_32dp"
+        android:layout_height="@dimen/dimens_32dp"
+        android:layout_marginTop="@dimen/dimens_8dp"
+        android:layout_marginEnd="@dimen/dimens_8dp"
+        android:padding="@dimen/dimens_2dp"
+        android:src="@drawable/ic_close_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/dimens_20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="@dimen/dimens_72dp"
+            android:layout_height="@dimen/dimens_72dp"
+            android:layout_marginRight="@dimen/dimens_12dp"
+            android:background="@drawable/bg_button_rec_audio"
+            android:src="@drawable/ic_image_white_24dp"
+            android:tint="@color/colorWhite" />
+        <ImageButton
+            android:id="@+id/videoButton"
+            android:layout_width="@dimen/dimens_72dp"
+            android:layout_marginLeft="@dimen/dimens_12dp"
+            android:layout_height="@dimen/dimens_72dp"
+            android:background="@drawable/bg_button_rec_audio"
+            android:src="@drawable/ic_video_library_white_24dp"
+            android:tint="@color/colorWhite"/>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
