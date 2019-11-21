@@ -47,8 +47,6 @@ class VouchChatActivity : AppCompatActivity() {
 
         else if (requestCode === VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode === Activity.RESULT_OK) {
             val mPaths = data!!.getStringArrayListExtra(VideoPicker.EXTRA_VIDEO_PATH)
-            Toast.makeText(baseContext, mPaths[0], Toast.LENGTH_SHORT).show()
-
             val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
                     as VouchChatFragment
 
