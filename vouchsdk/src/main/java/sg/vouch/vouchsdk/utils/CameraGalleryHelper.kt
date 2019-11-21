@@ -12,6 +12,9 @@ import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import com.theartofdev.edmodo.cropper.CropImage
 import sg.vouch.vouchsdk.BuildConfig
+import android.webkit.MimeTypeMap
+
+
 
 //
 /**
@@ -72,5 +75,16 @@ class CameraGalleryHelper {
             }
             return true
         }
+
+        // url = file path or whatever suitable URL you want.
+        fun getMimeType(url: String): String {
+            var type: String = ""
+            val extension = MimeTypeMap.getFileExtensionFromUrl(url)
+            if (extension != null) {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            }
+            return type
+        }
     }
+
 }

@@ -377,14 +377,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     fun sendVideoChat(videoUri : Uri){
-        val resolver = context?.contentResolver
         val requestBody: RequestBody?
         val requestPart: MultipartBody.Part?
-        val mimeType = resolver?.getType(videoUri)
-        val inputStream = resolver?.openInputStream(videoUri)
+        val mimeType = CameraGalleryHelper.getMimeType(videoUri.path)
         val file = File(videoUri.path)
 
-        requestBody = file.asRequestBody(MIME_TYPE_MP4.toMediaTypeOrNull())
+        requestBody = file.asRequestBody(mimeType.toMediaTypeOrNull())
         requestPart =
             MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
 
