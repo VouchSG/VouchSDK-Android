@@ -45,6 +45,7 @@ class VouchCore internal constructor() {
 
     private var username: String = UUID.randomUUID().toString()
     private var password: String = UUID.randomUUID().toString()
+    private var apiKey: String = ""
 
     private val mGson = Gson()
 
@@ -55,9 +56,10 @@ class VouchCore internal constructor() {
     /**
      * Set Credential for chat
      */
-    fun setCredential(username: String, password: String) {
+    fun setCredential(username: String, password: String, apiKey: String) {
         this@VouchCore.username = username
         this@VouchCore.password = password
+        this@VouchCore.apiKey = apiKey
     }
 
 
@@ -66,8 +68,11 @@ class VouchCore internal constructor() {
      */
     private fun initialize(application: Application, callback: VouchCallback) {
         mCallback = callback
+        if(this@VouchCore.apiKey.isEmpty()){
+            this@VouchCore.apiKey = Helper.getCredentialKey(application)
+        }
+        mCredentialKey = this@VouchCore.apiKey
         mRepository = Injection.createRepository(application)
-        mCredentialKey = Helper.getCredentialKey(application)
     }
 
 
@@ -230,14 +235,14 @@ class VouchCore internal constructor() {
 
         fun setupCore(application: Application, callback: VouchCallback): Builder {
             INSTANCE = VouchCore()
-            INSTANCE?.setCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+            INSTANCE?.setCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "")
             INSTANCE?.initialize(application, callback)
             return this
         }
 
-        fun setupCore(application: Application, username: String, password: String, callback: VouchCallback): Builder {
+        fun setupCore(application: Application, username: String, password: String, apiKey: String, callback: VouchCallback): Builder {
             INSTANCE = VouchCore()
-            INSTANCE?.setCredential(username, password)
+            INSTANCE?.setCredential(username, password, apiKey)
             INSTANCE?.initialize(application, callback)
             return this
         }

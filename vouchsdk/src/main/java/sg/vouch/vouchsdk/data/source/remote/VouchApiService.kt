@@ -125,5 +125,44 @@ internal interface VouchApiService {
 
             return mRetrofit.create(VouchApiService::class.java)
         }
+
+
+        fun getApiServiceCustom(newUrl : String): VouchApiService {
+
+            val mLoggingInterceptor = HttpLoggingInterceptor()
+            mLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+            val mClient = if (BuildConfig.DEBUG) {
+                OkHttpClient.Builder()
+                    .addInterceptor(mLoggingInterceptor)
+                    .addInterceptor { chain ->
+                        val request = chain.request()
+                        val newRequest = request.newBuilder().build()
+                        chain.proceed(newRequest)
+                    }
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(120, TimeUnit.SECONDS)
+                    .build()
+            } else {
+                OkHttpClient.Builder()
+                    .addInterceptor { chain ->
+                        val request = chain.request()
+                        val newRequest = request.newBuilder().build()
+                        chain.proceed(newRequest)
+                    }
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(120, TimeUnit.SECONDS)
+                    .build()
+            }
+
+            val mRetrofit = Retrofit.Builder()
+                .baseUrl("$newUrl/api/v2/widget/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(mClient)
+                .build()
+
+            return mRetrofit.create(VouchApiService::class.java)
+        }
     }
 }

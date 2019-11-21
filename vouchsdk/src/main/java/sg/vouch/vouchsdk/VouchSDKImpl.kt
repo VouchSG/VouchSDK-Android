@@ -19,7 +19,7 @@ import sg.vouch.vouchsdk.utils.Helper
  * Bandung, on 2019-08-27
  */
 
-class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String) :
+class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String, val apiKey : String) :
     VouchSDK {
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
@@ -44,7 +44,7 @@ class VouchSDKImpl internal constructor(val application: Application, val userna
      * The BroadCastReceiver will triggered when connection status change
      */
     override fun init(callback: VouchCallback) {
-        mVouchCore = VouchCore.setupCore(application, username, password, callback).build()
+        mVouchCore = VouchCore.setupCore(application, username, password, apiKey, callback).build()
         mVouchData = VouchData(application)
         application.registerReceiver(internetReceiver, IntentFilter(CONNECTIVITY_CHANGE))
     }

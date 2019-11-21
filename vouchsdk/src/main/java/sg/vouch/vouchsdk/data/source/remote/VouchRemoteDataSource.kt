@@ -51,7 +51,7 @@ object VouchRemoteDataSource : VouchDataSource {
             })
     }
 
-    private val mApiService = VouchApiService.getApiService()
+    private var mApiService = VouchApiService.getApiService()
 
     private var configDisposable: Disposable? = null
     private var chatDisposable: Disposable? = null
@@ -69,6 +69,8 @@ object VouchRemoteDataSource : VouchDataSource {
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
+
+                    mApiService = VouchApiService.getApiServiceCustom(it.data.domainWhiteList!![0]!!)
                 } else {
                     onError(it.message ?: "")
                 }

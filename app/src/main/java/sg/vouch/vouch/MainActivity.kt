@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     fun openChat(v: View) {
         VouchSDK
             .setCredential(username = username.text.toString(), password = password.text.toString())
+            .setApiKey("")
             .isUsingEntranceAnimation(true)
             .openChatActivity(this)
     }

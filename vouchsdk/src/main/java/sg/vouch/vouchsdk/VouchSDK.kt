@@ -53,6 +53,7 @@ interface VouchSDK {
 
         private var mUsername = ""
         private var mPassword = ""
+        private var mApiKey = ""
         private var isUsingAnimation = false
 
         /**
@@ -72,9 +73,14 @@ interface VouchSDK {
             return this@Builder
         }
 
+        fun setApiKey(apikey : String): Builder {
+            mApiKey = apikey
+            return this@Builder
+        }
 
-        fun createSDK(application: Application): VouchSDK {
-            return VouchSDKImpl(application = application, username = mUsername, password = mPassword)
+
+            fun createSDK(application: Application): VouchSDK {
+            return VouchSDKImpl(application = application, username = mUsername, password = mPassword, apiKey = mApiKey)
         }
 
         fun createChatFragment(): VouchChatFragment {
