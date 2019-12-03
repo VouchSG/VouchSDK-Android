@@ -16,10 +16,13 @@ import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.SeekBar;
+
 import com.makeramen.roundedimageview.Corner;
 import com.makeramen.roundedimageview.RoundedDrawable;
 import sg.vouch.vouchsdk.R;
 import pl.droidsonroids.gif.GifImageView;
+import sg.vouch.vouchsdk.utils.CountdownTimerPause;
 
 /**
  * @Author by Radhika Yusuf
@@ -242,6 +245,7 @@ public class GifRoundedImageView extends GifImageView {
             super.setImageDrawable(mDrawable);
         }
     }
+
 
     @Override public void setImageURI(Uri uri) {
         super.setImageURI(uri);

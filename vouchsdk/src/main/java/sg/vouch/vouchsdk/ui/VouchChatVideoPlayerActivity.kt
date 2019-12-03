@@ -28,6 +28,8 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
         videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
         videoView.setOnPreparedListener(this@VouchChatVideoPlayerActivity)
+
+        closeImage.setOnClickListener { onBackPressed() }
     }
 
     @SuppressLint("InlinedApi")

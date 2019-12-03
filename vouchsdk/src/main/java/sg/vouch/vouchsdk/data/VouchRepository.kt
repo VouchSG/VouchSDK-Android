@@ -15,10 +15,8 @@ import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
 import sg.vouch.vouchsdk.data.source.VouchDataSource
 
 /**
- * @author Radhika Yusuf Alifiansyah
- * Bandung, 26 Aug 2019
+ * This is a class created for repository VouchSDK
  */
-
 class VouchRepository(
     private val localDataSource: VouchDataSource,
     private val remoteDataSource: VouchDataSource

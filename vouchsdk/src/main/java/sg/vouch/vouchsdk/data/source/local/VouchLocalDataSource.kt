@@ -26,8 +26,9 @@ import sg.vouch.vouchsdk.utils.Const.PREF_USER_CONFIG
 import sg.vouch.vouchsdk.utils.Helper
 
 /**
- * @author Radhika Yusuf Alifiansyah
- * Bandung, 26 Aug 2019
+ * This is a class created for handling the data on Injection
+ *
+ * @param context to get preference
  */
 
 class VouchLocalDataSource(private val mContext: Context) : VouchDataSource {

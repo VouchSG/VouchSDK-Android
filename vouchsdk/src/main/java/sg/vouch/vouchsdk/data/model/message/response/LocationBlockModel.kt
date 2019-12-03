@@ -4,6 +4,9 @@ package sg.vouch.vouchsdk.data.model.message.response
 import com.google.gson.annotations.SerializedName
 import sg.vouch.vouchsdk.data.model.message.response.location.*
 
+/**
+ * This is a class created for handling the data on MessageResponseModel
+ */
 data class LocationBlockModel(
     @SerializedName("permissionDenied")
     val permissionDenied: PermissionDeniedModel? = null,

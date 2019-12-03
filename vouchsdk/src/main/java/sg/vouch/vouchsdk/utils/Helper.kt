@@ -34,6 +34,9 @@ object Helper {
         //should check null because in airplane mode it will be null
         return netInfo != null && netInfo.isConnected
     }
+    fun timeUnitToString(timeUnit: Long): String {
+        return if (timeUnit < 10) "0$timeUnit" else timeUnit.toString()
+    }
 
 
 }

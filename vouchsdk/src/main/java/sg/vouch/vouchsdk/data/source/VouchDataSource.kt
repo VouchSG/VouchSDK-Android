@@ -15,8 +15,7 @@ import sg.vouch.vouchsdk.data.model.register.RegisterResponseModel
 
 
 /**
- * @author Radhika Yusuf Alifiansyah
- * Bandung, 26 Aug 2019
+ * This is a interface created for DataSource and Repository
  */
 
 

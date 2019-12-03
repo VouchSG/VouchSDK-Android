@@ -81,69 +81,94 @@
         </android.support.v7.widget.CardView>
     </LinearLayout>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardBubble"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dimens_8dp"
-        app:cardCornerRadius="@dimen/dimens_4dp">
-
-        <TextView
-            android:id="@+id/chatContent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/dimens_16dp"
-            android:paddingTop="@dimen/dimens_8dp"
-            android:paddingEnd="@dimen/dimens_16dp"
-            android:paddingBottom="@dimen/dimens_8dp"
-            android:textColor="@color/colorTextPrimary"
-            tools:text="Hello" />
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardAudio"
-        android:layout_width="@dimen/dimens_240dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dimens_8dp"
-        android:visibility="gone"
-        app:cardCornerRadius="@dimen/dimens_4dp">
-
+        android:orientation="horizontal">
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardBubble"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="@dimen/dimens_8dp">
-
-            <sg.vouch.vouchsdk.utils.widget.SquareRoundedImageView
-                android:id="@+id/playAudio"
-                android:layout_width="@dimen/dimens_32dp"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:padding="@dimen/dimens_4dp"
-                android:src="@drawable/ic_play_arrow_black_24dp" />
+            android:layout_marginEnd="@dimen/dimens_8dp"
+            app:cardCornerRadius="@dimen/dimens_4dp">
 
             <TextView
+                android:id="@+id/chatContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/dimens_8dp"
-                android:layout_marginEnd="@dimen/dimens_8dp"
-                android:text="0:00"
-                android:textColor="@color/colorTextPrimary" />
-
-            <SeekBar
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:max="100"
-                android:progressTint="@color/colorPrimaryDarkChat"
-                android:thumbTint="@color/colorPrimaryDarkChat"
-                tools:progress="50" />
+                android:paddingStart="@dimen/dimens_16dp"
+                android:paddingTop="@dimen/dimens_8dp"
+                android:paddingEnd="@dimen/dimens_16dp"
+                android:paddingBottom="@dimen/dimens_8dp"
+                android:textColor="@color/colorTextPrimary"
+                tools:text="Hello" />
+        </android.support.v7.widget.CardView>
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+        <View
+            android:layout_width="match_parent"
+            android:layout_weight="3"
+            android:layout_height="1dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardAudio"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/dimens_4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/dimens_8dp">
+
+                <sg.vouch.vouchsdk.utils.widget.SquareRoundedImageView
+                    android:id="@+id/playAudio"
+                    android:layout_width="@dimen/dimens_32dp"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:padding="@dimen/dimens_4dp"
+                    android:src="@drawable/ic_play_arrow_black_24dp" />
+
+                <TextView
+                    android:id="@+id/audioText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/dimens_8dp"
+                    android:layout_marginEnd="@dimen/dimens_8dp"
+                    android:text="0:00"
+                    android:textColor="@color/colorTextPrimary" />
+
+                <SeekBar
+                    android:id="@+id/seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressTint="@color/colorPrimaryDarkChat"
+                    android:thumbTint="@color/colorPrimaryDarkChat"
+                    tools:progress="50" />
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+        <View
+            android:layout_width="match_parent"
+            android:layout_weight="3"
+            android:layout_height="1dp"/>
+    </LinearLayout>
+
 
     <android.support.v7.widget.CardView
         android:layout_width="@dimen/dimens_80dp"

@@ -18,6 +18,7 @@ import java.util.*
 /**
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-27
+ * this class is first layer of vouchSDK for programmer
  */
 
 /* VouchSDK, this class is first layer of vouchSDK for programmer */
@@ -77,7 +78,6 @@ interface VouchSDK {
             mApiKey = apikey
             return this@Builder
         }
-
 
             fun createSDK(application: Application): VouchSDK {
             return VouchSDKImpl(application = application, username = mUsername, password = mPassword, apiKey = mApiKey)

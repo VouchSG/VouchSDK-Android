@@ -3,6 +3,9 @@ package sg.vouch.vouchsdk.data.model.message.response
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * This is a class created for handling the response data on MessageResponseModel
+ */
 data class ElementListModel(
     @SerializedName("buttons")
     val buttons: List<ButtonModel>? = listOf(),

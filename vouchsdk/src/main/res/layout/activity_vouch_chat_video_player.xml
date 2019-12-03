@@ -43,4 +43,12 @@
 
     </FrameLayout>
 
+    <ImageView
+        android:id="@+id/closeImage"
+        android:layout_width="@dimen/dimens_32dp"
+        android:layout_height="@dimen/dimens_32dp"
+        android:layout_margin="@dimen/dimens_12dp"
+        android:layout_gravity="right"
+        android:src="@drawable/ic_close_24"
+        android:tint="@color/colorWhite"/>
 </FrameLayout>

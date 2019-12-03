@@ -1,8 +1,7 @@
 package sg.vouch.vouchsdk.data.model.message.body
 
 /**
- * @Author by Radhika Yusuf
- * Bandung, on 2019-09-17
+ * This is a class created for handling the data on VouchDataResource
  */
 
 data class LocationBodyModel(

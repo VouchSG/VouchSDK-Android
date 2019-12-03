@@ -3,10 +3,8 @@ package sg.vouch.vouchsdk.callback
 import sg.vouch.vouchsdk.data.model.message.response.MessageResponseModel
 
 /**
- * @author Radhika Yusuf Alifiansyah
- * Bandung, 26 Aug 2019
+ * This is a interface create for VouchCallback
  */
-
 
 interface VouchCallback {
 

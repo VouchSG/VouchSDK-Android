@@ -28,6 +28,7 @@ import android.media.MediaPlayer
 import android.widget.ImageView
 import sg.vouch.vouchsdk.utils.*
 import java.io.IOException
+import android.os.CountDownTimer
 
 /**
  * @Author by Radhika Yusuf
@@ -269,6 +270,8 @@ class VouchChatAdapter(
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
                                 val mediaPlayer = MediaPlayer()
+
+                                var isPlayed = false
                                 try {
                                     mediaPlayer.setAudioAttributes(
                                         AudioAttributes.Builder()
@@ -276,13 +279,26 @@ class VouchChatAdapter(
                                             .build()
                                     )
                                     mediaPlayer.setDataSource(data.mediaUrl)
+                                    mListener.setupMediaPlayer(mediaPlayer, audioText, seekbar)
+                                    seekbar.max = mediaPlayer.duration
+                                    val second = mediaPlayer.duration / 1000
+                                    val minute = second / 60
+                                    audioText.setText("${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString((second % 60).toLong())}")
                                     playAudio.setOnClickListener {
                                         if (mediaPlayer.isPlaying) {
+                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                             mediaPlayer.pause()
                                         } else {
-                                            mListener.onClickPlayAudio(mediaPlayer)
+                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                            mediaPlayer.start()
                                         }
                                     }
+
+
+                                    mediaPlayer.setOnCompletionListener {
+                                        isPlayed = false
+                                        audioText.setText("${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString((second % 60).toLong())}")
+                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp)) }
                                 } catch (e: IOException) {
                                 }
                             }

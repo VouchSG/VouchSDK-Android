@@ -3,6 +3,9 @@ package sg.vouch.vouchsdk.data.model.message.body
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * This is a class created for handling the data on VouchDataResource
+ */
 data class MessageBodyModel(
     @SerializedName("msgType")
     val msgType: String? = null,

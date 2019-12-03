@@ -24,8 +24,7 @@ import java.util.concurrent.TimeUnit
 
 
 /**
- * @author Radhika Yusuf Alifiansyah
- * Bandung, 26 Aug 2019
+ * This is a interface created for ApiService VouchSDK
  */
 
 internal interface VouchApiService {
