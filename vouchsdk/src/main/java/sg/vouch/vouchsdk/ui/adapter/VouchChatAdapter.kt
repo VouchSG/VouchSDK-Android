@@ -16,7 +16,6 @@ import sg.vouch.vouchsdk.ui.VouchChatViewModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import kotlinx.android.synthetic.main.item_vouch_button.view.*
-import kotlinx.android.synthetic.main.item_vouch_button.view.borderButton
 import kotlinx.android.synthetic.main.item_vouch_button.view.buttonItem
 import kotlinx.android.synthetic.main.item_vouch_button.view.vouchButtonItem
 import kotlinx.android.synthetic.main.item_vouch_gallery.view.*
@@ -112,13 +111,20 @@ class VouchChatAdapter(
                                 data
                             )
                         }
-
                         if (data.isLastListContent) {
                             buttonDateTime.text =
                                 data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_12dp)!!.toInt())
+                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_bottom))
+                        }else if(data.isFirstListContent){
+                            buttonDateTime.visibility = View.GONE
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
+                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_top))
                         } else {
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
+                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_middle))
                             buttonDateTime.visibility = View.GONE
                         }
                     }

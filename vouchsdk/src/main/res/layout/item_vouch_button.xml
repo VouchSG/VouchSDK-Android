@@ -2,46 +2,60 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="@dimen/dimens_240dp"
+    android:layout_width="match_parent"
+    android:paddingStart="@dimen/dimens_16dp"
+    android:paddingEnd="@dimen/dimens_16dp"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/dimens_16dp"
-    android:layout_marginTop="@dimen/dimens_8dp"
-    android:layout_marginEnd="@dimen/dimens_16dp"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/buttonItem"
-        style="@style/VouchButton"
-        android:layout_width="@dimen/dimens_240dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent">
-
-        <ImageView
-            android:id="@+id/borderButton"
+        android:orientation="horizontal">
+        <FrameLayout
+            android:id="@+id/buttonItem"
+            style="@style/VouchButton"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/button_chat_rounded" />
-
-        <TextView
-            android:id="@+id/vouchButtonItem"
-            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:paddingStart="@dimen/dimens_16dp"
+            android:paddingEnd="@dimen/dimens_16dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:padding="@dimen/dimens_8dp"
-            android:textAllCaps="true"
-            android:textStyle="bold"
-            tools:text="Radhika" />
-    </FrameLayout>
+            android:background="@drawable/button_chat_rounded_top">
+
+            <ImageView
+                android:id="@+id/borderButton"
+                android:layout_marginVertical="@dimen/dimens_6dp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimens_40dp"
+                android:src="@drawable/button_chat_rounded" />
+
+            <TextView
+                android:id="@+id/vouchButtonItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="@dimen/dimens_8dp"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                tools:text="Radhika" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_weight="3"
+            android:layout_height="1dp"/>
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/buttonDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dimens_4dp"
-        android:layout_marginTop="@dimen/dimens_4dp"
+        android:layout_marginTop="@dimen/dimens_12dp"
         android:layout_marginEnd="@dimen/dimens_4dp"
         android:textColor="@color/colorTextDate"
         android:textSize="@dimen/size_10sp"
