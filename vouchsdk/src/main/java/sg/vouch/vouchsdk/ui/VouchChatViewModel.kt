@@ -347,7 +347,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 it.senderId != null,
                 type,
                 it.createdAt.safe(),
-                mediaUrl = it.mediaUrl ?: ""
+                mediaUrl = it.text.safe()
             )
         }
 
@@ -397,12 +397,13 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      */
     private fun insertDataList(data: MessageResponseModel, appendInLast: Boolean = false) {
         (data.lists ?: emptyList()).forEachIndexed { pos, it ->
+            var isMyChat = data.customerInfo == null
             if (appendInLast) {
                 bDataChat.add(
                     VouchChatModel(
                         title = it.title.safe(),
                         subTitle = it.subtitle.safe(),
-                        isMyChat = data.customerInfo?.fromMe!!,
+                        isMyChat = isMyChat,
                         type = VouchChatType.TYPE_LIST,
                         createdAt = data.createdAt.safe(),
                         mediaUrl = it.imageUrl.safe(),
@@ -422,7 +423,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     VouchChatModel(
                         title = it.title.safe(),
                         subTitle = it.subtitle.safe(),
-                        isMyChat = data.customerInfo?.fromMe!!,
+                        isMyChat = isMyChat,
                         type = VouchChatType.TYPE_LIST,
                         createdAt = data.createdAt.safe(),
                         mediaUrl = it.imageUrl.safe(),
@@ -443,10 +444,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Add new chat gallery into list
      */
     private fun insertDataGallery(data: MessageResponseModel, appendInLast: Boolean = false) {
+        var isMyChat = data.customerInfo == null
         if (appendInLast) {
             bDataChat.add(
                 VouchChatModel(
-                    isMyChat = data.customerInfo?.fromMe!!,
+                    isMyChat = isMyChat,
                     type = VouchChatType.TYPE_GALLERY,
                     createdAt = data.createdAt.safe(),
                     galleryElements = data.elements ?: emptyList()
@@ -458,7 +460,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             bDataChat.add(
                 0,
                 VouchChatModel(
-                    isMyChat = data.customerInfo?.fromMe!!,
+                    isMyChat = isMyChat,
                     type = VouchChatType.TYPE_GALLERY,
                     createdAt = data.createdAt.safe(),
                     galleryElements = data.elements ?: emptyList()

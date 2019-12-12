@@ -117,29 +117,14 @@ class VouchChatAdapter(
                                 data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
-                            buttonItem.setPadding(
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_12dp)!!.toInt()
-                            )
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_12dp)!!.toInt())
                             buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_bottom))
-                        } else if (data.isFirstListContent) {
+                        }else if(data.isFirstListContent){
                             buttonDateTime.visibility = View.GONE
-                            buttonItem.setPadding(
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt()
-                            )
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
                             buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_top))
                         } else {
-                            buttonItem.setPadding(
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),
-                                mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt()
-                            )
+                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
                             buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_middle))
                             buttonDateTime.visibility = View.GONE
                         }
@@ -173,12 +158,10 @@ class VouchChatAdapter(
                         }
 
                         if (data.isFirstListContent) {
-                            (parentListContent.layoutParams as RecyclerView.LayoutParams).topMargin =
-                                32
+                            (parentListContent.layoutParams as RecyclerView.LayoutParams).topMargin = 32
                             roundedTop.visibility = View.VISIBLE
                         } else {
-                            (parentListContent.layoutParams as RecyclerView.LayoutParams).topMargin =
-                                0
+                            (parentListContent.layoutParams as RecyclerView.LayoutParams).topMargin = 0
                             roundedTop.visibility = View.GONE
                         }
 
@@ -249,19 +232,14 @@ class VouchChatAdapter(
                                     )
                                 }
                             }
-                            else -> {
-                            }
+                            else -> {}
                         }
 
-                        myChatImage.visibility =
-                            if (TYPE_IMAGE == data.type) View.VISIBLE else View.GONE
-                        myChatContent.visibility =
-                            if (TYPE_TEXT == data.type) View.VISIBLE else View.GONE
-                        myPackVideo.visibility =
-                            if (TYPE_VIDEO == data.type) View.VISIBLE else View.GONE
+                        myChatImage.visibility = if (TYPE_IMAGE == data.type) View.VISIBLE else View.GONE
+                        myChatContent.visibility = if (TYPE_TEXT == data.type) View.VISIBLE else View.GONE
+                        myPackVideo.visibility = if (TYPE_VIDEO == data.type) View.VISIBLE else View.GONE
 
-                        myDateTime.text =
-                            data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
+                        myDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         pendingTime.visibility =
                             if (data.isPendingMessage) View.VISIBLE else View.GONE
