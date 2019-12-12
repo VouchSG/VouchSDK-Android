@@ -41,5 +41,5 @@
         app:layout_constraintBottom_toTopOf="@id/recordButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="01:00" />
+        tools:text="00:00" />
 </android.support.constraint.ConstraintLayout>

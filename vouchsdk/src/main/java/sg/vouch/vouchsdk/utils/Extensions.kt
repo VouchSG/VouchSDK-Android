@@ -50,9 +50,9 @@ fun Context.openWebUrl(url: String) {
     startActivity(intent)
 }
 
-fun ImageView.setImageUrl(url: String) {
-    Glide.with(this).load(url).centerCrop().into(this)
-}
+    fun ImageView.setImageUrl(url: String) {
+        Glide.with(this).load(url).centerCrop().into(this)
+    }
 
 fun Activity.getScreenWidth(): Int {
     val displayMetrics = DisplayMetrics()
@@ -155,9 +155,16 @@ fun String.reformatFullDate(format: String, locale: Locale = SG_LOCALE): String 
         SimpleDateFormat(format, locale).format(System.currentTimeMillis())
     }*/
 
-    val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
-    val date = Date(System.currentTimeMillis())
-    return SimpleDateFormat(format, locale).format(date)
+    if(this.length < 3){
+        var getDate = Date(System.currentTimeMillis())
+        return SimpleDateFormat(format, locale).format(getDate)
+    }else{
+        val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
+        var getDate = inputFormat.parse(this)
+        return SimpleDateFormat(format, locale).format(getDate)
+
+    }
+
 }
 
 

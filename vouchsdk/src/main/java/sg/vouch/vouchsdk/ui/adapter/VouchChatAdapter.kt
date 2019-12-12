@@ -28,6 +28,9 @@ import android.widget.ImageView
 import sg.vouch.vouchsdk.utils.*
 import java.io.IOException
 import android.os.CountDownTimer
+import java.util.concurrent.TimeUnit
+import android.view.MotionEvent
+
 
 /**
  * @Author by Radhika Yusuf
@@ -277,7 +280,6 @@ class VouchChatAdapter(
                                 cardAudio.visibility = View.VISIBLE
                                 val mediaPlayer = MediaPlayer()
 
-                                var isPlayed = false
                                 try {
                                     mediaPlayer.setAudioAttributes(
                                         AudioAttributes.Builder()
@@ -286,10 +288,9 @@ class VouchChatAdapter(
                                     )
                                     mediaPlayer.setDataSource(data.mediaUrl)
                                     mListener.setupMediaPlayer(mediaPlayer, audioText, seekbar)
-                                    seekbar.max = mediaPlayer.duration
-                                    val second = mediaPlayer.duration / 1000
-                                    val minute = second / 60
-                                    audioText.setText("${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString((second % 60).toLong())}")
+                                    audioText!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong()))}:${Helper.timeUnitToString(
+                                        TimeUnit.MILLISECONDS.toSeconds(mediaPlayer.duration.toLong()) - TimeUnit.MINUTES.toSeconds(
+                                            TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong())))}")
                                     playAudio.setOnClickListener {
                                         if (mediaPlayer.isPlaying) {
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
@@ -300,10 +301,12 @@ class VouchChatAdapter(
                                         }
                                     }
 
+                                    seekbar.setOnTouchListener(View.OnTouchListener { view, motionEvent -> true })
 
                                     mediaPlayer.setOnCompletionListener {
-                                        isPlayed = false
-                                        audioText.setText("${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString((second % 60).toLong())}")
+                                        audioText!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong()))}:${Helper.timeUnitToString(
+                                            TimeUnit.MILLISECONDS.toSeconds(mediaPlayer.duration.toLong()) - TimeUnit.MINUTES.toSeconds(
+                                                TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong())))}")
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp)) }
                                 } catch (e: IOException) {
                                 }

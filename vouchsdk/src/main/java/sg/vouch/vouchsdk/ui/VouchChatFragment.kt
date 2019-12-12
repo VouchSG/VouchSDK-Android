@@ -338,34 +338,28 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 //        }
     }
     override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, seekbar: SeekBar) {
+        seekBar = seekbar
         mMediaPlayer = mediaPlayer
         mMediaPlayer?.prepareAsync()
-        seekBar = seekbar
-        textAudio = tvCount
-//        countdown = object : CountdownTimerPause(mMediaPlayer?.duration!!.toLong(), 1000, false){
-//            override fun onTick(millisUntilFinished: Long) {
-//                val second = timeLeft() / 1000
-//                val minute = second / 60
-//                tvCount.setText("${timeUnitToString(minute)}:${timeUnitToString(second % 60)}")
-//                seekBar.setProgress((timePassed()/1000).toInt())
-//            }
-//            override fun onFinish() {
-//            }
-//        }.create()
-        myHandler.postDelayed(UpdateSongTime,100)
-
-
+        mMediaPlayer?.setOnPreparedListener {
+            myHandler.postDelayed(UpdateSongTime,100)
+            textAudio = tvCount
+            seekBar!!.max = (mMediaPlayer!!.duration/1000).toInt()
+            seekBar!!.progress = 0
+        }
     }
 
     var startTime = 0
     private val UpdateSongTime = object : Runnable {
         override fun run() {
-            startTime = mMediaPlayer!!.getCurrentPosition()
-            textAudio!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong()))}:${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toSeconds(startTime.toLong()) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong())))}")
-            seekbar.setProgress(startTime)
+            startTime = mMediaPlayer!!.getCurrentPosition()/1000
+            var endTime = mMediaPlayer!!.duration - startTime
+            seekBar!!.setProgress(startTime)
+            textAudio!!.text = "${timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(endTime.toLong()))}:${timeUnitToString(TimeUnit.MILLISECONDS.toSeconds(endTime.toLong()) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(endTime.toLong())))}"
             myHandler.postDelayed(this, 100)
         }
     }
+    
     override fun onPrepared(mp: MediaPlayer?) {
         mMediaPlayer?.start()
     }
