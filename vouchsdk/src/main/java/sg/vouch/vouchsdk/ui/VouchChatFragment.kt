@@ -7,14 +7,10 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
-import android.media.AudioFormat
-import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.design.widget.Snackbar
@@ -24,7 +20,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,16 +44,12 @@ import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Const.URI_SCHEME_FILE
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
-import kotlinx.android.synthetic.main.item_vouch_other_chat.*
-import net.alhazmy13.mediapicker.Video.VideoPicker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.ui.model.AttachmentDialog
-import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_MP4
-import sg.vouch.vouchsdk.utils.Helper.timeUnitToString
 import java.io.*
 import java.util.concurrent.TimeUnit
 
@@ -68,7 +59,7 @@ import java.util.concurrent.TimeUnit
  * Bandung, on 2019-08-28
  */
 class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
-    MediaPlayer.OnPreparedListener, VoiceRecordDialog.VoiceRecordDialogCallback {
+    VoiceRecordDialog.VoiceRecordDialogCallback {
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
@@ -264,7 +255,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun onPause() {
         super.onPause()
         mViewModel.disconnectSocket()
-        mMediaPlayer?.stop()
+        resetMediaPlayer()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -329,45 +320,74 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     private val myHandler = Handler()
     internal var seekBar: SeekBar? = null
     internal var textAudio: TextView? = null
-    internal var countdown: CountdownTimerPause? = null
+
     override fun onClickPlayAudio(status : String) {
-//        if(status == "resume"){
-//            countdown!!.resume()
-//        }else if(status == "pause"){
-//            countdown!!.pause()
-//        }
+        mViewModel.startUpdateSong = true
+        myHandler.postDelayed(updateSongTime,100)
     }
-    override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, seekbar: SeekBar) {
+
+    override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar) {
         mMediaPlayer = mediaPlayer
-        mMediaPlayer?.prepareAsync()
-        seekBar = seekbar
         textAudio = tvCount
-//        countdown = object : CountdownTimerPause(mMediaPlayer?.duration!!.toLong(), 1000, false){
-//            override fun onTick(millisUntilFinished: Long) {
-//                val second = timeLeft() / 1000
-//                val minute = second / 60
-//                tvCount.setText("${timeUnitToString(minute)}:${timeUnitToString(second % 60)}")
-//                seekBar.setProgress((timePassed()/1000).toInt())
-//            }
-//            override fun onFinish() {
-//            }
-//        }.create()
-        myHandler.postDelayed(UpdateSongTime,100)
+        this.seekBar = mSeekBar
+        var startTrack = false
+        this.seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (startTrack && fromUser) {
+                    mViewModel.startUpdateSong = false
+                }
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                startTrack = true
+            }
 
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                startTrack = false
+                mViewModel.startUpdateSong = true
+                mViewModel.audioSeek = seekBar?.progress ?: 0
+                textAudio?.text =
+                    "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mViewModel.audioSeek.toLong()))}:${Helper.timeUnitToString(
+                        TimeUnit.MILLISECONDS.toSeconds(mViewModel.audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
+                            TimeUnit.MILLISECONDS.toMinutes(mViewModel.audioSeek.toLong())
+                        )
+                    )}"
+                if (mMediaPlayer?.isPlaying == true ) {
+                    mMediaPlayer?.seekTo(mViewModel.audioSeek)
+                    onClickPlayAudio("")
+                }
+            }
+
+        })
     }
 
     var startTime = 0
-    private val UpdateSongTime = object : Runnable {
+    private val updateSongTime = object : Runnable {
         override fun run() {
-            startTime = mMediaPlayer!!.getCurrentPosition()
-            textAudio!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong()))}:${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toSeconds(startTime.toLong()) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong())))}")
-            seekbar.setProgress(startTime)
-            myHandler.postDelayed(this, 100)
+            if (mViewModel.startUpdateSong) {
+                startTime = mMediaPlayer?.currentPosition ?: 0
+                mViewModel.audioSeek = startTime
+                activity?.runOnUiThread {
+                    textAudio?.text =
+                        "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong()))}:${Helper.timeUnitToString(
+                            TimeUnit.MILLISECONDS.toSeconds(startTime.toLong()) - TimeUnit.MINUTES.toSeconds(
+                                TimeUnit.MILLISECONDS.toMinutes(startTime.toLong())
+                            )
+                        )}"
+                    seekBar?.progress = startTime
+                }
+                myHandler.postDelayed(this, 100)
+            }
         }
     }
-    override fun onPrepared(mp: MediaPlayer?) {
-        mMediaPlayer?.start()
+
+    private fun resetMediaPlayer() {
+        mViewModel.audioSeek = 0
+        mViewModel.startUpdateSong = false
+        mMediaPlayer?.stop()
+        mMediaPlayer?.prepareAsync()
+        textAudio?.text = "00:00"
+        seekBar?.progress = 0
     }
 
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView) {

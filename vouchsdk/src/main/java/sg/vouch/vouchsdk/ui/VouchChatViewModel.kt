@@ -23,6 +23,7 @@ import sg.vouch.vouchsdk.ui.model.VouchChatType
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Injection
 import sg.vouch.vouchsdk.utils.safe
+import java.util.concurrent.TimeUnit
 
 /**
  * @Author by Radhika Yusuf
@@ -58,6 +59,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     private var currentPage = 1
 
     var mMultipartImage: MultipartBody.Part? = null
+
+    var startUpdateSong = false
+    var audioSeek = 0
+
+    private var retryCount = 0
 
     fun start() {
         mVouchCore = VouchCore()
@@ -150,6 +156,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     override fun onDisconnected(isActionFromUser: Boolean) {
         changeConnectStatus.value = false
+        if (!isActionFromUser) {
+            retryConnectionHandler()
+        }
     }
 
     override fun onError(message: String) {
@@ -167,6 +176,23 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onSuccess(location: Location?) {
         currentLocation = Pair(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
         sendLocation()
+    }
+
+    /**
+     * Retry connection function
+     * */
+    private fun retryConnectionHandler() {
+        Thread {
+            while (changeConnectStatus.value == false) {
+                if (retryCount == 10) {
+                    return@Thread
+                } else {
+                    retryCount += 1
+                }
+                reconnectSocket()
+                TimeUnit.SECONDS.sleep(10)
+            }
+        }.start()
     }
 
     /**
