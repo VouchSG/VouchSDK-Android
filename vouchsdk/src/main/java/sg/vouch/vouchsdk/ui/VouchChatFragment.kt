@@ -143,8 +143,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             changeConnectStatus.observe(this@VouchChatFragment, Observer {
                 imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
-                inputField.visibility =
-                    if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
+                inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
             })
 
             eventShowMessage.observe(this@VouchChatFragment, Observer {
@@ -187,13 +186,23 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
 
                     frameGreeting.visibility = View.GONE
-                    inputField.visibility = View.GONE
+                    if (changeConnectStatus.value == false) {
+                        inputField.visibility = View.GONE
+                    }
                 }
             })
 
             eventChangeStateToGreeting.observe(this@VouchChatFragment, Observer {
                 frameGreeting.visibility = if (it == true) View.VISIBLE else View.GONE
-                inputField.visibility = if (it == true) View.GONE else View.VISIBLE
+                inputField.visibility = if (it == true) {
+                    if (changeConnectStatus.value == false) {
+                        View.GONE
+                    } else {
+                        View.VISIBLE
+                    }
+                } else {
+                    View.VISIBLE
+                }
             })
 
             eventUpdateList.observe(this@VouchChatFragment, Observer {
