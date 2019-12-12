@@ -2,34 +2,30 @@ package sg.vouch.vouchsdk.ui.adapter
 
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
-import sg.vouch.vouchsdk.R
-import sg.vouch.vouchsdk.ui.VouchChatClickListener
-import sg.vouch.vouchsdk.ui.VouchChatViewModel
-import sg.vouch.vouchsdk.ui.model.VouchChatModel
-import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import kotlinx.android.synthetic.main.item_vouch_button.view.*
-import kotlinx.android.synthetic.main.item_vouch_button.view.buttonItem
-import kotlinx.android.synthetic.main.item_vouch_button.view.vouchButtonItem
 import kotlinx.android.synthetic.main.item_vouch_gallery.view.*
 import kotlinx.android.synthetic.main.item_vouch_list.view.*
 import kotlinx.android.synthetic.main.item_vouch_my_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_quick_reply.view.*
-import android.media.MediaPlayer
-import android.widget.ImageView
+import sg.vouch.vouchsdk.R
+import sg.vouch.vouchsdk.ui.VouchChatClickListener
+import sg.vouch.vouchsdk.ui.VouchChatViewModel
+import sg.vouch.vouchsdk.ui.model.VouchChatModel
+import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import sg.vouch.vouchsdk.utils.*
 import java.io.IOException
-import android.os.CountDownTimer
-import java.util.concurrent.TimeUnit
-import android.view.MotionEvent
 
 
 /**
@@ -79,6 +75,8 @@ class VouchChatAdapter(
     }
 
     class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
+
+        private var mediaPlayer: MediaPlayer? = null
 
         fun bind(
             data: VouchChatModel,
@@ -278,37 +276,53 @@ class VouchChatAdapter(
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
-                                val mediaPlayer = MediaPlayer()
 
                                 try {
-                                    mediaPlayer.setAudioAttributes(
-                                        AudioAttributes.Builder()
-                                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                            .build()
-                                    )
-                                    mediaPlayer.setDataSource(data.mediaUrl)
-                                    mListener.setupMediaPlayer(mediaPlayer, audioText, seekbar)
-                                    audioText!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong()))}:${Helper.timeUnitToString(
-                                        TimeUnit.MILLISECONDS.toSeconds(mediaPlayer.duration.toLong()) - TimeUnit.MINUTES.toSeconds(
-                                            TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong())))}")
+                                    mediaPlayer = createMediaPlayer(data.mediaUrl, false)
+                                    mediaPlayer?.setOnPreparedListener {
+                                        mediaPlayer = it
+                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                        seekbar.incrementProgressBy(1)
+                                        seekbar.max = mediaPlayer?.duration ?: 0
+                                        audioText.text = "00:00"
+
+                                        mListener.setupMediaPlayer(
+                                            mediaPlayer ?: MediaPlayer(),
+                                            audioText,
+                                            seekbar
+                                        )
+                                    }
+                                    mediaPlayer?.setOnCompletionListener {
+                                        val second = it.duration / 1000
+                                        val minute = second / 60
+                                        audioText.text =
+                                            "${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString(
+                                                (second % 60).toLong()
+                                            )}"
+                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                    }
+
                                     playAudio.setOnClickListener {
-                                        if (mediaPlayer.isPlaying) {
+                                        if (mediaPlayer?.isPlaying == true) {
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-                                            mediaPlayer.pause()
+                                            mediaPlayer?.pause()
                                         } else {
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
-                                            mediaPlayer.start()
+                                            Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
+                                            mediaPlayer?.seekTo(
+                                                if (viewModel.audioSeek == mediaPlayer?.duration) {
+                                                    0
+                                                } else {
+                                                    viewModel.audioSeek
+                                                }
+                                            )
+                                            mediaPlayer?.start()
+                                            mListener.onClickPlayAudio("")
                                         }
                                     }
 
-                                    seekbar.setOnTouchListener(View.OnTouchListener { view, motionEvent -> true })
-
-                                    mediaPlayer.setOnCompletionListener {
-                                        audioText!!.setText("${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong()))}:${Helper.timeUnitToString(
-                                            TimeUnit.MILLISECONDS.toSeconds(mediaPlayer.duration.toLong()) - TimeUnit.MINUTES.toSeconds(
-                                                TimeUnit.MILLISECONDS.toMinutes(mediaPlayer.duration.toLong())))}")
-                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp)) }
                                 } catch (e: IOException) {
+
                                 }
                             }
                             data.type == TYPE_TYPING -> {
@@ -321,7 +335,8 @@ class VouchChatAdapter(
                         }
 
                         chatContent.text = data.title
-                        dateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
+                        dateTime.text =
+                            data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         dateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
@@ -331,6 +346,20 @@ class VouchChatAdapter(
                 }
             }
         }
+
+        private fun createMediaPlayer(mediaUrl: String, play: Boolean): MediaPlayer {
+            val mediaPlayer = MediaPlayer()
+            mediaPlayer.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            mediaPlayer.setDataSource(mediaUrl)
+            mediaPlayer.prepareAsync()
+
+            return mediaPlayer
+        }
+
     }
 
     class VouchChatLoading(private val mView: View) : RecyclerView.ViewHolder(mView)

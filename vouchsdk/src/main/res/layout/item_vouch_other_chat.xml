@@ -158,6 +158,8 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:max="100"
+                    android:progress="0"
+                    android:indeterminate="false"
                     android:progressTint="@color/colorPrimaryDarkChat"
                     android:thumbTint="@color/colorPrimaryDarkChat"
                     tools:progress="50" />

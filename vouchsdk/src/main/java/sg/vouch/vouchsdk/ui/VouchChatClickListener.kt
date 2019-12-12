@@ -21,6 +21,6 @@ interface VouchChatClickListener {
 
     fun onClickQuickReply(data: MessageBodyModel)
 
-    fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, seekBar: SeekBar)
+    fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar)
 
 }
