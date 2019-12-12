@@ -277,7 +277,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.buttonGreeting -> {
-                mViewModel.sendReference()
+                buttonGreeting.text = ""
+                progressBtn.visibility = View.VISIBLE
+                buttonGreeting.isEnabled = false
+                mViewModel.sendReference(buttonGreeting, progressBtn)
             }
             R.id.sendButton -> {
                 if (mSendButtonStatus) {

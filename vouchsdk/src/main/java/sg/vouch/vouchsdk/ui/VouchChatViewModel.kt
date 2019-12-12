@@ -5,6 +5,9 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import android.os.Handler
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import com.google.android.gms.tasks.OnSuccessListener
 import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.VouchCore
@@ -515,11 +518,15 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             VouchChatUpdateEvent(type = VouchChatEnum.TYPE_REMOVE, startPosition = position, endPosition = endPosition)
     }
 
-    fun sendReference() {
+    fun sendReference(text : TextView, loading : ProgressBar) {
         removeDataChat(bDataChat.size - 1)
         mVouchSDK.referenceSend("welcome", object : ReferenceSendCallback {
             override fun onSuccess() = Unit
-            override fun onError(message: String) = Unit
+            override fun onError(message: String){
+                text.setText("Ok Lets Go!")
+                text.isEnabled = true
+                loading.visibility = View.GONE
+            }
         })
     }
 

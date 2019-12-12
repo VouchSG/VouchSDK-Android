@@ -20,7 +20,7 @@
             android:id="@+id/borderButton"
             android:layout_width="@dimen/dimens_184dp"
             android:layout_height="match_parent"
-            android:src="@drawable/button_chat_rounded" />
+            android:src="@drawable/button_chat_line_top" />
 
         <TextView
             android:id="@+id/vouchButtonItem"
