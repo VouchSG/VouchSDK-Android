@@ -12,9 +12,12 @@ import android.view.View
 import android.widget.ImageView
 import com.devbrackets.android.exomedia.listener.OnPreparedListener
 import com.devbrackets.android.exomedia.listener.OnSeekCompletionListener
+import com.google.gson.Gson
 import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.utils.setImageUrl
 import kotlinx.android.synthetic.main.activity_vouch_chat_video_player.*
+import sg.vouch.vouchsdk.ui.model.VouchChatType
+import sg.vouch.vouchsdk.utils.setImageUrlwithoutCrop
 
 class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, OnSeekCompletionListener {
 
@@ -22,12 +25,21 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vouch_chat_video_player)
-        img.setImageUrl(intent.getStringExtra("url-content"))
 
         hideSystemUi()
 
-        videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
-        videoView.setOnPreparedListener(this@VouchChatVideoPlayerActivity)
+        var type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
+        if(type == VouchChatType.TYPE_IMAGE){
+            imgView.setImageUrlwithoutCrop(intent.getStringExtra("url-content"))
+            videoView.visibility = View.GONE
+        }else{
+            imgView.visibility = View.VISIBLE
+            img.setImageUrl(intent.getStringExtra("url-content"))
+            videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
+            videoView.setOnPreparedListener(this@VouchChatVideoPlayerActivity)
+
+        }
+
 
         closeImage.setOnClickListener { onBackPressed() }
     }
@@ -71,10 +83,13 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
     companion object {
 
 
-        fun startThisActivity(activity: Activity, url: String, imageView: ImageView){
+        fun startThisActivity(activity: Activity, url: String, imageView: ImageView, type : VouchChatType){
             val a = ViewCompat.getTransitionName(imageView)?:""
             val option = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, imageView, a)
-            val intent = Intent(activity, VouchChatVideoPlayerActivity::class.java).apply { putExtra("url-content", url) }
+            val intent = Intent(activity, VouchChatVideoPlayerActivity::class.java).apply {
+                putExtra("url-content", url)
+                putExtra("type", Gson().toJson(type))
+            }
             activity.startActivity(intent, option.toBundle())
         }
 

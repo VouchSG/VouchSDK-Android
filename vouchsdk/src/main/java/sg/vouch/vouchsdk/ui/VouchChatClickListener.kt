@@ -6,6 +6,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
+import sg.vouch.vouchsdk.ui.model.VouchChatType
 
 /**
  * @Author by Radhika Yusuf
@@ -17,7 +18,7 @@ interface VouchChatClickListener {
 
     fun onClickPlayAudio(status : String)
 
-    fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView)
+    fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType)
 
     fun onClickQuickReply(data: MessageBodyModel)
 

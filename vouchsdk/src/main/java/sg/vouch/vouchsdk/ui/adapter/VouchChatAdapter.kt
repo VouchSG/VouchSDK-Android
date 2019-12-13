@@ -118,15 +118,7 @@ class VouchChatAdapter(
                                 data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
-                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_12dp)!!.toInt())
-                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_bottom))
-                        }else if(data.isFirstListContent){
-                            buttonDateTime.visibility = View.GONE
-                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
-                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_top))
-                        } else {
-                            buttonItem.setPadding(mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_16dp)!!.toInt(),mView.context?.resources?.getDimension(R.dimen.dimens_6dp)!!.toInt())
-                            buttonItem.setBackgroundDrawable(mView.context?.resources?.getDrawable(R.drawable.button_chat_rounded_middle))
+                        }else {
                             buttonDateTime.visibility = View.GONE
                         }
                     }
@@ -223,13 +215,21 @@ class VouchChatAdapter(
                                 val padding = (4 * density!!).toInt()
                                 myCardBubble.setContentPadding(padding, padding, padding, padding)
                                 myChatImage.setImageUrl(data.mediaUrl)
+                                myChatImage.setOnClickListener {
+                                    mListener.onClickPlayVideo(
+                                        data,
+                                        it as ImageView,
+                                        data.type
+                                    )
+                                }
                             }
                             TYPE_VIDEO -> {
                                 myImageVideo.setImageUrl(data.mediaUrl)
                                 myImageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
-                                        it as ImageView
+                                        it as ImageView,
+                                        data.type
                                     )
                                 }
                             }
@@ -260,6 +260,13 @@ class VouchChatAdapter(
                             data.type == TYPE_IMAGE -> {
                                 imageContent.setImageUrl(data.mediaUrl)
                                 imageContent.visibility = View.VISIBLE
+                                imageContent.setOnClickListener {
+                                    mListener.onClickPlayVideo(
+                                        data,
+                                        it as ImageView,
+                                        data.type
+                                    )
+                                }
                             }
                             data.type == TYPE_VIDEO -> {
                                 packVideo.visibility = View.VISIBLE
@@ -268,11 +275,12 @@ class VouchChatAdapter(
                                 imageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
-                                        it as ImageView
+                                        it as ImageView,
+                                        data.type
                                     )
                                 }
                                 playVideo.setOnClickListener {
-                                    mListener.onClickPlayVideo(data, it as ImageView)
+                                    mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {

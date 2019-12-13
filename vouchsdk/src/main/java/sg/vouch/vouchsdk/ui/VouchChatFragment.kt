@@ -50,6 +50,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.ui.model.AttachmentDialog
+import sg.vouch.vouchsdk.ui.model.VouchChatType
 import java.io.*
 import java.util.concurrent.TimeUnit
 
@@ -115,7 +116,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 val visibleItemCount = mLayoutManager.childCount
                 val totalItemCount = mLayoutManager.itemCount
                 val firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition()
-
                 if ((visibleItemCount + firstVisibleItemPosition >= totalItemCount
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= PAGE_SIZE
@@ -194,15 +194,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             eventChangeStateToGreeting.observe(this@VouchChatFragment, Observer {
                 frameGreeting.visibility = if (it == true) View.VISIBLE else View.GONE
-                inputField.visibility = if (it == true) {
-                    if (changeConnectStatus.value == false) {
-                        View.GONE
-                    } else {
-                        View.VISIBLE
-                    }
-                } else {
-                    View.VISIBLE
-                }
+                inputField.visibility = if (it == true) View.GONE else View.VISIBLE
             })
 
             eventUpdateList.observe(this@VouchChatFragment, Observer {
@@ -402,8 +394,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mMediaPlayer?.prepareAsync()
     }
 
-    override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView) {
-        VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, imageView)
+    override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType) {
+        VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, imageView, type)
     }
 
     override fun afterTextChanged(s: Editable?) = Unit

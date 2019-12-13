@@ -17,10 +17,8 @@
             style="@style/VouchButton"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:paddingStart="@dimen/dimens_16dp"
-            android:paddingEnd="@dimen/dimens_16dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_chat_rounded_top">
+            android:background="@android:color/transparent">
 
             <ImageView
                 android:id="@+id/borderButton"
