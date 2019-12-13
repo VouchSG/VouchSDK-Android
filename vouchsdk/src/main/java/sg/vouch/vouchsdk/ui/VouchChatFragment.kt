@@ -395,11 +395,11 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     private fun resetMediaPlayer() {
         mViewModel.audioSeek = 0
+        seekBar?.progress = 0
+        textAudio?.text = "00:00"
         mViewModel.startUpdateSong = false
         mMediaPlayer?.stop()
         mMediaPlayer?.prepareAsync()
-        textAudio?.text = "00:00"
-        seekBar?.progress = 0
     }
 
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView) {
