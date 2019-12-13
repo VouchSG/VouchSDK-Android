@@ -54,6 +54,9 @@ fun Context.openWebUrl(url: String) {
         Glide.with(this).load(url).centerCrop().into(this)
     }
 
+fun ImageView.setImageUrlwithoutCrop(url: String) {
+    Glide.with(this).load(url).into(this)
+}
 fun Activity.getScreenWidth(): Int {
     val displayMetrics = DisplayMetrics()
     windowManager.defaultDisplay.getMetrics(displayMetrics)

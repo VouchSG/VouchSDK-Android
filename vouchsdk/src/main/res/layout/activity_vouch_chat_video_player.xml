@@ -44,6 +44,11 @@
     </FrameLayout>
 
     <ImageView
+        android:id="@+id/imgView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ImageView
         android:id="@+id/closeImage"
         android:layout_width="@dimen/dimens_32dp"
         android:layout_height="@dimen/dimens_32dp"

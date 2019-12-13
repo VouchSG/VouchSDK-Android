@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/dimens_200dp"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal"
-    android:paddingStart="@dimen/dimens_8dp"
-    android:paddingEnd="@dimen/dimens_8dp">
+    android:layout_gravity="center_horizontal">
 
     <FrameLayout
         android:id="@+id/buttonItem"
@@ -18,7 +16,7 @@
 
         <ImageView
             android:id="@+id/borderButton"
-            android:layout_width="@dimen/dimens_184dp"
+            android:layout_width="@dimen/dimens_200dp"
             android:layout_height="match_parent"
             android:src="@drawable/button_chat_line_top" />
 
