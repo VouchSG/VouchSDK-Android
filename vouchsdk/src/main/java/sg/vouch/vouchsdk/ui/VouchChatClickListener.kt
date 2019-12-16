@@ -24,4 +24,6 @@ interface VouchChatClickListener {
 
     fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar)
 
+    fun onClickRetryMessage(body: MessageBodyModel)
+
 }

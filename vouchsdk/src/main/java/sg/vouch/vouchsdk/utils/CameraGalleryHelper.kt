@@ -81,7 +81,7 @@ class CameraGalleryHelper {
             var type: String = ""
             val extension = MimeTypeMap.getFileExtensionFromUrl(url)
             if (extension != null) {
-                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)!!
             }
             return type
         }

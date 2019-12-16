@@ -441,14 +441,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     fun sendVideoChat(videoUri : Uri){
         val requestBody: RequestBody?
         val requestPart: MultipartBody.Part?
-        val mimeType = CameraGalleryHelper.getMimeType(videoUri.path)
+        val mimeType = CameraGalleryHelper.getMimeType(videoUri.path!!)
         val file = File(videoUri.path)
 
         requestBody = file.asRequestBody(mimeType.toMediaTypeOrNull())
         requestPart =
             MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
 
-        mViewModel.sendImageMessage("video", requestPart, videoUri.path)
+        mViewModel.sendImageMessage("video", requestPart, videoUri.path!!)
 
     }
     fun sendImageChat(imageUri: Uri) {
@@ -482,13 +482,16 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
         }
 
-        mViewModel.sendImageMessage("image", requestPart, imageUri.path)
+        mViewModel.sendImageMessage("image", requestPart, imageUri.path!!)
 
         val bitmap = MediaStore.Images.Media.getBitmap(resolver, imageUri)
         ivPreview.setImageBitmap(bitmap)
         ivPreview.visibility = View.GONE
     }
-
+    override fun onClickRetryMessage(body: MessageBodyModel) {
+        mViewModel.removeDataChat(0)
+        mViewModel.sendReplyMessage(body)
+    }
     private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
         try {
             val path = context?.externalCacheDir

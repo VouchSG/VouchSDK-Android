@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.item_vouch_my_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_quick_reply.view.*
 import sg.vouch.vouchsdk.R
+import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.ui.VouchChatClickListener
 import sg.vouch.vouchsdk.ui.VouchChatViewModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
@@ -241,10 +242,23 @@ class VouchChatAdapter(
 
                         myDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
-                        pendingTime.visibility =
-                            if (data.isPendingMessage) View.VISIBLE else View.GONE
-                        myDateTime.visibility =
-                            if (!data.isPendingMessage) View.VISIBLE else View.GONE
+                        if(data.isFailedMessage){
+                            retry.visibility = View.VISIBLE
+                            myDateTime.visibility = View.GONE
+                            pendingTime.visibility = View.GONE
+                        }else{
+                            retry.visibility = View.GONE
+                            pendingTime.visibility =
+                                if (data.isPendingMessage) View.VISIBLE else View.GONE
+                            myDateTime.visibility =
+                                if (!data.isPendingMessage) View.VISIBLE else View.GONE
+                        }
+
+                        retry.setOnClickListener {
+                            mListener.onClickRetryMessage(MessageBodyModel(type = data.typeValue,
+                                msgType = data.typeValue,
+                                text = data.title, payload = data.payload.safe()))
+                        }
                     } else {
                         cardBubble.visibility = View.GONE
                         imageContent.visibility = View.GONE

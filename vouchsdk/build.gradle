@@ -7,13 +7,13 @@ apply plugin: 'org.jetbrains.dokka'
 group='com.github.alfonsAzhari'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
-        versionName "0.0.1"
+        versionName "0.0.2"
 
         buildConfigField "String", "BASE_URL_SOCKET", "\"https://staging.vouch.sg/\""
         buildConfigField "String", "BASE_URL_API", "\"https://staging.vouch.sg/api/v2/widget/\""

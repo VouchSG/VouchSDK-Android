@@ -30,5 +30,6 @@ data class VouchChatModel(
 
     /* model for gallery */
     val galleryElements: List<GalleryElementModel> = emptyList(),
-    val isPendingMessage: Boolean = false
+    val isPendingMessage: Boolean = false,
+    val isFailedMessage: Boolean = false
 )

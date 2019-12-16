@@ -263,7 +263,30 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-
+    private fun insertFailedMessage(body: MessageBodyModel) {
+        removeDataChat(0)
+        bDataChat.add(
+            0,
+            VouchChatModel(body.text.safe(), "", true, VouchChatType.TYPE_TEXT, "-", mediaUrl = "", isPendingMessage = true, isFailedMessage = true)
+        )
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+    }
+    private fun insertFailedImage(body: MessageBodyModel) {
+        removeDataChat(0)
+        bDataChat.add(
+            0,
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = body.text.safe(), isPendingMessage = true, isFailedMessage = true)
+        )
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+    }
+    private fun insertFailedVideo(body: MessageBodyModel) {
+        removeDataChat(0)
+        bDataChat.add(
+            0,
+            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = body.text.safe(), isPendingMessage = true, isFailedMessage = true)
+        )
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+    }
     /**
      * Insert Pending image
      */
@@ -529,7 +552,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Remove chat
      */
-    private fun removeDataChat(position: Int, endPosition: Int? = null) {
+    fun removeDataChat(position: Int, endPosition: Int? = null) {
         if (position == -1) {
             return
         }
@@ -603,6 +626,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
+                        insertFailedMessage(body)
                     }
                 })
             }
@@ -622,6 +646,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
+                        insertFailedImage(body)
                     }
                 })
             }
@@ -640,6 +665,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
+                        insertFailedVideo(body)
                     }
                 })
             }
@@ -696,6 +722,19 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onError(message: String) {
                 eventShowMessage.value = message
+                if(msgType=="image") {
+                    insertFailedImage(MessageBodyModel(
+                        msgType = msgType,
+                        text = path,
+                        type = msgType
+                    ))
+                }else if(msgType=="video") {
+                    insertFailedVideo(MessageBodyModel(
+                        msgType = msgType,
+                        text = path,
+                        type = msgType
+                    ))
+                }
             }
         })
     }
