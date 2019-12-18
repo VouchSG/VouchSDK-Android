@@ -209,6 +209,11 @@ class VouchChatAdapter(
                                 myChatContent.text = data.title
                                 myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                                 myCardBubble.setContentPadding(0, 0, 0, 0)
+                                retry.setOnClickListener {
+                                    mListener.onClickRetryMessage(MessageBodyModel(type = data.typeValue,
+                                        msgType = "text",
+                                        text = data.title, payload = data.payload.safe()))
+                                }
                             }
                             TYPE_IMAGE -> {
                                 val density = mView.context?.resources?.displayMetrics?.density
@@ -222,6 +227,9 @@ class VouchChatAdapter(
                                         data.type
                                     )
                                 }
+                                retry.setOnClickListener {
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
+                                }
                             }
                             TYPE_VIDEO -> {
                                 myImageVideo.setImageUrl(data.mediaUrl)
@@ -231,6 +239,9 @@ class VouchChatAdapter(
                                         it as ImageView,
                                         data.type
                                     )
+                                }
+                                retry.setOnClickListener {
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
                                 }
                             }
                             else -> {}
@@ -254,11 +265,7 @@ class VouchChatAdapter(
                                 if (!data.isPendingMessage) View.VISIBLE else View.GONE
                         }
 
-                        retry.setOnClickListener {
-                            mListener.onClickRetryMessage(MessageBodyModel(type = data.typeValue,
-                                msgType = data.typeValue,
-                                text = data.title, payload = data.payload.safe()))
-                        }
+
                     } else {
                         cardBubble.visibility = View.GONE
                         imageContent.visibility = View.GONE

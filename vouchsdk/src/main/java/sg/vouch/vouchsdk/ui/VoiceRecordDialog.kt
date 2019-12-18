@@ -56,6 +56,8 @@ class VoiceRecordDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
         closeImage.setOnClickListener(this)
         recordButton.setOnClickListener(this)
+
+        textDurationRecord.setText("00:00")
     }
 
     override fun onClick(v: View?) {

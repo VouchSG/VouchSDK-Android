@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui.model
 
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.message.response.GalleryElementModel
 import sg.vouch.vouchsdk.data.model.message.response.QuickReplyModel
 
@@ -31,5 +32,8 @@ data class VouchChatModel(
     /* model for gallery */
     val galleryElements: List<GalleryElementModel> = emptyList(),
     val isPendingMessage: Boolean = false,
-    val isFailedMessage: Boolean = false
+    val isFailedMessage: Boolean = false,
+    val msgType : String = "",
+    val body: MultipartBody.Part? = null,
+    val path : String = ""
 )

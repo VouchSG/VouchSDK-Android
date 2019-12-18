@@ -1,7 +1,9 @@
 package sg.vouch.vouchsdk.ui
 
 import android.Manifest
+import android.app.Activity
 import android.arch.lifecycle.Observer
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -23,6 +25,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -44,6 +47,7 @@ import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Const.URI_SCHEME_FILE
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
+import net.alhazmy13.mediapicker.Video.VideoPicker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -98,7 +102,13 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         buttonGreeting.setOnClickListener(this@VouchChatFragment)
         attachmentButton.setOnClickListener(this@VouchChatFragment)
         sendButton.setOnClickListener(this@VouchChatFragment)
+        videoButton.setOnClickListener(this@VouchChatFragment)
+        imageButton.setOnClickListener(this@VouchChatFragment)
         recordButton.setOnClickListener(this)
+
+        fieldContent.setOnFocusChangeListener { view, b ->
+            containerMediaChoose.visibility = View.GONE
+        }
     }
 
     private fun setupTextListener() {
@@ -491,6 +501,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun onClickRetryMessage(body: MessageBodyModel) {
         mViewModel.removeDataChat(0)
         mViewModel.sendReplyMessage(body)
+    }
+    override fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String) {
+        mViewModel.removeDataChat(0)
+        mViewModel.sendImageMessage(msgType, body, path)
     }
     private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
         try {

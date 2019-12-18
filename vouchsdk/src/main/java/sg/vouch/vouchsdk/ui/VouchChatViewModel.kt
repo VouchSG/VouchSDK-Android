@@ -271,19 +271,19 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-    private fun insertFailedImage(body: MessageBodyModel) {
+    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, path : String) {
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = body.text.safe(), isPendingMessage = true, isFailedMessage = true)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-    private fun insertFailedVideo(body: MessageBodyModel) {
+    private fun insertFailedVideo(msgType : String, body: MultipartBody.Part, path : String) {
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = body.text.safe(), isPendingMessage = true, isFailedMessage = true)
+            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -646,7 +646,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
-                        insertFailedImage(body)
+//                        insertFailedImage(body)
                     }
                 })
             }
@@ -665,7 +665,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
-                        insertFailedVideo(body)
                     }
                 })
             }
@@ -723,17 +722,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             override fun onError(message: String) {
                 eventShowMessage.value = message
                 if(msgType=="image") {
-                    insertFailedImage(MessageBodyModel(
-                        msgType = msgType,
-                        text = path,
-                        type = msgType
-                    ))
+                    insertFailedImage(msgType, body, path)
                 }else if(msgType=="video") {
-                    insertFailedVideo(MessageBodyModel(
-                        msgType = msgType,
-                        text = path,
-                        type = msgType
-                    ))
+                    insertFailedVideo(msgType, body, path)
                 }
             }
         })
