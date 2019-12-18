@@ -68,6 +68,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     private var mLocationService: FusedLocationProviderClient? = null
     private var mSendButtonStatus = false
 
+    var isFromVideoPlayerActivity: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -88,7 +90,11 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         super.onViewCreated(view, savedInstanceState)
         recyclerViewChat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             if (bottom < oldBottom) {
-                Handler().post { (v as RecyclerView).smoothScrollToPosition(0) }
+                if (isFromVideoPlayerActivity){
+                    isFromVideoPlayerActivity = false
+                }else{
+                    Handler().post { (v as RecyclerView).smoothScrollToPosition(0) }
+                }
             }
         }
         setupListData()
@@ -395,6 +401,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType) {
+        isFromVideoPlayerActivity = true
         VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, imageView, type)
     }
 
