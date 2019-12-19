@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.SeekBar
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
@@ -75,7 +76,7 @@ class VouchChatAdapter(
         }
     }
 
-    class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
 
         private var mediaPlayer: MediaPlayer? = null
 
@@ -319,13 +320,13 @@ class VouchChatAdapter(
                                         seekbar.max = mediaPlayer?.duration ?: 0
                                         audioText.text = "00:00"
                                     }
+
                                     mediaPlayer?.setOnCompletionListener {
                                         val second = it.duration / 1000
                                         val minute = second / 60
                                         audioText.text =
-                                            "${Helper.timeUnitToString(minute.toLong())}:${Helper.timeUnitToString(
-                                                (second % 60).toLong()
-                                            )}"
+                                            "${Helper.timeUnitToString(minute.toLong())}:${Helper
+                                                .timeUnitToString((second % 60).toLong())}"
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                     }
 

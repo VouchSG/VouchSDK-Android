@@ -16,7 +16,10 @@ object Helper {
     fun getCredentialKey(context: Context): String {
         try {
             val app =
-                context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+                context.packageManager.getApplicationInfo(
+                    context.packageName,
+                    PackageManager.GET_META_DATA
+                )
             val bundle = app.metaData
             return bundle.getString("sg.vouch.chat", "empty") ?: "empty"
 
@@ -34,9 +37,8 @@ object Helper {
         //should check null because in airplane mode it will be null
         return netInfo != null && netInfo.isConnected
     }
+
     fun timeUnitToString(timeUnit: Long): String {
         return if (timeUnit < 10) "0$timeUnit" else timeUnit.toString()
     }
-
-
 }
