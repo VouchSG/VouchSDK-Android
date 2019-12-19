@@ -3,6 +3,7 @@ package sg.vouch.vouchsdk.ui.adapter
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -27,7 +28,6 @@ import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import sg.vouch.vouchsdk.utils.*
 import java.io.IOException
-
 
 /**
  * @Author by Radhika Yusuf
@@ -305,6 +305,10 @@ class VouchChatAdapter(
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
+                                audioText.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())
+                                playAudio.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
+                                seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
 
                                 try {
                                     mediaPlayer = createMediaPlayer(data.mediaUrl, false)
@@ -314,12 +318,6 @@ class VouchChatAdapter(
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = mediaPlayer?.duration ?: 0
                                         audioText.text = "00:00"
-
-                                        mListener.setupMediaPlayer(
-                                            mediaPlayer ?: MediaPlayer(),
-                                            audioText,
-                                            seekbar
-                                        )
                                     }
                                     mediaPlayer?.setOnCompletionListener {
                                         val second = it.duration / 1000
@@ -332,21 +330,42 @@ class VouchChatAdapter(
                                     }
 
                                     playAudio.setOnClickListener {
-                                        if (mediaPlayer?.isPlaying == true) {
-                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-                                            mediaPlayer?.pause()
-                                        } else {
-                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
-                                            Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
-                                            mediaPlayer?.seekTo(
-                                                if (viewModel.audioSeek == mediaPlayer?.duration) {
-                                                    0
-                                                } else {
-                                                    viewModel.audioSeek
-                                                }
+                                        if(!mListener.isThisMedia(data.mediaUrl)){
+                                            mListener.setupMediaPlayer(
+                                                mediaPlayer ?: MediaPlayer(),
+                                                audioText,
+                                                seekbar, playAudio
                                             )
-                                            mediaPlayer?.start()
-                                            mListener.onClickPlayAudio("")
+                                            Handler().postDelayed( {
+                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                                Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
+                                                mediaPlayer?.seekTo(
+                                                    if (viewModel.audioSeek == mediaPlayer?.duration) {
+                                                        0
+                                                    } else {
+                                                        viewModel.audioSeek
+                                                    }
+                                                )
+                                                mediaPlayer?.start()
+                                                mListener.onClickPlayAudio("")
+                                            }, 1000)
+                                        }else{
+                                            if (mediaPlayer?.isPlaying == true) {
+                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                                mediaPlayer?.pause()
+                                            } else {
+                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                                Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
+                                                mediaPlayer?.seekTo(
+                                                    if (viewModel.audioSeek == mediaPlayer?.duration) {
+                                                        0
+                                                    } else {
+                                                        viewModel.audioSeek
+                                                    }
+                                                )
+                                                mediaPlayer?.start()
+                                                mListener.onClickPlayAudio("")
+                                            }
                                         }
                                     }
 

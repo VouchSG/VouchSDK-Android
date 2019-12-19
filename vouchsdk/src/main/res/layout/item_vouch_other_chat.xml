@@ -131,10 +131,10 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/dimens_8dp">
 
-                <sg.vouch.vouchsdk.utils.widget.SquareRoundedImageView
+                <ImageView
                     android:id="@+id/playAudio"
                     android:layout_width="@dimen/dimens_32dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/dimens_32dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"

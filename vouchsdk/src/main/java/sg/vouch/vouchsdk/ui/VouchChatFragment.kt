@@ -66,6 +66,7 @@ import java.util.concurrent.TimeUnit
 class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
     VoiceRecordDialog.VoiceRecordDialogCallback {
 
+
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
     private var mMediaPlayer: MediaPlayer? = null
@@ -340,15 +341,17 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     private val myHandler = Handler()
     internal var seekBar: SeekBar? = null
     internal var textAudio: TextView? = null
+    internal var playAudio: ImageView? = null
 
     override fun onClickPlayAudio(status : String) {
         mViewModel.startUpdateSong = true
         myHandler.postDelayed(updateSongTime,100)
     }
 
-    override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar) {
+    override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar, mPlayAudio : ImageView) {
         mMediaPlayer = mediaPlayer
         textAudio = tvCount
+        playAudio = mPlayAudio
         this.seekBar = mSeekBar
         var startTrack = false
         this.seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -380,7 +383,17 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
         })
     }
-
+    override fun isThisMedia(text: String): Boolean {
+        if(text == urlAudio){
+            return true
+        }else{
+            playAudio?.setImageDrawable(context?.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+            mMediaPlayer?.pause()
+            urlAudio = text
+            return false
+        }
+    }
+    var urlAudio = ""
     var startTime = 0
     private val updateSongTime = object : Runnable {
         override fun run() {
