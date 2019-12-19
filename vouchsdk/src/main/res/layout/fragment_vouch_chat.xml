@@ -98,25 +98,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dimens_16dp"
-            android:layout_marginEnd="@dimen/dimens_16dp"
-            android:visibility="gone"
-            android:layout_marginBottom="@dimen/dimens_16dp"
             android:layout_marginTop="@dimen/dimens_8dp"
+            android:layout_marginEnd="@dimen/dimens_16dp"
+            android:layout_marginBottom="@dimen/dimens_16dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/poweredText">
 
             <TextView
-                android:gravity="center"
                 android:id="@+id/buttonGreeting"
                 android:layout_width="match_parent"
-                android:padding="@dimen/dimens_16dp"
                 android:layout_height="wrap_content"
-                android:text="Lorem Greeting"/>
+                android:gravity="center"
+                android:padding="@dimen/dimens_16dp"
+                android:text="Lorem Greeting" />
+
             <ProgressBar
                 android:id="@+id/progressBtn"
                 android:layout_width="@dimen/dimens_24dp"
-                android:visibility="gone"
+                android:layout_height="@dimen/dimens_24dp"
                 android:layout_gravity="center"
-                android:layout_height="@dimen/dimens_24dp"/>
+                android:visibility="gone" />
         </FrameLayout>
 
         <ImageView

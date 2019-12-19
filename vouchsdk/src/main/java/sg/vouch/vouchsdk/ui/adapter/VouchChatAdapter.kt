@@ -80,7 +80,7 @@ class VouchChatAdapter(
         }
     }
 
-    class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
 
         fun bind(
             data: VouchChatModel,
