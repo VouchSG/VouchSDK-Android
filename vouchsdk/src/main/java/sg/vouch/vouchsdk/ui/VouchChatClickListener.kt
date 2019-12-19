@@ -23,12 +23,12 @@ interface VouchChatClickListener {
 
     fun onClickQuickReply(data: MessageBodyModel)
 
-    fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar, playAudio : ImageView)
+    fun setupMediaPlayer(mediaPlayer: MediaPlayer)
 
     fun onClickRetryMessage(body: MessageBodyModel)
 
     fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String)
 
-    fun isThisMedia(text : String): Boolean
+    fun resetMediaPlayer()
 
 }
