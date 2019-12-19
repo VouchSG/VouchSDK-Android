@@ -1,9 +1,7 @@
 package sg.vouch.vouchsdk.ui
 
 import android.Manifest
-import android.app.Activity
 import android.arch.lifecycle.Observer
-import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -25,18 +23,26 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.fragment_vouch_chat.*
+import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.VouchSDK
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
+import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
 import sg.vouch.vouchsdk.ui.VouchChatEnum.*
 import sg.vouch.vouchsdk.ui.adapter.VouchChatAdapter
+import sg.vouch.vouchsdk.ui.model.AttachmentDialog
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
+import sg.vouch.vouchsdk.ui.model.VouchChatType
 import sg.vouch.vouchsdk.ui.model.VouchChatType.TYPE_LIST
 import sg.vouch.vouchsdk.utils.*
 import sg.vouch.vouchsdk.utils.Const.CHAT_BUTTON_TYPE_PHONE
@@ -46,16 +52,10 @@ import sg.vouch.vouchsdk.utils.Const.IMAGE_UPLOAD_KEY
 import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Const.URI_SCHEME_FILE
-import kotlinx.android.synthetic.main.fragment_vouch_chat.*
-import net.alhazmy13.mediapicker.Video.VideoPicker
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import sg.vouch.vouchsdk.data.model.message.body.SendAudioBodyModel
-import sg.vouch.vouchsdk.ui.model.AttachmentDialog
-import sg.vouch.vouchsdk.ui.model.VouchChatType
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
 
@@ -69,7 +69,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
-    private var mMediaPlayer: MediaPlayer? = null
     private var mLocationService: FusedLocationProviderClient? = null
     private var mSendButtonStatus = false
 
@@ -339,22 +338,21 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     private val myHandler = Handler()
-    internal var seekBar: SeekBar? = null
-    internal var textAudio: TextView? = null
-    internal var playAudio: ImageView? = null
 
     override fun onClickPlayAudio(status : String) {
         mViewModel.startUpdateSong = true
         myHandler.postDelayed(updateSongTime,100)
     }
 
-    override fun setupMediaPlayer(mediaPlayer: MediaPlayer, tvCount : TextView, mSeekBar: SeekBar, mPlayAudio : ImageView) {
-        mMediaPlayer = mediaPlayer
-        textAudio = tvCount
-        playAudio = mPlayAudio
-        this.seekBar = mSeekBar
+    override fun setupMediaPlayer(mediaPlayer: MediaPlayer) {
+        mViewModel.mMediaPlayer = mediaPlayer
         var startTrack = false
-        this.seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+        val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
+        val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
+        val audioText = tempView?.findViewById<TextView>(R.id.audioText)
+        val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
+        seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (startTrack && fromUser) {
                     mViewModel.startUpdateSong = false
@@ -368,40 +366,35 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 startTrack = false
                 mViewModel.startUpdateSong = true
-                mViewModel.audioSeek = seekBar?.progress ?: 0
-                textAudio?.text =
-                    "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(mViewModel.audioSeek.toLong()))}:${Helper.timeUnitToString(
-                        TimeUnit.MILLISECONDS.toSeconds(mViewModel.audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
-                            TimeUnit.MILLISECONDS.toMinutes(mViewModel.audioSeek.toLong())
+                mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] = seekBar?.progress ?: 0
+                val audioSeek = mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] ?: 0
+                audioText?.text =
+                    "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong()))}:${Helper.timeUnitToString(
+                        TimeUnit.MILLISECONDS.toSeconds(audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
+                            TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong())
                         )
                     )}"
-                if (mMediaPlayer?.isPlaying == true ) {
-                    mMediaPlayer?.seekTo(mViewModel.audioSeek)
+                if (mViewModel.mMediaPlayer?.isPlaying == true ) {
+                    mViewModel.mMediaPlayer?.seekTo(audioSeek)
                     onClickPlayAudio("")
                 }
             }
 
         })
     }
-    override fun isThisMedia(text: String): Boolean {
-        if(text == urlAudio){
-            return true
-        }else{
-            playAudio?.setImageDrawable(context?.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-            mMediaPlayer?.pause()
-            urlAudio = text
-            return false
-        }
-    }
-    var urlAudio = ""
+
     var startTime = 0
     private val updateSongTime = object : Runnable {
         override fun run() {
             if (mViewModel.startUpdateSong) {
-                startTime = mMediaPlayer?.currentPosition ?: 0
-                mViewModel.audioSeek = startTime
+                startTime = mViewModel.mMediaPlayer?.currentPosition ?: 0
+                mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] = startTime
                 activity?.runOnUiThread {
-                    textAudio?.text =
+                    val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
+                    val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
+                    val audioText = tempView?.findViewById<TextView>(R.id.audioText)
+                    val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
+                    audioText?.text =
                         "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong()))}:${Helper.timeUnitToString(
                             TimeUnit.MILLISECONDS.toSeconds(startTime.toLong()) - TimeUnit.MINUTES.toSeconds(
                                 TimeUnit.MILLISECONDS.toMinutes(startTime.toLong())
@@ -414,13 +407,24 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         }
     }
 
-    private fun resetMediaPlayer() {
-        mViewModel.audioSeek = 0
+    override fun resetMediaPlayer() {
+        val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
+        val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
+        val audioText = tempView?.findViewById<TextView>(R.id.audioText)
+        val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
+        val playAudio = tempView?.findViewById<ImageView>(R.id.playAudio)
+        mViewModel.audioSeek.map {
+            mViewModel.audioSeek[it.key] = 0
+        }
         mViewModel.startUpdateSong = false
-        mMediaPlayer?.stop()
-        mMediaPlayer?.prepareAsync()
-        textAudio?.text = "00:00"
+        mViewModel.mMediaPlayer?.stop()
+        mViewModel.mMediaPlayer?.prepareAsync()
+        playAudio?.setImageDrawable(context?.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+        audioText?.text = "00:00"
+        seekBar?.max = 0
         seekBar?.progress = 0
+        seekBar?.setOnSeekBarChangeListener(null)
+        recyclerViewChat.adapter?.notifyItemChanged(mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia))
     }
 
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType) {

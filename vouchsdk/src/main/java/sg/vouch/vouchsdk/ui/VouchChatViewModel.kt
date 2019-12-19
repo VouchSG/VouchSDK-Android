@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.location.Location
+import android.media.MediaPlayer
 import android.os.Handler
 import android.view.View
 import android.widget.ProgressBar
@@ -64,9 +65,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     var mMultipartImage: MultipartBody.Part? = null
 
     var startUpdateSong = false
-    var audioSeek = 0
+    var audioSeek = HashMap<Int, Int>()
+    var currentAudioMedia = VouchChatModel()
 
     private var retryCount = 0
+    var mMediaPlayer: MediaPlayer? = null
 
     fun start() {
         mVouchCore = VouchCore()
