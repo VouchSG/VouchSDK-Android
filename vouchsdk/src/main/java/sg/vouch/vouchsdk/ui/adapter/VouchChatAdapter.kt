@@ -303,6 +303,8 @@ class VouchChatAdapter(
                                 playVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
+
+                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
@@ -311,6 +313,7 @@ class VouchChatAdapter(
                                 seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
                                 seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
 
+                                audioText.text = "00:00"
                                 try {
                                     mediaPlayer = createMediaPlayer(data.mediaUrl, false)
                                     mediaPlayer?.setOnPreparedListener {
@@ -318,7 +321,6 @@ class VouchChatAdapter(
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = mediaPlayer?.duration ?: 0
-                                        audioText.text = "00:00"
                                     }
 
                                     mediaPlayer?.setOnCompletionListener {
