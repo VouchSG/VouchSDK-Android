@@ -339,7 +339,7 @@ class VouchChatAdapter(
                                     } else {
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                         seekbar.incrementProgressBy(1)
-                                        seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
+                                        seekbar.max = 0
                                         seekbar.progress = 0
                                         audioText.text = "00:00"
                                     }
