@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.util.Log
+import sg.vouch.vouchsdk.ui.model.VouchChatModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -40,5 +43,9 @@ object Helper {
 
     fun timeUnitToString(timeUnit: Long): String {
         return if (timeUnit < 10) "0$timeUnit" else timeUnit.toString()
+    }
+
+    fun getAudioId(data: VouchChatModel): Int {
+        return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).parse(data.createdAt).time.toInt()
     }
 }

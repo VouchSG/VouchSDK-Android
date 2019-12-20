@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui.adapter
 
+import android.content.Context
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -11,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.SeekBar
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
@@ -28,7 +28,12 @@ import sg.vouch.vouchsdk.ui.VouchChatViewModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import sg.vouch.vouchsdk.utils.*
+import sg.vouch.vouchsdk.utils.Helper.getAudioId
+import sg.vouch.vouchsdk.utils.Helper.timeUnitToString
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * @Author by Radhika Yusuf
@@ -77,8 +82,6 @@ class VouchChatAdapter(
     }
 
     inner class VouchChatItem(private val mView: View) : RecyclerView.ViewHolder(mView) {
-
-        private var mediaPlayer: MediaPlayer? = null
 
         fun bind(
             data: VouchChatModel,
@@ -313,62 +316,58 @@ class VouchChatAdapter(
                                 seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
                                 seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
 
-                                audioText.text = "00:00"
+                                audioText.text = mListener.getDuration(data.mediaUrl)
                                 try {
-                                    mediaPlayer = createMediaPlayer(data.mediaUrl, false)
-                                    mediaPlayer?.setOnPreparedListener {
-                                        mediaPlayer = it
+                                    if (viewModel.mMediaPlayer?.isPlaying == true && viewModel.currentAudioMedia != VouchChatModel()
+                                        && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)) {
+                                        seekbar.incrementProgressBy(1)
+                                        seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
+                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                        mListener.setupMediaPlayer(viewModel.mMediaPlayer ?: MediaPlayer())
+                                        mListener.onClickPlayAudio("")
+                                    } else if (viewModel.currentAudioMedia != VouchChatModel()
+                                        && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)
+                                        && (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0) > 0) {
+                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                        val audioSeek = viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0
+                                        audioText.text =
+                                            "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong()))}:${Helper.timeUnitToString(
+                                                TimeUnit.MILLISECONDS.toSeconds(audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
+                                                    TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong())
+                                                )
+                                            )}"
+
+                                        seekbar.incrementProgressBy(1)
+                                        seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
+                                        seekbar.progress = audioSeek
+                                    } else {
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                         seekbar.incrementProgressBy(1)
-                                        seekbar.max = mediaPlayer?.duration ?: 0
-                                    }
-
-                                    mediaPlayer?.setOnCompletionListener {
-                                        val second = it.duration / 1000
-                                        val minute = second / 60
-                                        audioText.text =
-                                            "${Helper.timeUnitToString(minute.toLong())}:${Helper
-                                                .timeUnitToString((second % 60).toLong())}"
-                                        playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                        seekbar.max = 0
+                                        seekbar.progress = 0
+                                        audioText.text = mListener.getDuration(data.mediaUrl)
                                     }
 
                                     playAudio.setOnClickListener {
-                                        if(!mListener.isThisMedia(data.mediaUrl)){
-                                            mListener.setupMediaPlayer(
-                                                mediaPlayer ?: MediaPlayer(),
-                                                audioText,
-                                                seekbar, playAudio
+                                        if (viewModel.currentAudioMedia != VouchChatModel()
+                                            && getAudioId(viewModel.currentAudioMedia) != getAudioId(data)) {
+                                            mListener.resetMediaPlayer()
+                                        }
+                                        if (viewModel.mMediaPlayer?.isPlaying == true) {
+                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                            viewModel.mMediaPlayer?.pause()
+                                        } else {
+                                            createMediaPlayer(context, data, this, viewModel, mListener)
+                                            playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                            viewModel.mMediaPlayer?.seekTo(
+                                                if (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] == viewModel.mMediaPlayer?.duration) {
+                                                    0
+                                                } else {
+                                                    viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0
+                                                }
                                             )
-                                            Handler().postDelayed( {
-                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
-                                                Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
-                                                mediaPlayer?.seekTo(
-                                                    if (viewModel.audioSeek == mediaPlayer?.duration) {
-                                                        0
-                                                    } else {
-                                                        viewModel.audioSeek
-                                                    }
-                                                )
-                                                mediaPlayer?.start()
-                                                mListener.onClickPlayAudio("")
-                                            }, 1000)
-                                        }else{
-                                            if (mediaPlayer?.isPlaying == true) {
-                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-                                                mediaPlayer?.pause()
-                                            } else {
-                                                playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
-                                                Log.d("AUDIOSEEK", "${viewModel.audioSeek} == ${mediaPlayer?.duration}")
-                                                mediaPlayer?.seekTo(
-                                                    if (viewModel.audioSeek == mediaPlayer?.duration) {
-                                                        0
-                                                    } else {
-                                                        viewModel.audioSeek
-                                                    }
-                                                )
-                                                mediaPlayer?.start()
-                                                mListener.onClickPlayAudio("")
-                                            }
+                                            viewModel.mMediaPlayer?.start()
+                                            mListener.onClickPlayAudio("")
                                         }
                                     }
 
@@ -398,17 +397,31 @@ class VouchChatAdapter(
             }
         }
 
-        private fun createMediaPlayer(mediaUrl: String, play: Boolean): MediaPlayer {
-            val mediaPlayer = MediaPlayer()
-            mediaPlayer.setAudioAttributes(
+        private fun createMediaPlayer(context: Context, data: VouchChatModel, view: View, mViewModel: VouchChatViewModel, mListener: VouchChatClickListener) {
+            mViewModel.mMediaPlayer = MediaPlayer()
+            mViewModel.mMediaPlayer?.setAudioAttributes(
                 AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                     .build()
             )
-            mediaPlayer.setDataSource(mediaUrl)
-            mediaPlayer.prepareAsync()
+            mViewModel.mMediaPlayer?.setDataSource(data.mediaUrl)
+            mViewModel.mMediaPlayer?.prepare()
 
-            return mediaPlayer
+            mViewModel.currentAudioMedia = data
+
+            view.apply {
+                mViewModel.mMediaPlayer?.setOnPreparedListener {
+                    mViewModel.mMediaPlayer = it
+                    seekbar.incrementProgressBy(1)
+                    seekbar.max = mViewModel.mMediaPlayer?.duration ?: 0
+                    audioText.text = mListener.getDuration(data.mediaUrl)
+                    mListener.setupMediaPlayer(mViewModel.mMediaPlayer ?: MediaPlayer())
+                }
+                mViewModel.mMediaPlayer?.setOnCompletionListener {
+                    audioText.text = mListener.getDuration(data.mediaUrl)
+                    playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                }
+            }
         }
 
     }

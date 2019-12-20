@@ -12,7 +12,7 @@ data class VouchChatModel(
     val title: String = "",
     val subTitle: String = "",
     val isMyChat: Boolean = false,
-    val type: VouchChatType,
+    val type: VouchChatType = VouchChatType.TYPE_TEXT,
     val createdAt: String = "",
     val payload: String = "",
     val typeValue: String = "",
