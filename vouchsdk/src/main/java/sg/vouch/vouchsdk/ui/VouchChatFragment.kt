@@ -157,6 +157,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 progressIndicator.visibility = if (it == true) View.VISIBLE else View.GONE
             })
 
+            eventCloseActivity.observe(this@VouchChatFragment, Observer {
+                Handler().postDelayed({
+                    activity?.finish()
+                }, 3000)
+            })
+
             changeConnectStatus.observe(this@VouchChatFragment, Observer {
                 imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
                 inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE

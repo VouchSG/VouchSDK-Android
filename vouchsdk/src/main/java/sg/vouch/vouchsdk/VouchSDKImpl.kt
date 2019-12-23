@@ -21,6 +21,7 @@ import sg.vouch.vouchsdk.utils.Helper
 
 class VouchSDKImpl internal constructor(val application: Application, val username: String, val password: String, val apiKey : String) :
     VouchSDK {
+
     private lateinit var mVouchCore: VouchCore
     private lateinit var mVouchData: VouchData
 

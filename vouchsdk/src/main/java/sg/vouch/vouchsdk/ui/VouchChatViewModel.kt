@@ -53,6 +53,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     val changeConnectStatus = MutableLiveData<Boolean>()
     val eventShowMessage = MutableLiveData<String>()
+    val eventCloseActivity = MutableLiveData<String>()
     val loadConfiguration = MutableLiveData<ConfigResponseModel>()
     val eventChangeStateToGreeting = MutableLiveData<Boolean>()
     val eventScroll = MutableLiveData<Void>()
@@ -173,6 +174,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     override fun onError(message: String) {
         eventShowMessage.value = message
+        if(message.toLowerCase().contains("password is not correct")){
+            eventCloseActivity.value = message
+        }
     }
 
     fun disconnectSocket() {
@@ -696,6 +700,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onError(message: String) {
                 eventShowMessage.value = message
+                if(message.toLowerCase().contains("password is not correct")){
+                    eventCloseActivity.value = message
+                }
             }
 
         })
