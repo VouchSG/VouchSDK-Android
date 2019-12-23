@@ -43,6 +43,7 @@ interface RegisterCallback {
 interface MessageCallback {
     fun onSuccess(data: List<MessageResponseModel>)
     fun onError(message: String)
+    fun onUnAuthorize()
 }
 
 /**

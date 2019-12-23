@@ -69,7 +69,8 @@ class VouchRepository(
         pageSize: Int,
         onSuccess: (data: List<MessageResponseModel>) -> Unit,
         onError: (message: String) -> Unit,
-        onFinish: () -> Unit
+        onFinish: () -> Unit,
+        onUnAuthorize: () -> Unit
     ) {
         remoteDataSource.getListMessage(getApiToken(), page, pageSize, onSuccess, onError, onFinish)
     }

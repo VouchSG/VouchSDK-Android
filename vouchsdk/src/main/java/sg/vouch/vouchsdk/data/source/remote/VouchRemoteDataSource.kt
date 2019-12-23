@@ -120,7 +120,8 @@ object VouchRemoteDataSource : VouchDataSource {
         pageSize: Int,
         onSuccess: (data: List<MessageResponseModel>) -> Unit,
         onError: (message: String) -> Unit,
-        onFinish: () -> Unit
+        onFinish: () -> Unit,
+        onUnAuthorize: () -> Unit
     ) {
         chatDisposable?.dispose()
         chatDisposable = mApiService.getListMessages(token = token, page = page, pageSize = pageSize)
@@ -150,10 +151,12 @@ object VouchRemoteDataSource : VouchDataSource {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                if (it.code == 200 && it.data?.token != null) {
+                if (it.code == 200 && it.data?.token != null && it.data?.token.length > 3) {
                     onSuccess(it.data)
                 } else {
-                    onError(it.message ?: "")
+                    //{"code":200,"message":"230 ms","data":{"code":401,"message":"password is not correct"}}
+                    //{"code":200,"message":"241 ms","data":{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXN0b21lcklkIjoiNWRmYzQ1MzRhNDk3ZDU2NGI0N2Y1Y2ZlIiwiaWF0IjoxNTc2ODI1MzA3LCJleHAiOjE1NzY4MjUzNjd9.8203dxAGw8kMIhVnyeZ-aIcxc5SARm3e88pXLsO21_Y","websocketTicket":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXN0b21lcklkIjoiNWRmYzQ1MzRhNDk3ZDU2NGI0N2Y1Y2ZlIiwiaWF0IjoxNTc2ODI1MzA3LCJleHAiOjE1NzY4MjU5MDd9.X8FSUAhJqj0HGGhSBuQ-cIKsmNuSOhooIXEfMKBBWLI"}}
+                    onError(it.data?.message ?: "")
                 }
             }, {
                 onError(it.message ?: "")

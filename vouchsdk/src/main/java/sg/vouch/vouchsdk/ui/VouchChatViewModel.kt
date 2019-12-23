@@ -116,6 +116,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         mVouchSDK.getListMessages(currentPage++, PAGE_SIZE, object : MessageCallback {
+            override fun onUnAuthorize() {
+                retryRegisterUser()
+            }
+
             override fun onSuccess(data: List<MessageResponseModel>) {
                 if (data.isNotEmpty()) {
                     eventChangeStateToGreeting.value = false
