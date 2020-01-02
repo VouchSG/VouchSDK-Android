@@ -9,6 +9,8 @@ import com.google.gson.annotations.SerializedName
 data class RegisterResponseModel(
     @SerializedName("token")
     val token: String? = "",
+    @SerializedName("message")
+    val message: String? = "",
     @SerializedName("websocketTicket")
     val websocketTicket: String? = ""
 )

@@ -124,7 +124,8 @@ class VouchLocalDataSource(private val mContext: Context) : VouchDataSource {
         pageSize: Int,
         onSuccess: (data: List<MessageResponseModel>) -> Unit,
         onError: (message: String) -> Unit,
-        onFinish: () -> Unit
+        onFinish: () -> Unit,
+        onUnAuthorize: () -> Unit
     ) {
         throwRemoteException()
     }

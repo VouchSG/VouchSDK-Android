@@ -31,4 +31,6 @@ interface VouchChatClickListener {
 
     fun resetMediaPlayer()
 
+    fun getDuration(url : String): String
+
 }

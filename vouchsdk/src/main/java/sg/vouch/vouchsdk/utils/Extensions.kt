@@ -160,12 +160,11 @@ fun String.reformatFullDate(format: String, locale: Locale = SG_LOCALE): String 
 
     if(this.length < 3){
         var getDate = Date(System.currentTimeMillis())
-        return SimpleDateFormat(format, locale).format(getDate)
+        return SimpleDateFormat(format).format(getDate)
     }else{
-        val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
+        val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT)
         var getDate = inputFormat.parse(this)
-        return SimpleDateFormat(format, locale).format(getDate)
-
+        return SimpleDateFormat(format).format(getDate)
     }
 
 }

@@ -30,6 +30,7 @@ import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import sg.vouch.vouchsdk.utils.*
 import sg.vouch.vouchsdk.utils.Helper.getAudioId
+import sg.vouch.vouchsdk.utils.Helper.timeUnitToString
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -322,6 +323,8 @@ class VouchChatAdapter(
                                 playVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
+
+                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
@@ -330,6 +333,7 @@ class VouchChatAdapter(
                                 seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
                                 seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
 
+                                audioText.text = mListener.getDuration(data.mediaUrl)
                                 try {
                                     if (viewModel.mMediaPlayer?.isPlaying == true && viewModel.currentAudioMedia != VouchChatModel()
                                         && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)) {
@@ -358,7 +362,7 @@ class VouchChatAdapter(
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = 0
                                         seekbar.progress = 0
-                                        audioText.text = "00:00"
+                                        audioText.text = mListener.getDuration(data.mediaUrl)
                                     }
 
                                     playAudio.setOnClickListener {
@@ -427,11 +431,11 @@ class VouchChatAdapter(
                     mViewModel.mMediaPlayer = it
                     seekbar.incrementProgressBy(1)
                     seekbar.max = mViewModel.mMediaPlayer?.duration ?: 0
-                    audioText.text = "00:00"
+                    audioText.text = mListener.getDuration(data.mediaUrl)
                     mListener.setupMediaPlayer(mViewModel.mMediaPlayer ?: MediaPlayer())
                 }
                 mViewModel.mMediaPlayer?.setOnCompletionListener {
-                    audioText.text = "00:00"
+                    audioText.text = mListener.getDuration(data.mediaUrl)
                     playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                 }
             }

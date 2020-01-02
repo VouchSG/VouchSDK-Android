@@ -116,6 +116,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         mVouchSDK.getListMessages(currentPage++, PAGE_SIZE, object : MessageCallback {
+            override fun onUnAuthorize() {
+                retryRegisterUser()
+            }
+
             override fun onSuccess(data: List<MessageResponseModel>) {
                 if (data.isNotEmpty()) {
                     eventChangeStateToGreeting.value = false
@@ -743,7 +747,12 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             override fun onError(message: String) {
-                eventShowMessage.value = message
+                if(message.contains("500")){
+                    eventShowMessage.value = "sound not detected"
+                }else{
+                    eventShowMessage.value = message
+                }
+
             }
         })
     }

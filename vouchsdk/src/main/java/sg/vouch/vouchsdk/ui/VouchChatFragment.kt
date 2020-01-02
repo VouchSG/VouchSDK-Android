@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -66,7 +67,6 @@ import java.util.concurrent.TimeUnit
  */
 class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
     VoiceRecordDialog.VoiceRecordDialogCallback {
-
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
@@ -345,7 +345,18 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.startUpdateSong = true
         myHandler.postDelayed(updateSongTime,100)
     }
-
+    override fun getDuration(url : String): String {
+        var duration = ""
+        var retriever = MediaMetadataRetriever()
+        retriever.setDataSource(url, HashMap<String, String>())
+        var time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+        duration = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
+            TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+                TimeUnit.MILLISECONDS.toMinutes(time)
+            )
+        )}"
+        return duration
+    }
     override fun setupMediaPlayer(mediaPlayer: MediaPlayer) {
         mViewModel.mMediaPlayer = mediaPlayer
         var startTrack = false
@@ -391,15 +402,18 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             if (mViewModel.startUpdateSong) {
                 startTime = mViewModel.mMediaPlayer?.currentPosition ?: 0
                 mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] = startTime
+                
+                var endTime = mViewModel.mMediaPlayer?.duration!! - startTime
+
                 activity?.runOnUiThread {
                     val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
                     val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
                     val audioText = tempView?.findViewById<TextView>(R.id.audioText)
                     val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
                     audioText?.text =
-                        "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(startTime.toLong()))}:${Helper.timeUnitToString(
-                            TimeUnit.MILLISECONDS.toSeconds(startTime.toLong()) - TimeUnit.MINUTES.toSeconds(
-                                TimeUnit.MILLISECONDS.toMinutes(startTime.toLong())
+                        "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(endTime.toLong()))}:${Helper.timeUnitToString(
+                            TimeUnit.MILLISECONDS.toSeconds(endTime.toLong()) - TimeUnit.MINUTES.toSeconds(
+                                TimeUnit.MILLISECONDS.toMinutes(endTime.toLong())
                             )
                         )}"
                     seekBar?.progress = startTime
@@ -422,7 +436,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.mMediaPlayer?.stop()
         mViewModel.mMediaPlayer?.prepareAsync()
         playAudio?.setImageDrawable(context?.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-        audioText?.text = "00:00"
+//        audioText?.text = "xx:xx"
         seekBar?.max = 0
         seekBar?.progress = 0
         seekBar?.setOnSeekBarChangeListener(null)
