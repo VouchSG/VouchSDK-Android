@@ -8,10 +8,13 @@ import sg.vouch.vouchsdk.VouchSDK
 import com.theartofdev.edmodo.cropper.CropImage
 import android.app.Activity
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
+import android.os.Environment
 import net.alhazmy13.mediapicker.Video.VideoPicker
+import sg.vouch.vouchsdk.utils.getImageOrientation
+import sg.vouch.vouchsdk.utils.resaveBitmap
 import java.io.File
+
+
 
 
 /**
@@ -38,10 +41,23 @@ class VouchChatActivity : AppCompatActivity() {
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val imageUri = CropImage.getPickImageResultUri(this, data)
             if (imageUri != null) {
+                val p1 = Environment.getExternalStorageDirectory().toString()
+                var orientation = getImageOrientation(imageUri.path)
+                //content://media/external/images/media/10092 file:///storage/emulated/0/Android/data/id.gits.vouch/cache/pickImageResult.jpeg
+
                 println(imageUri.toString())
-                val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
-                        as VouchChatFragment
-                fragment.sendImageChat(imageUri)
+                if(orientation != 0){
+                    var file = resaveBitmap(imageUri.path!!, p1, "pickImageResult.jpeg", orientation.toFloat())
+                    val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                            as VouchChatFragment
+                    fragment.sendImageChat(Uri.fromFile(file))
+                }else{
+                    val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                            as VouchChatFragment
+                    fragment.sendImageChat(imageUri)
+                }
+
+
             }
         }
 

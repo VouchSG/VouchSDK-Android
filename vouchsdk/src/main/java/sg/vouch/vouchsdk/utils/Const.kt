@@ -31,7 +31,7 @@ object Const {
     const val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 
 
-    val SG_LOCALE = Locale("en", "ID")
+    val SG_LOCALE = Locale("en", "SG")
 
 
     const val PAGE_SIZE = 20

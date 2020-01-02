@@ -4,11 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Typeface
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.media.ExifInterface
 import android.net.Uri
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
@@ -22,7 +21,12 @@ import com.bumptech.glide.request.transition.Transition
 import sg.vouch.vouchsdk.utils.Const.SG_LOCALE
 import io.socket.client.Socket
 import io.socket.engineio.client.Transport
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 
 
@@ -162,13 +166,13 @@ fun String.reformatFullDate(format: String, locale: Locale = SG_LOCALE): String 
         var getDate = Date(System.currentTimeMillis())
         return SimpleDateFormat(format).format(getDate)
     }else{
-        val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT)
+        val inputFormat = SimpleDateFormat(Const.DATE_TIME_FORMAT, locale)
+        inputFormat.timeZone = TimeZone.getTimeZone("SG")
         var getDate = inputFormat.parse(this)
         return SimpleDateFormat(format).format(getDate)
     }
 
 }
-
 
 fun Socket.addHeader(credentialToken: String) {
     on(Transport.EVENT_REQUEST_HEADERS) { args ->
@@ -192,4 +196,51 @@ fun String?.parseColor(@ColorInt defaultColor: Int = Color.WHITE): Int {
 
 fun String?.safe(default: String = ""): String {
     return this ?: default
+}
+
+fun resaveBitmap(imagepath : String, path:String, filename:String, rotation:Float): File {
+    var extStorageDirectory = path
+    var outStream : OutputStream? = null
+    var file = File(filename)
+
+    if(file.exists()){
+        file.delete()
+        file = File(extStorageDirectory, filename)
+    }
+    try{
+        var bitmap = BitmapFactory.decodeFile(imagepath)
+        bitmap = checkRotationFromCamera(bitmap, imagepath, rotation)
+        bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.getWidth() * 0.3f).toInt(),(bitmap.getHeight() * 0.3f).toInt(), false)
+        outStream = FileOutputStream(imagepath)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+        outStream.flush()
+        outStream.close()
+    }catch (e:Exception){
+        e.printStackTrace()
+    }
+
+    return file
+}
+
+private fun checkRotationFromCamera(bitmap: Bitmap, pathToFile: String, rotate: Float): Bitmap {
+    val matrix = Matrix()
+    matrix.postRotate(rotate)
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+}
+
+fun getImageOrientation(imagePath: String? = ""): Int {
+    var rotate = 0
+    try {
+        val exif = ExifInterface(imagePath)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotate = 270
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotate = 180
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotate = 90
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+
+    return rotate
 }
