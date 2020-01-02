@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,10 +28,7 @@ import sg.vouch.vouchsdk.ui.model.VouchChatModel
 import sg.vouch.vouchsdk.ui.model.VouchChatType.*
 import sg.vouch.vouchsdk.utils.*
 import sg.vouch.vouchsdk.utils.Helper.getAudioId
-import sg.vouch.vouchsdk.utils.Helper.timeUnitToString
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -48,7 +43,6 @@ class VouchChatAdapter(
     private var mData: List<VouchChatModel> = mViewModel.bDataChat
     private var viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
     private var mChildViewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
-    private var lastPosition = -1
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is VouchChatItem) {
@@ -333,27 +327,56 @@ class VouchChatAdapter(
                                 seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
                                 seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
 
-                                audioText.text = mListener.getDuration(data.mediaUrl)
+                                val duration = viewModel.audioDuration[data.mediaUrl] ?: 0
+                                if (duration > 0) {
+                                    val time = viewModel.audioDuration[data.mediaUrl]?.toLong() ?: 0L
+                                    audioText.text = "${Helper.timeUnitToString(
+                                        TimeUnit.MILLISECONDS.toMinutes(time)
+                                    )}:${Helper.timeUnitToString(
+                                        TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+                                            TimeUnit.MILLISECONDS.toMinutes(time)
+                                        )
+                                    )}"
+                                } else {
+                                    val mMediaPlayer = MediaPlayer()
+                                    mMediaPlayer.setAudioAttributes(
+                                        AudioAttributes.Builder()
+                                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                            .build()
+                                    )
+                                    mMediaPlayer.setDataSource(data.mediaUrl)
+                                    mMediaPlayer.setOnPreparedListener {
+                                        viewModel.audioDuration[data.mediaUrl] = mMediaPlayer.duration
+                                        val time = mMediaPlayer.duration.toLong()
+                                        audioText.text = "${Helper.timeUnitToString(
+                                            TimeUnit.MILLISECONDS.toMinutes(time)
+                                        )}:${Helper.timeUnitToString(
+                                            TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+                                                TimeUnit.MILLISECONDS.toMinutes(time)
+                                            )
+                                        )}"
+                                    }
+                                    mMediaPlayer.prepareAsync()
+                                }
+
                                 try {
                                     if (viewModel.mMediaPlayer?.isPlaying == true && viewModel.currentAudioMedia != VouchChatModel()
                                         && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)) {
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
-                                        mListener.setupMediaPlayer(viewModel.mMediaPlayer ?: MediaPlayer())
+                                        mListener.setupMediaPlayer()
                                         mListener.onClickPlayAudio("")
                                     } else if (viewModel.currentAudioMedia != VouchChatModel()
                                         && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)
                                         && (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0) > 0) {
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                         val audioSeek = viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0
-                                        audioText.text =
-                                            "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong()))}:${Helper.timeUnitToString(
+                                        audioText.text = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong()))}:${Helper.timeUnitToString(
                                                 TimeUnit.MILLISECONDS.toSeconds(audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
                                                     TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong())
                                                 )
                                             )}"
-
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
                                         seekbar.progress = audioSeek
@@ -362,7 +385,6 @@ class VouchChatAdapter(
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = 0
                                         seekbar.progress = 0
-                                        audioText.text = mListener.getDuration(data.mediaUrl)
                                     }
 
                                     playAudio.setOnClickListener {
@@ -374,8 +396,8 @@ class VouchChatAdapter(
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                             viewModel.mMediaPlayer?.pause()
                                         } else {
-                                            createMediaPlayer(context, data, this, viewModel, mListener)
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                            createMediaPlayer(context, data, this, viewModel, mListener)
                                             viewModel.mMediaPlayer?.seekTo(
                                                 if (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] == viewModel.mMediaPlayer?.duration) {
                                                     0
@@ -431,11 +453,21 @@ class VouchChatAdapter(
                     mViewModel.mMediaPlayer = it
                     seekbar.incrementProgressBy(1)
                     seekbar.max = mViewModel.mMediaPlayer?.duration ?: 0
-                    audioText.text = mListener.getDuration(data.mediaUrl)
-                    mListener.setupMediaPlayer(mViewModel.mMediaPlayer ?: MediaPlayer())
+                    val time = (mViewModel.mMediaPlayer?.duration ?: 0).toLong()
+                    audioText.text = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
+                        TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+                            TimeUnit.MILLISECONDS.toMinutes(time)
+                        )
+                    )}"
+                    mListener.setupMediaPlayer()
                 }
                 mViewModel.mMediaPlayer?.setOnCompletionListener {
-                    audioText.text = mListener.getDuration(data.mediaUrl)
+                    val time = (mViewModel.mMediaPlayer?.duration ?: 0).toLong()
+                    audioText.text = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
+                        TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+                            TimeUnit.MILLISECONDS.toMinutes(time)
+                        )
+                    )}"
                     playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                 }
             }

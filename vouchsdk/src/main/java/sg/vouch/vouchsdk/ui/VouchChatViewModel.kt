@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
@@ -65,8 +66,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     var mMultipartImage: MultipartBody.Part? = null
 
     var startUpdateSong = false
+    @SuppressLint("UseSparseArrays")
     var audioSeek = HashMap<Int, Int>()
     var currentAudioMedia = VouchChatModel()
+    var audioDuration = HashMap<String, Int>()
 
     private var retryCount = 0
     var mMediaPlayer: MediaPlayer? = null
@@ -124,8 +127,14 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 if (data.isNotEmpty()) {
                     eventChangeStateToGreeting.value = false
 
-                    data.asReversed().forEach {
-                        insertDataByFiltered(it, !reset)
+                    if (isPaginating) {
+                        data.forEach {
+                            insertDataByFiltered(it, !reset)
+                        }
+                    } else {
+                        data.asReversed().forEach {
+                            insertDataByFiltered(it, !reset)
+                        }
                     }
 
                     if (!data.firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {

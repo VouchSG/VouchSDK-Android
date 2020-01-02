@@ -7,8 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
-import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,7 +29,6 @@ import android.widget.TextView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
-import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -145,7 +142,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     Handler().postDelayed({
                         mViewModel.getChatContent()
                     }, 1000)
-
                 }
             }
         })
@@ -345,20 +341,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.startUpdateSong = true
         myHandler.postDelayed(updateSongTime,100)
     }
-    override fun getDuration(url : String): String {
-        var duration = ""
-        var retriever = MediaMetadataRetriever()
-        retriever.setDataSource(url, HashMap<String, String>())
-        var time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
-        duration = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
-            TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
-                TimeUnit.MILLISECONDS.toMinutes(time)
-            )
-        )}"
-        return duration
-    }
-    override fun setupMediaPlayer(mediaPlayer: MediaPlayer) {
-        mViewModel.mMediaPlayer = mediaPlayer
+    override fun setupMediaPlayer() {
         var startTrack = false
 
         val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
@@ -426,7 +409,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     override fun resetMediaPlayer() {
         val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
         val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
-        val audioText = tempView?.findViewById<TextView>(R.id.audioText)
         val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
         val playAudio = tempView?.findViewById<ImageView>(R.id.playAudio)
         mViewModel.audioSeek.map {
@@ -436,7 +418,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.mMediaPlayer?.stop()
         mViewModel.mMediaPlayer?.prepareAsync()
         playAudio?.setImageDrawable(context?.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-//        audioText?.text = "xx:xx"
         seekBar?.max = 0
         seekBar?.progress = 0
         seekBar?.setOnSeekBarChangeListener(null)
