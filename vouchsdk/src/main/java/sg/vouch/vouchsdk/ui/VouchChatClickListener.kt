@@ -1,9 +1,6 @@
 package sg.vouch.vouchsdk.ui
 
-import android.media.MediaPlayer
 import android.widget.ImageView
-import android.widget.SeekBar
-import android.widget.TextView
 import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.ui.model.VouchChatModel
@@ -23,14 +20,12 @@ interface VouchChatClickListener {
 
     fun onClickQuickReply(data: MessageBodyModel)
 
-    fun setupMediaPlayer(mediaPlayer: MediaPlayer)
+    fun setupMediaPlayer()
 
     fun onClickRetryMessage(body: MessageBodyModel)
 
     fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String)
 
     fun resetMediaPlayer()
-
-    fun getDuration(url : String): String
 
 }
