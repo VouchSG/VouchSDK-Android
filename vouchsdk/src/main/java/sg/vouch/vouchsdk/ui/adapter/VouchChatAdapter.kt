@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -46,10 +47,12 @@ class VouchChatAdapter(
     private var mData: List<VouchChatModel> = mViewModel.bDataChat
     private var viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
     private var mChildViewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
+    private var lastPosition = -1
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is VouchChatItem) {
             holder.bind(mData[position], mViewModel, mListener, viewPool, mChildViewPool)
+            animateView(holder.itemView, mData[position], position)
         }
     }
 
@@ -76,6 +79,20 @@ class VouchChatAdapter(
                 TYPE_GALLERY -> R.layout.item_vouch_gallery
                 TYPE_LIST -> R.layout.item_vouch_list
                 else -> if (mData[position].isMyChat) R.layout.item_vouch_my_chat else R.layout.item_vouch_other_chat
+            }
+        }
+    }
+
+    private fun animateView(view: View, data: VouchChatModel, position: Int) {
+        if (position == 0) {
+            view.clearAnimation()
+            val animation = if (data.isMyChat) {
+                AnimationUtils.loadAnimation(view.context, R.anim.right_to_left_anim)
+            } else {
+                AnimationUtils.loadAnimation(view.context, R.anim.left_to_right_anim)
+            }
+            if (data.isPendingMessage || !data.isMyChat) {
+                view.startAnimation(animation)
             }
         }
     }
@@ -420,7 +437,19 @@ class VouchChatAdapter(
             }
         }
 
+        fun clearAnimation() {
+            mView.clearAnimation()
+        }
+
     }
 
-    class VouchChatLoading(private val mView: View) : RecyclerView.ViewHolder(mView)
+    class VouchChatLoading(mView: View) : RecyclerView.ViewHolder(mView)
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        if (holder is VouchChatItem) {
+            holder.clearAnimation()
+        }
+    }
+
 }

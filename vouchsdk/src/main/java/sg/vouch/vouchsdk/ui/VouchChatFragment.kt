@@ -18,6 +18,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SimpleItemAnimator
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -148,6 +149,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             }
         })
+        (recyclerViewChat.itemAnimator as SimpleItemAnimator).changeDuration = 0
     }
 
     private fun observeLiveData() {
@@ -217,8 +219,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 if (it != null) {
                     when (it.type) {
                         TYPE_INSERTED -> {
-                            recyclerViewChat.adapter?.notifyItemInserted(it.startPosition)
                             if (it.startPosition == 0) recyclerViewChat.smoothScrollToPosition(0)
+                            recyclerViewChat.adapter?.notifyItemInserted(it.startPosition)
                         }
                         TYPE_UPDATE -> {
                             recyclerViewChat.adapter?.notifyItemRangeChanged(
