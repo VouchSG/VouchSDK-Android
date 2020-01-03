@@ -79,7 +79,7 @@ class VouchChatAdapter(
     }
 
     private fun animateView(view: View, data: VouchChatModel, position: Int) {
-        if (position == 0) {
+        if (position == 0 && view.tag == null) {
             view.clearAnimation()
             val animation = if (data.isMyChat) {
                 AnimationUtils.loadAnimation(view.context, R.anim.right_to_left_anim)
@@ -87,6 +87,7 @@ class VouchChatAdapter(
                 AnimationUtils.loadAnimation(view.context, R.anim.left_to_right_anim)
             }
             if (data.isPendingMessage || !data.isMyChat) {
+                view.tag = "animated"
                 view.startAnimation(animation)
             }
         }
