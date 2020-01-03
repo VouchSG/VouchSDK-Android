@@ -129,12 +129,12 @@ class VouchChatAdapter(
                                 data
                             )
                         }
+
                         if (data.isLastListContent) {
-                            buttonDateTime.text =
-                                data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
+                            buttonDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
-                        }else {
+                        } else {
                             buttonDateTime.visibility = View.GONE
                         }
                     }
@@ -425,10 +425,14 @@ class VouchChatAdapter(
                         }
 
                         chatContent.text = data.title
-                        dateTime.text =
-                            data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
-                        chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                        dateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         dateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                        dateTime.visibility = if (data.isHaveOutsideButton) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+                        chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
                         cardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor())
                         chatContent.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())

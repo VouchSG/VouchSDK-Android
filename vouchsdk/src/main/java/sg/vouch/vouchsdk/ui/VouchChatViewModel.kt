@@ -128,18 +128,19 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 if (data.isNotEmpty()) {
                     eventChangeStateToGreeting.value = false
 
-                    if (isPaginating) {
-                        data.forEach {
-                            insertDataByFiltered(it, !reset)
+                    data.apply {
+                        if (isPaginating) {
+                            forEach {
+                                insertDataByFiltered(it, !reset, true)
+                            }
+                        } else {
+                            asReversed().forEach {
+                                insertDataByFiltered(it, !reset)
+                            }
                         }
-                    } else {
-                        data.asReversed().forEach {
-                            insertDataByFiltered(it, !reset)
+                        if (firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
+                            insertDataQuickReply(data.first())
                         }
-                    }
-
-                    if (!data.firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
-                        insertDataQuickReply(data.first())
                     }
 
                 } else {
@@ -221,8 +222,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * General function for add
      */
-    private fun insertDataByFiltered(message: MessageResponseModel, appendInLast: Boolean = false) {
-
+    private fun insertDataByFiltered(message: MessageResponseModel, appendInLast: Boolean = false, isPaginating: Boolean = false) {
         if (message.senderId != null && bDataChat.any { it.isPendingMessage }) {
             updateUserMessage(bDataChat.indexOf(bDataChat.first { it.isPendingMessage }), message)
         } else {
@@ -234,10 +234,15 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     insertDataGallery(message, appendInLast)
                 }
                 else -> {
+                    if (isPaginating) {
+                        insertDataButton(message.buttons?.asReversed() ?: emptyList(), message, appendInLast, true)
+                    }
                     insertDataChat(listOf(message), appendInLast)
                 }
             }
-            insertDataButton(message.buttons ?: emptyList(), appendInLast)
+            if (!isPaginating) {
+                insertDataButton(message.buttons ?: emptyList(), message, appendInLast)
+            }
         }
     }
     /**
@@ -393,6 +398,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 it.senderId != null,
                 type,
                 it.createdAt.safe(),
+                isHaveOutsideButton = (it.buttons ?: emptyList()).isNotEmpty(),
                 mediaUrl = it.text.safe()
             )
         }
@@ -418,6 +424,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     isMyChat = false,
                     type = VouchChatType.TYPE_QUICK_REPLY,
                     createdAt = data.createdAt.safe(),
+                    isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
                     quickReplies = data.quickReplies ?: emptyList()
                 )
             )
@@ -431,6 +438,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     isMyChat = false,
                     type = VouchChatType.TYPE_QUICK_REPLY,
                     createdAt = data.createdAt.safe(),
+                    isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
                     quickReplies = data.quickReplies ?: emptyList()
                 )
             )
@@ -519,7 +527,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Add new chat button into list
      */
-    private fun insertDataButton(data: List<ButtonModel>, appendInLast: Boolean = false) {
+    private fun insertDataButton(data: List<ButtonModel>, dataParent: MessageResponseModel, appendInLast: Boolean = false, isPaginating: Boolean = false) {
         data.forEachIndexed { pos, it ->
             if (appendInLast) {
                 bDataChat.add(
@@ -528,10 +536,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         subTitle = "",
                         isMyChat = false,
                         type = VouchChatType.TYPE_BUTTON,
+                        createdAt = dataParent.createdAt.safe(),
                         payload = it.payload ?: it.url.safe(),
                         typeValue = it.type.safe(),
-                        isFirstListContent = pos == 0,
-                        isLastListContent = pos == data.size - 1
+                        isFirstListContent = if (isPaginating) pos == data.size - 1 else pos == 0,
+                        isLastListContent = if (isPaginating) pos == 0 else pos == data.size - 1
                     )
                 )
                 eventUpdateList.value =
@@ -544,29 +553,17 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         subTitle = "",
                         isMyChat = false,
                         type = VouchChatType.TYPE_BUTTON,
+                        createdAt = dataParent.createdAt.safe(),
                         payload = it.payload ?: it.url.safe(),
                         typeValue = it.type.safe(),
-                        isFirstListContent = pos == 0,
-                        isLastListContent = pos == data.size - 1
+                        isFirstListContent = if (isPaginating) pos == data.size - 1 else pos == 0,
+                        isLastListContent = if (isPaginating) pos == 0 else pos == data.size - 1
                     )
                 )
                 eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
             }
 
         }
-    }
-
-    private fun updateDataChat(data: List<MessageResponseModel>, position: Int, endPosition: Int? = null) {
-        bDataChat.addAll(data.map {
-            VouchChatModel(
-                title = it.text.safe(),
-                isMyChat = false,
-                type = VouchChatType.TYPE_TEXT,
-                createdAt = it.createdAt.safe()
-            )
-        })
-        eventUpdateList.value =
-            VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position, endPosition = endPosition)
     }
 
     /**

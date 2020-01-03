@@ -246,7 +246,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             eventScroll.observe(this@VouchChatFragment, Observer {
                 if (mViewModel.lastScrollPosition != -1) {
                     Handler().postDelayed({
-                        recyclerViewChat.smoothScrollBy(0, mViewModel.lastScrollPosition)
+                        recyclerViewChat?.smoothScrollBy(0, mViewModel.lastScrollPosition)
                         mViewModel.lastScrollPosition = -1
                     }, 1500)
                 }
