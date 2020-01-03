@@ -201,17 +201,17 @@ fun String?.safe(default: String = ""): String {
 fun resaveBitmap(imagepath : String, path:String, filename:String, rotation:Float): File {
     var extStorageDirectory = path
     var outStream : OutputStream? = null
-    var file = File(filename)
+    var file = File(imagepath)
 
-    if(file.exists()){
-        file.delete()
-        file = File(extStorageDirectory, filename)
-    }
     try{
-        var bitmap = BitmapFactory.decodeFile(imagepath)
+        var bitmap = BitmapFactory.decodeFile(file.absolutePath)
         bitmap = checkRotationFromCamera(bitmap, imagepath, rotation)
         bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.getWidth() * 0.3f).toInt(),(bitmap.getHeight() * 0.3f).toInt(), false)
-        outStream = FileOutputStream(imagepath)
+        if(file.exists()){
+            file.delete()
+            file = File(extStorageDirectory, filename)
+        }
+        outStream = FileOutputStream(file.path)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
         outStream.flush()
         outStream.close()
