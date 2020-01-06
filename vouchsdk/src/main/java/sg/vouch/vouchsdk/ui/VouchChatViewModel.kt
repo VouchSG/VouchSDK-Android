@@ -74,6 +74,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var retryCount = 0
     var mMediaPlayer: MediaPlayer? = null
+    var isDataNew = false
 
     fun start() {
         mVouchCore = VouchCore()

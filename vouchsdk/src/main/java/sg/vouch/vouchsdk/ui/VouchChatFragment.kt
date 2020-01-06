@@ -95,7 +95,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 if (isFromVideoPlayerActivity){
                     isFromVideoPlayerActivity = false
                 }else{
-                    Handler().post { (v as RecyclerView).smoothScrollToPosition(0) }
+                    Handler().post { (v as RecyclerView).scrollToPosition(0) }
                 }
             }
         }
@@ -221,7 +221,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 if (it != null) {
                     when (it.type) {
                         TYPE_INSERTED -> {
-                            if (it.startPosition == 0) recyclerViewChat.smoothScrollToPosition(0)
+                            mViewModel.isDataNew = true
+                            if (it.startPosition == 0) recyclerViewChat.scrollToPosition(0)
                             recyclerViewChat.adapter?.notifyItemInserted(it.startPosition)
                         }
                         TYPE_UPDATE -> {
@@ -231,6 +232,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                             )
                         }
                         TYPE_REMOVE -> {
+                            mViewModel.isDataNew = true
                             recyclerViewChat.adapter?.notifyItemRangeRemoved(
                                 it.startPosition,
                                 it.endPosition ?: it.startPosition + 1
@@ -246,7 +248,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             eventScroll.observe(this@VouchChatFragment, Observer {
                 if (mViewModel.lastScrollPosition != -1) {
                     Handler().postDelayed({
-                        recyclerViewChat?.smoothScrollBy(0, mViewModel.lastScrollPosition)
+                        recyclerViewChat?.scrollBy(0, mViewModel.lastScrollPosition)
                         mViewModel.lastScrollPosition = -1
                     }, 1500)
                 }
