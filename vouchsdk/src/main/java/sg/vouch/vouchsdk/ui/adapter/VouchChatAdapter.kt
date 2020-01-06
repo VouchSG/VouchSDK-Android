@@ -47,7 +47,6 @@ class VouchChatAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is VouchChatItem) {
             holder.bind(mData[position], mViewModel, mListener, viewPool, mChildViewPool)
-            animateView(holder.itemView, mData[position], position)
         }
     }
 
@@ -74,21 +73,6 @@ class VouchChatAdapter(
                 TYPE_GALLERY -> R.layout.item_vouch_gallery
                 TYPE_LIST -> R.layout.item_vouch_list
                 else -> if (mData[position].isMyChat) R.layout.item_vouch_my_chat else R.layout.item_vouch_other_chat
-            }
-        }
-    }
-
-    private fun animateView(view: View, data: VouchChatModel, position: Int) {
-        if (position == 0 && view.tag == null) {
-            view.clearAnimation()
-            val animation = if (data.isMyChat) {
-                AnimationUtils.loadAnimation(view.context, R.anim.right_to_left_anim)
-            } else {
-                AnimationUtils.loadAnimation(view.context, R.anim.left_to_right_anim)
-            }
-            if (data.isPendingMessage || !data.isMyChat) {
-                view.tag = "animated"
-                view.startAnimation(animation)
             }
         }
     }
@@ -129,12 +113,12 @@ class VouchChatAdapter(
                                 data
                             )
                         }
+
                         if (data.isLastListContent) {
-                            buttonDateTime.text =
-                                data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
+                            buttonDateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                             buttonDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                             buttonDateTime.visibility = View.VISIBLE
-                        }else {
+                        } else {
                             buttonDateTime.visibility = View.GONE
                         }
                     }
@@ -356,6 +340,7 @@ class VouchChatAdapter(
                                                 TimeUnit.MILLISECONDS.toMinutes(time)
                                             )
                                         )}"
+                                        this@VouchChatAdapter.notifyItemChanged(this@VouchChatAdapter.mData.indexOf(data))
                                     }
                                     mMediaPlayer.prepareAsync()
                                 }
@@ -425,14 +410,34 @@ class VouchChatAdapter(
                         }
 
                         chatContent.text = data.title
-                        dateTime.text =
-                            data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
-                        chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                        dateTime.text = data.createdAt.safe().reformatFullDate("EEE, dd MMM HH:mm:ss")
                         dateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
+                        dateTime.visibility = if (data.isHaveOutsideButton) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+                        chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
                         cardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor())
                         chatContent.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())
                     }
+                }
+            }
+            animateView(mView, data, this@VouchChatAdapter.mData.indexOf(data))
+        }
+
+        private fun animateView(view: View, data: VouchChatModel, position: Int) {
+            if ((position == 0 && mViewModel.isDataNew)) {
+                view.clearAnimation()
+                val animation = if (data.isMyChat) {
+                    AnimationUtils.loadAnimation(view.context, R.anim.right_to_left_anim)
+                } else {
+                    AnimationUtils.loadAnimation(view.context, R.anim.left_to_right_anim)
+                }
+                if (data.isPendingMessage || !data.isMyChat) {
+                    view.startAnimation(animation)
+                    mViewModel.isDataNew = false
                 }
             }
         }
@@ -453,6 +458,7 @@ class VouchChatAdapter(
                 mViewModel.mMediaPlayer?.setOnPreparedListener {
                     mViewModel.mMediaPlayer = it
                     seekbar.incrementProgressBy(1)
+                    mViewModel.audioDuration[data.mediaUrl] = mViewModel.mMediaPlayer?.duration ?: 0
                     seekbar.max = mViewModel.mMediaPlayer?.duration ?: 0
                     val time = (mViewModel.mMediaPlayer?.duration ?: 0).toLong()
                     audioText.text = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
