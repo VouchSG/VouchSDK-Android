@@ -23,12 +23,15 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import com.devbrackets.android.exomedia.util.StopWatch
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.android.synthetic.main.fragment_vouch_chat.*
+import net.alhazmy13.mediapicker.Video.VideoPicker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -51,6 +54,7 @@ import sg.vouch.vouchsdk.utils.Const.IMAGE_UPLOAD_KEY
 import sg.vouch.vouchsdk.utils.Const.MIME_TYPE_JPEG
 import sg.vouch.vouchsdk.utils.Const.PAGE_SIZE
 import sg.vouch.vouchsdk.utils.Const.URI_SCHEME_FILE
+import sg.vouch.vouchsdk.utils.Helper.timeUnitToString
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -71,6 +75,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     private var mSendButtonStatus = false
 
     var isFromVideoPlayerActivity: Boolean = false
+
+
+    //
+    private lateinit var mStopWatch: StopWatch
+    private var mIsRecording = false
+    private lateinit var mWaveRecorder: WaveAudioRecorder
+
+    //
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,10 +121,32 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         videoButton.setOnClickListener(this@VouchChatFragment)
         imageButton.setOnClickListener(this@VouchChatFragment)
         recordButton.setOnClickListener(this)
+        closeImage.setOnClickListener(this)
 
         fieldContent.setOnFocusChangeListener { view, b ->
-            containerMediaChoose.visibility = View.GONE
+            lyAttach.visibility = View.GONE
         }
+
+        //
+
+        mWaveRecorder = WaveAudioRecorder(requireContext().externalCacheDir!!) {
+            onGettingBase64Audio(it)
+            mStopWatch.stop()
+            lyAttach.visibility = View.GONE
+            inputField.visibility = View.VISIBLE
+            textDurationRecord.setText("00:00:00")
+        }
+        mStopWatch = StopWatch()
+        mStopWatch.setTickListener {
+            val second = it / 1000
+            val minute = second / 60
+            val hour = minute / 60
+            textDurationRecord.text =
+                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
+        }
+
+
+        textDurationRecord.setText("00:00:00")
     }
 
     private fun setupTextListener() {
@@ -163,11 +197,15 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             changeConnectStatus.observe(this@VouchChatFragment, Observer {
                 imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
-                inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
+//                inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
             })
 
             eventShowMessage.observe(this@VouchChatFragment, Observer {
-                Snackbar.make(view ?: return@Observer, it.safe(), Snackbar.LENGTH_LONG).show()
+                var error = it.safe()
+                if(error.toLowerCase().contains("unable to resolve host")){
+                    error = "No internet connection"
+                }
+                Snackbar.make(view ?: return@Observer, error, Snackbar.LENGTH_LONG).show()
             })
 
             loadConfiguration.observe(this@VouchChatFragment, Observer {
@@ -209,6 +247,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     if (changeConnectStatus.value == false) {
                         inputField.visibility = View.GONE
                     }
+
+                    var window = activity!!.window
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    window.statusBarColor = it.headerBgColor.parseColor()
                 }
             })
 
@@ -309,14 +351,58 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     mSendButtonStatus = false
                 } else {
                     if (checkAudioRecordPermission()) {
-                        VoiceRecordDialog.newInstance().show(childFragmentManager,
-                            "VouchChatFragment@VoiceRecordDialog")
+//                        VoiceRecordDialog.newInstance().show(childFragmentManager,
+//                            "VouchChatFragment@VoiceRecordDialog")
+
+                        lyAttach.visibility = View.VISIBLE
+                        inputField.visibility = View.GONE
+                        containerAudioRec.visibility = View.VISIBLE
+                        containerMediaChoose.visibility = View.GONE
                     }
                 }
             }
             R.id.attachmentButton -> {
-                AttachmentDialog.newInstance().show(childFragmentManager,
-                    "VouchChatFragment@AttachmentDialog")
+//                AttachmentDialog.newInstance().show(childFragmentManager,
+//                    "VouchChatFragment@AttachmentDialog")
+                inputField.visibility = View.GONE
+                lyAttach.visibility = View.VISIBLE
+                containerAudioRec.visibility = View.GONE
+                containerMediaChoose.visibility = View.VISIBLE
+            }
+            R.id.closeImage -> {
+                lyAttach.visibility = View.GONE
+                inputField.visibility = View.VISIBLE
+                if (mIsRecording) {
+                    mWaveRecorder.stopRecording()
+                    mStopWatch.stop()
+                }
+            }R.id.recordButton -> {
+            if (mIsRecording) {
+                mWaveRecorder.stopRecording()
+                mIsRecording = mWaveRecorder.isRecording
+                lyAttach.visibility = View.GONE
+            } else {
+                recordButton.setImageResource(R.drawable.ic_stop_24)
+                mWaveRecorder.startRecording()
+                mStopWatch.start()
+                mIsRecording = mWaveRecorder.isRecording
+            }
+        }
+            R.id.imageButton -> {
+                CameraGalleryHelper.openImagePickerOption(requireActivity())
+                lyAttach.visibility = View.GONE
+                inputField.visibility = View.VISIBLE
+            }
+            R.id.videoButton -> {
+
+                VideoPicker.Builder(requireActivity())
+                    .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
+                    .directory(VideoPicker.Directory.DEFAULT)
+                    .extension(VideoPicker.Extension.MP4)
+                    .enableDebuggingMode(true)
+                    .build()
+                lyAttach.visibility = View.GONE
+                inputField.visibility = View.VISIBLE
             }
             else -> { }
         }

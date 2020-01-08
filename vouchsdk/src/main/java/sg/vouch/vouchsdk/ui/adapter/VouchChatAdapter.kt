@@ -243,6 +243,7 @@ class VouchChatAdapter(
                                 retry.setOnClickListener {
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
                                 }
+                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             else -> {}
                         }
@@ -303,7 +304,7 @@ class VouchChatAdapter(
                                     mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
 
-                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                playVideo.background.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE

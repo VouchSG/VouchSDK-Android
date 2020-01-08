@@ -707,7 +707,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onError(message: String) {
                 eventShowMessage.value = message
-                if(message.toLowerCase().contains("password is not correct")){
+                if(message.toLowerCase().contains("Failed to load conversation.")){
                     eventCloseActivity.value = message
                 }
             }

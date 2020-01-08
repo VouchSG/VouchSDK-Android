@@ -50,14 +50,15 @@ class VoiceRecordDialog : BottomSheetDialogFragment(), View.OnClickListener {
         mStopWatch.setTickListener {
             val second = it / 1000
             val minute = second / 60
+            val hour = minute / 60
             textDurationRecord.text =
-                "${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
+                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
         }
 
         closeImage.setOnClickListener(this)
         recordButton.setOnClickListener(this)
 
-        textDurationRecord.setText("00:00")
+        textDurationRecord.setText("00:00:00")
     }
 
     override fun onClick(v: View?) {
