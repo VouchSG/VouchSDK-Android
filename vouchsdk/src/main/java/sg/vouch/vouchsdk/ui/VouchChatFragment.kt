@@ -630,9 +630,9 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         ivPreview.setImageBitmap(bitmap)
         ivPreview.visibility = View.GONE
     }
+
     override fun onClickRetryMessage(body: MessageBodyModel) {
-        mViewModel.removeDataChat(0)
-        mViewModel.sendReplyMessage(body)
+        mViewModel.retryMessage()
     }
     override fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String) {
         mViewModel.removeDataChat(0)

@@ -691,6 +691,14 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
+     * Retry message
+     */
+    fun retryMessage() {
+        removeDataChat(0)
+        sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
+    }
+
+    /**
      * Retry to register
      */
     fun retryRegisterUser() {
