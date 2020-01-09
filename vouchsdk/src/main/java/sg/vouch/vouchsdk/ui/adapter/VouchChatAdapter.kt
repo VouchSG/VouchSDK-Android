@@ -258,11 +258,14 @@ class VouchChatAdapter(
                             retry.visibility = View.VISIBLE
                             myDateTime.visibility = View.GONE
                             pendingTime.visibility = View.GONE
+                            checklist.visibility = View.GONE
                         }else{
                             retry.visibility = View.GONE
                             pendingTime.visibility =
                                 if (data.isPendingMessage) View.VISIBLE else View.GONE
                             myDateTime.visibility =
+                                if (!data.isPendingMessage) View.VISIBLE else View.GONE
+                            checklist.visibility =
                                 if (!data.isPendingMessage) View.VISIBLE else View.GONE
                         }
 

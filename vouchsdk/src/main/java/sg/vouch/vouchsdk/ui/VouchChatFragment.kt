@@ -126,27 +126,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         fieldContent.setOnFocusChangeListener { view, b ->
             lyAttach.visibility = View.GONE
         }
-
-        //
-
-        mWaveRecorder = WaveAudioRecorder(requireContext().externalCacheDir!!) {
-            onGettingBase64Audio(it)
-            mStopWatch.stop()
-            lyAttach.visibility = View.GONE
-            inputField.visibility = View.VISIBLE
-            textDurationRecord.setText("00:00:00")
-        }
-        mStopWatch = StopWatch()
-        mStopWatch.setTickListener {
-            val second = it / 1000
-            val minute = second / 60
-            val hour = minute / 60
-            textDurationRecord.text =
-                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
-        }
-
-
-        textDurationRecord.setText("00:00:00")
     }
 
     private fun setupTextListener() {
@@ -237,11 +216,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                         it.attachmentIconColor.parseColor(),
                         PorterDuff.Mode.SRC_IN
                     )
-
+                    videoButton.background.setColorFilter(it.attachmentIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    imageButton.background.setColorFilter(it.attachmentIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
                     buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
                     buttonGreeting.setBackgroundColor(it.btnBgColor.parseColor())
                     buttonGreeting.setTextColor(it.xButtonColor.parseColor())
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
+
+                    textDurationRecord.setTextColor(it.headerBgColor.parseColor())
 
                     frameGreeting.visibility = View.GONE
                     if (changeConnectStatus.value == false) {
@@ -358,6 +340,29 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                         inputField.visibility = View.GONE
                         containerAudioRec.visibility = View.VISIBLE
                         containerMediaChoose.visibility = View.GONE
+
+
+
+                        //
+
+                        mWaveRecorder = WaveAudioRecorder(requireContext().externalCacheDir!!) {
+                            onGettingBase64Audio(it)
+                            mStopWatch.stop()
+                            lyAttach.visibility = View.GONE
+                            inputField.visibility = View.VISIBLE
+                            textDurationRecord.setText("00:00:00")
+                        }
+                        mStopWatch = StopWatch()
+                        mStopWatch.setTickListener {
+                            val second = it / 1000
+                            val minute = second / 60
+                            val hour = minute / 60
+                            textDurationRecord.text =
+                                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
+                        }
+
+
+                        textDurationRecord.setText("00:00:00")
                     }
                 }
             }
