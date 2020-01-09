@@ -139,7 +139,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                                 insertDataByFiltered(it, !reset)
                             }
                         }
-                        if (firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
+                        if (!firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
                             insertDataQuickReply(data.first())
                         }
                     }
@@ -688,6 +688,14 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
         }
+    }
+
+    /**
+     * Retry message
+     */
+    fun retryMessage() {
+        removeDataChat(0)
+        sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
     }
 
     /**
