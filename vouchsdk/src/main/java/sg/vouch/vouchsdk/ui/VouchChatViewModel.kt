@@ -139,7 +139,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                                 insertDataByFiltered(it, !reset)
                             }
                         }
-                        if (firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
+                        if (!firstOrNull()?.quickReplies.isNullOrEmpty() && reset) {
                             insertDataQuickReply(data.first())
                         }
                     }
