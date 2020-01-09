@@ -216,8 +216,20 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                         it.attachmentIconColor.parseColor(),
                         PorterDuff.Mode.SRC_IN
                     )
-                    videoButton.background.setColorFilter(it.attachmentIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                    imageButton.background.setColorFilter(it.attachmentIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    videoButton.background.setColorFilter(it.attachmentButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    imageButton.background.setColorFilter(it.attachmentButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    videoButton.setColorFilter(
+                        it.attachmentIconColor.parseColor(),
+                        PorterDuff.Mode.SRC_IN
+                    )
+                    imageButton.setColorFilter(
+                            it.attachmentIconColor.parseColor(),
+                    PorterDuff.Mode.SRC_IN
+                    )
+
+                    recordButton.background.setColorFilter(it.sendButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    recordButton.setColorFilter(it.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+
                     buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
                     buttonGreeting.setBackgroundColor(it.btnBgColor.parseColor())
                     buttonGreeting.setTextColor(it.xButtonColor.parseColor())
@@ -226,9 +238,9 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     textDurationRecord.setTextColor(it.headerBgColor.parseColor())
 
                     frameGreeting.visibility = View.GONE
-                    if (changeConnectStatus.value == false) {
-                        inputField.visibility = View.GONE
-                    }
+//                    if (changeConnectStatus.value == false) {
+//                        inputField.visibility = View.GONE
+//                    }
 
                     var window = activity!!.window
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
