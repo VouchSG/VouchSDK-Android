@@ -22,9 +22,9 @@ interface VouchChatClickListener {
 
     fun setupMediaPlayer()
 
-    fun onClickRetryMessage(body: MessageBodyModel)
+    fun onClickRetryMessage(body: MessageBodyModel, position : Int)
 
-    fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String)
+    fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String, position : Int)
 
     fun resetMediaPlayer()
 

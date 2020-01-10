@@ -46,7 +46,7 @@ class VouchChatAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is VouchChatItem) {
-            holder.bind(mData[position], mViewModel, mListener, viewPool, mChildViewPool)
+            holder.bind(mData[position], mViewModel, mListener, viewPool, mChildViewPool, position)
         }
     }
 
@@ -84,7 +84,8 @@ class VouchChatAdapter(
             viewModel: VouchChatViewModel,
             mListener: VouchChatClickListener,
             viewPool: RecyclerView.RecycledViewPool,
-            mChildViewPool: RecyclerView.RecycledViewPool
+            mChildViewPool: RecyclerView.RecycledViewPool,
+            position: Int
         ) {
             mView.apply {
                 when (data.type) {
@@ -210,9 +211,9 @@ class VouchChatAdapter(
                                 myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                                 myCardBubble.setContentPadding(0, 0, 0, 0)
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMessage(MessageBodyModel(type = data.typeValue,
+                                    mListener.onClickRetryMessage(MessageBodyModel(type = "text",
                                         msgType = "text",
-                                        text = data.title, payload = data.payload.safe()))
+                                        text = data.title, payload = null), position)
                                 }
                             }
                             TYPE_IMAGE -> {
@@ -228,7 +229,7 @@ class VouchChatAdapter(
                                     )
                                 }
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
                                 }
                             }
                             TYPE_VIDEO -> {
@@ -241,7 +242,7 @@ class VouchChatAdapter(
                                     )
                                 }
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
                                 }
                                 myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
