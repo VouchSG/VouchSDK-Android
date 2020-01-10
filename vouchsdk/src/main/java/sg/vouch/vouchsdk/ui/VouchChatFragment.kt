@@ -633,13 +633,16 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         ivPreview.visibility = View.GONE
     }
 
-    override fun onClickRetryMessage(body: MessageBodyModel) {
-        mViewModel.retryMessage()
+    override fun onClickRetryMessage(body: MessageBodyModel, position : Int) {
+        mViewModel.removeDataChat(position)
+        mViewModel.sendReplyMessage(body)
     }
-    override fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String) {
-        mViewModel.removeDataChat(0)
+
+    override fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String, position : Int) {
+        mViewModel.removeDataChat(position)
         mViewModel.sendImageMessage(msgType, body, path)
     }
+
     private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
         try {
             val path = context?.externalCacheDir
