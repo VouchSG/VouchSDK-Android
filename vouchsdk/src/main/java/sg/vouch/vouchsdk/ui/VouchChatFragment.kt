@@ -392,9 +392,11 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 if (mIsRecording) {
                     mWaveRecorder.stopRecording()
                     mStopWatch.stop()
+                    recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
                 }
             }R.id.recordButton -> {
             if (mIsRecording) {
+                recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
                 mWaveRecorder.stopRecording()
                 mIsRecording = mWaveRecorder.isRecording
                 lyAttach.visibility = View.GONE

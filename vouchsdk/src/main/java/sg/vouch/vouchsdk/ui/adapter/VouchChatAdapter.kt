@@ -216,10 +216,7 @@ class VouchChatAdapter(
                                 }
                             }
                             TYPE_IMAGE -> {
-                                val density = mView.context?.resources?.displayMetrics?.density
-                                val padding = (4 * density!!).toInt()
-                                myCardBubble.setContentPadding(padding, padding, padding, padding)
-                                myChatImage.setImageUrl(data.mediaUrl)
+                                myChatImage.setImageUrlwithoutCrop(data.mediaUrl)
                                 myChatImage.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
@@ -232,7 +229,7 @@ class VouchChatAdapter(
                                 }
                             }
                             TYPE_VIDEO -> {
-                                myImageVideo.setImageUrl(data.mediaUrl)
+                                myImageVideo.setImageUrlwithoutCrop(data.mediaUrl)
                                 myImageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
@@ -243,7 +240,8 @@ class VouchChatAdapter(
                                 retry.setOnClickListener {
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path)
                                 }
-                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             else -> {}
                         }
@@ -282,7 +280,7 @@ class VouchChatAdapter(
 
                         when {
                             data.type == TYPE_IMAGE -> {
-                                imageContent.setImageUrl(data.mediaUrl)
+                                imageContent.setImageUrlwithoutCrop(data.mediaUrl)
                                 imageContent.visibility = View.VISIBLE
                                 imageContent.setOnClickListener {
                                     mListener.onClickPlayVideo(
@@ -295,7 +293,7 @@ class VouchChatAdapter(
                             data.type == TYPE_VIDEO -> {
                                 packVideo.visibility = View.VISIBLE
                                 imageVideo.visibility = View.VISIBLE
-                                imageVideo.setImageUrl(data.mediaUrl)
+                                imageVideo.setImageUrlwithoutCrop(data.mediaUrl)
                                 imageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
@@ -307,6 +305,7 @@ class VouchChatAdapter(
                                     mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
 
+                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                                 playVideo.background.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {

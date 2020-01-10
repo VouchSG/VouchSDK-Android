@@ -45,21 +45,30 @@
         </LinearLayout>
 
         <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/dimens_8dp">
+
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/myChatImage"
+                android:layout_width="@dimen/dimens_240dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                app:riv_border_color="#C2C2C2"
+                app:riv_border_width="@dimen/dimens_1dp"
+                app:riv_corner_radius="@dimen/dimens_8dp"
+                tools:src="@drawable/ic_mic_white_24dp" />
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
             android:id="@+id/myCardBubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dimens_8dp"
             app:cardCornerRadius="@dimen/dimens_4dp">
-
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/myChatImage"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_gravity="center"
-                android:background="@color/colorWhite"
-                android:scaleType="centerCrop"
-                app:riv_border_color="#C2C2C2"
-                tools:src="@drawable/ic_mic_white_24dp" />
 
             <TextView
                 android:id="@+id/myChatContent"
@@ -73,24 +82,27 @@
                 tools:text="Hello" />
         </android.support.v7.widget.CardView>
 
-        <FrameLayout
-            android:id="@+id/myPackVideo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/myImageVideo"
-                android:layout_width="180dp"
+            <android.support.v7.widget.CardView
+                android:id="@+id/myPackVideo"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_black"
-                android:clickable="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:minHeight="180dp"
-                android:transitionName="videoTransition"
-                app:riv_corner_radius="@dimen/dimens_8dp" />
+                app:cardCornerRadius="@dimen/dimens_8dp">
 
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
+                <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/myImageVideo"
+                    android:layout_width="@dimen/dimens_240dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    app:riv_border_color="#C2C2C2"
+                    app:riv_border_width="@dimen/dimens_1dp"
+                    app:riv_corner_radius="@dimen/dimens_8dp"
+                    tools:src="@drawable/ic_mic_white_24dp" />
             <ImageButton
                 android:id="@+id/myPlayVideo"
                 android:layout_width="@dimen/dimens_40dp"
@@ -98,18 +110,15 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_play_arrow_white_24dp"
                 android:background="@drawable/bg_button_rec_audio"
-                android:backgroundTint="@color/colorWhite"
                 android:tint="@color/colorWhite"
                 android:padding="1dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </FrameLayout>
-
+                android:layout_centerInParent="true"/>
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
             android:orientation="horizontal">
 
             <ImageView
