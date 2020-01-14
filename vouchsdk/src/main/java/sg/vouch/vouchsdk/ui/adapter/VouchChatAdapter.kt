@@ -354,6 +354,7 @@ class VouchChatAdapter(
                                         && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)) {
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
+                                        seekbar.isEnabled = true
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
                                         mListener.setupMediaPlayer()
                                         mListener.onClickPlayAudio("")
@@ -367,11 +368,13 @@ class VouchChatAdapter(
                                                     TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong())
                                                 )
                                             )}"
+                                        seekbar.isEnabled = false
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = viewModel.mMediaPlayer?.duration ?: 0
                                         seekbar.progress = audioSeek
                                     } else {
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                                        seekbar.isEnabled = false
                                         seekbar.incrementProgressBy(1)
                                         seekbar.max = 0
                                         seekbar.progress = 0
@@ -385,8 +388,10 @@ class VouchChatAdapter(
                                         if (viewModel.mMediaPlayer?.isPlaying == true) {
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                                             viewModel.mMediaPlayer?.pause()
+                                            seekbar.isEnabled = false
                                         } else {
                                             playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
+                                            seekbar.isEnabled = true
                                             createMediaPlayer(context, data, this, viewModel, mListener)
                                             viewModel.mMediaPlayer?.seekTo(
                                                 if (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] == viewModel.mMediaPlayer?.duration) {
@@ -473,13 +478,7 @@ class VouchChatAdapter(
                     mListener.setupMediaPlayer()
                 }
                 mViewModel.mMediaPlayer?.setOnCompletionListener {
-                    val time = (mViewModel.mMediaPlayer?.duration ?: 0).toLong()
-                    audioText.text = "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(time))}:${Helper.timeUnitToString(
-                        TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
-                            TimeUnit.MILLISECONDS.toMinutes(time)
-                        )
-                    )}"
-                    playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp))
+                    mListener.resetMediaPlayer()
                 }
             }
         }

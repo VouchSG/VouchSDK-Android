@@ -459,7 +459,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
         val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
         val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
-        val audioText = tempView?.findViewById<TextView>(R.id.audioText)
         val seekBar = tempView?.findViewById<SeekBar>(R.id.seekbar)
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -477,12 +476,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 mViewModel.startUpdateSong = true
                 mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] = seekBar?.progress ?: 0
                 val audioSeek = mViewModel.audioSeek[Helper.getAudioId(mViewModel.currentAudioMedia)] ?: 0
-                audioText?.text =
-                    "${Helper.timeUnitToString(TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong()))}:${Helper.timeUnitToString(
-                        TimeUnit.MILLISECONDS.toSeconds(audioSeek.toLong()) - TimeUnit.MINUTES.toSeconds(
-                            TimeUnit.MILLISECONDS.toMinutes(audioSeek.toLong())
-                        )
-                    )}"
+
                 if (mViewModel.mMediaPlayer?.isPlaying == true ) {
                     mViewModel.mMediaPlayer?.seekTo(audioSeek)
                     onClickPlayAudio("")
@@ -534,6 +528,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         seekBar?.max = 0
         seekBar?.progress = 0
         seekBar?.setOnSeekBarChangeListener(null)
+        seekBar?.isEnabled = false
         recyclerViewChat.adapter?.notifyItemChanged(mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia))
     }
 
