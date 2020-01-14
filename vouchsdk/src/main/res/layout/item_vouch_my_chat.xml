@@ -25,6 +25,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="right"
         android:orientation="vertical">
 
         <LinearLayout
@@ -143,15 +144,25 @@
                 android:textSize="@dimen/size_10sp"
                 tools:text="19 Aug, 19:00" />
 
-            <ImageView
+            <RelativeLayout
+                android:layout_width="@dimen/dimens_18dp"
                 android:id="@+id/checklist"
-                android:layout_width="@dimen/dimens_16dp"
-                android:layout_height="@dimen/dimens_16dp"
                 android:layout_marginTop="@dimen/dimens_4dp"
                 android:layout_marginEnd="@dimen/dimens_8dp"
-                android:padding="@dimen/dimens_2dp"
-                android:src="@drawable/ic_check"
-                android:contentDescription="TODO" />
+                android:layout_height="@dimen/dimens_16dp">
+                <ImageView
+                    android:layout_width="@dimen/dimens_16dp"
+                    android:layout_height="@dimen/dimens_16dp"
+                    android:padding="@dimen/dimens_2dp"
+                    android:src="@drawable/ic_check"/>
+                <ImageView
+                    android:layout_width="@dimen/dimens_16dp"
+                    android:layout_height="@dimen/dimens_16dp"
+                    android:padding="@dimen/dimens_2dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_check"/>
+            </RelativeLayout>
+
 
         </LinearLayout>
     </LinearLayout>
