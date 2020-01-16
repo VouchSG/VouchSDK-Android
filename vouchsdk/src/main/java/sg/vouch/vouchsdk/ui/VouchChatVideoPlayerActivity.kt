@@ -74,23 +74,23 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
         frameThumbnail.visibility = View.VISIBLE
         progress.visibility = View.GONE
         super.onBackPressed()
+        overridePendingTransition(0, 0)
     }
 
     override fun onSeekComplete() {
-
+        // no use
     }
 
     companion object {
 
 
-        fun startThisActivity(activity: Activity, url: String, imageView: ImageView, type : VouchChatType){
-            val a = ViewCompat.getTransitionName(imageView)?:""
-            val option = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, imageView, a)
+        fun startThisActivity(activity: Activity, url: String, type : VouchChatType){
             val intent = Intent(activity, VouchChatVideoPlayerActivity::class.java).apply {
                 putExtra("url-content", url)
                 putExtra("type", Gson().toJson(type))
             }
-            activity.startActivity(intent, option.toBundle())
+            activity.startActivity(intent)
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
 
 
