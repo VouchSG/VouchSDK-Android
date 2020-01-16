@@ -130,10 +130,16 @@ object VouchRemoteDataSource : VouchDataSource {
             .subscribe({
                 if (it.code == 200 && it.data != null) {
                     onSuccess(it.data)
+                } else if (it.code == 401) {
+                    onUnAuthorize()
+                    onError(it.message ?: "")
                 } else {
                     onError(it.message ?: "")
                 }
             }, {
+                if (it.message!!.toLowerCase().contains("401")){
+                    onUnAuthorize()
+                }
                 onError(it.message ?: "")
             }, {
                 onFinish()

@@ -79,7 +79,7 @@ interface VouchSDK {
             return this@Builder
         }
 
-            fun createSDK(application: Application): VouchSDK {
+        fun createSDK(application: Application): VouchSDK {
             return VouchSDKImpl(application = application, username = mUsername, password = mPassword, apiKey = mApiKey)
         }
 

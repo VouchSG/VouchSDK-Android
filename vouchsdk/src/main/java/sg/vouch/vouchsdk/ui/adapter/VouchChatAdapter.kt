@@ -255,7 +255,7 @@ class VouchChatAdapter(
                         myDateTime.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                         if(data.isFailedMessage){
                             retry.visibility = View.VISIBLE
-                            myDateTime.visibility = View.VISIBLE
+                            myDateTime.visibility = View.GONE
                             pendingTime.visibility = View.VISIBLE
                             checklist.visibility = View.GONE
                         }else{

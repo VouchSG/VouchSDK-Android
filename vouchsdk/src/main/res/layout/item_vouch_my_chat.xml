@@ -122,17 +122,6 @@
             android:layout_gravity="right"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/pendingTime"
-                android:layout_width="@dimen/dimens_16dp"
-                android:layout_height="@dimen/dimens_16dp"
-                android:layout_marginStart="@dimen/dimens_4dp"
-                android:layout_marginTop="@dimen/dimens_4dp"
-                android:layout_marginEnd="@dimen/dimens_8dp"
-                android:padding="@dimen/dimens_2dp"
-                android:src="@drawable/ic_access_time_black_24dp"
-                android:contentDescription="TODO" />
-
             <TextView
                 android:id="@+id/myDateTime"
                 android:layout_width="wrap_content"
@@ -161,10 +150,20 @@
                     android:padding="@dimen/dimens_2dp"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/ic_check"/>
-            </RelativeLayout>
+            </RelativeLayout></LinearLayout>
+
+            <ImageView
+                android:id="@+id/pendingTime"
+                android:layout_width="@dimen/dimens_16dp"
+                android:layout_height="@dimen/dimens_16dp"
+                android:layout_marginStart="@dimen/dimens_4dp"
+                android:layout_marginTop="@dimen/dimens_4dp"
+                android:layout_marginEnd="@dimen/dimens_8dp"
+                android:padding="@dimen/dimens_2dp"
+                android:src="@drawable/ic_access_time_black_24dp"
+                android:contentDescription="TODO" />
 
 
         </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
