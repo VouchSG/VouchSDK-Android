@@ -770,7 +770,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onError(message: String) {
                 if(message.contains("500")){
-                    eventShowMessage.value = "sound not detected"
+                    eventShowMessage.value = "Failed to transcribe your voice"
                 }else{
                     eventShowMessage.value = message
                 }

@@ -186,7 +186,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             eventShowMessage.observe(this@VouchChatFragment, Observer {
                 var error = it.safe()
                 if(error.toLowerCase().contains("unable to resolve host")){
-                    error = "No internet connection"
+                    error = "The Internet connection appears to be offline"
                 }else if(error.toLowerCase().contains("password is not correct")){
                     error = "Failed to load conversation"
                 }else if(error.toLowerCase().contains("http 401")){
