@@ -229,7 +229,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         } else {
             when (message.msgType) {
                 "list" -> {
-                    insertDataList(message, appendInLast)
+                    if (isPaginating) {
+                        insertDataList(message, appendInLast, true)
+                    }else{
+                        insertDataList(message, appendInLast, false)
+                    }
                 }
                 "gallery" -> {
                     insertDataGallery(message, appendInLast)
@@ -450,8 +454,12 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Add new chat title-list into list
      */
-    private fun insertDataList(data: MessageResponseModel, appendInLast: Boolean = false) {
-        (data.lists ?: emptyList()).forEachIndexed { pos, it ->
+    private fun insertDataList(data: MessageResponseModel, appendInLast: Boolean = false, isPaginating: Boolean = false) {
+        var datalist = data.lists
+        if(isPaginating){
+            datalist = datalist?.asReversed()
+        }
+        (datalist ?: emptyList()).forEachIndexed { pos, it ->
             var isMyChat = data.customerInfo == null
             if (appendInLast) {
                 bDataChat.add(
@@ -466,8 +474,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(),
                         typeValue = it.buttons?.firstOrNull()?.type.safe(),
                         isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
-                        isFirstListContent = pos == 0,
-                        isLastListContent = pos == (data.lists ?: emptyList()).size - 1
+                        isFirstListContent = if (isPaginating) pos == data.lists!!.size - 1 else pos == 0,
+                        isLastListContent = if (isPaginating) pos == 0 else pos == data.lists!!.size - 1
                     )
                 )
                 eventUpdateList.value =
@@ -486,8 +494,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         payload = it.buttons?.firstOrNull()?.payload ?: it.buttons?.firstOrNull()?.url.safe(),
                         typeValue = it.buttons?.firstOrNull()?.type.safe(),
                         isHaveOutsideButton = (data.buttons ?: emptyList()).isNotEmpty(),
-                        isFirstListContent = pos == 0,
-                        isLastListContent = pos == (data.lists ?: emptyList()).size - 1
+                        isFirstListContent = if (isPaginating) pos == data.lists!!.size - 1 else pos == 0,
+                        isLastListContent = if (isPaginating) pos == 0 else pos == data.lists!!.size - 1
                     )
                 )
                 eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)

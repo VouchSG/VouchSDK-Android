@@ -72,7 +72,7 @@ class VouchRepository(
         onFinish: () -> Unit,
         onUnAuthorize: () -> Unit
     ) {
-        remoteDataSource.getListMessage(getApiToken(), page, pageSize, onSuccess, onError, onFinish)
+        remoteDataSource.getListMessage(getApiToken(), page, pageSize, onSuccess, onError, onFinish, onUnAuthorize)
     }
 
     override fun registerUser(

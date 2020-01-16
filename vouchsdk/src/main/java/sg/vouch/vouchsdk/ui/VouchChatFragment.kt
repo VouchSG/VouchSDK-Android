@@ -126,6 +126,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         fieldContent.setOnFocusChangeListener { view, b ->
             lyAttach.visibility = View.GONE
         }
+
+        var window = activity!!.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = resources.getColor(R.color.colorPrimaryChat)
     }
 
     private fun setupTextListener() {
@@ -170,7 +174,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             eventCloseActivity.observe(this@VouchChatFragment, Observer {
                 Handler().postDelayed({
-                    activity?.finish()
+//                    activity?.finish()
                 }, 3000)
             })
 
@@ -183,6 +187,10 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 var error = it.safe()
                 if(error.toLowerCase().contains("unable to resolve host")){
                     error = "No internet connection"
+                }else if(error.toLowerCase().contains("password is not correct")){
+                    error = "Failed to load conversation"
+                }else if(error.toLowerCase().contains("http 401")){
+                    error = "Reconnecting to Server"
                 }
                 Snackbar.make(view ?: return@Observer, error, Snackbar.LENGTH_LONG).show()
             })
@@ -194,7 +202,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
                     poweredText.setFontFamily(it.fontStyle.safe())
                     poweredText.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
-                    poweredText.visibility =
+                    inputSection.visibility =
                         if (it.poweredByVouch == true) View.VISIBLE else View.GONE
                     poweredText.setFontFamily(it.fontStyle.safe())
 
