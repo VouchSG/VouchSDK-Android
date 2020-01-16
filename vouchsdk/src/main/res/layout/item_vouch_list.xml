@@ -87,7 +87,7 @@
                 android:id="@+id/buttonList"
                 style="@style/VouchButton"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/dimens_32dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dimens_8dp"
                 android:layout_marginEnd="@dimen/dimens_16dp"
                 android:background="@android:color/transparent"
@@ -109,7 +109,6 @@
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:padding="@dimen/dimens_8dp"
                     android:textAllCaps="true"
                     android:textStyle="bold"
                     tools:text="Radhika" />
