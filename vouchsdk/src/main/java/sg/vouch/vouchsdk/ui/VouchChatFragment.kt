@@ -325,13 +325,6 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         resetMediaPlayer()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        (recyclerViewChat.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition().let {
-            mViewModel.lastScrollPosition = if (it < 0) 0 else it
-        }
-    }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.buttonGreeting -> {
