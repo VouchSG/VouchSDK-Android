@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui.adapter
 
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
@@ -41,8 +42,8 @@ class VouchQuickReplyAdapter(val mViewModel: VouchChatViewModel, val mListener: 
     class VouchQuickReplyItem(val mView: View) : RecyclerView.ViewHolder(mView) {
 
         fun bind(data: QuickReplyModel, viewModel: VouchChatViewModel, mListener: VouchChatClickListener) {
-            mView.quickReplyContent.background.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
-            mView.quickReplyContent.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
+            mView.quickReplyContent.background.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+            mView.quickReplyContent.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK))
             mView.quickReplyContent.text = if(data.contentType.equals("location", true)) "Send Location" else data.title.safe()
             mView.quickReplyContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
             mView.quickReplyContent.setOnClickListener {

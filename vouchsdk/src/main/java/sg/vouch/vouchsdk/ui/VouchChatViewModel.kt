@@ -93,6 +93,13 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         mVouchSDK.getConfig(object : GetConfigCallback {
 
             override fun onSuccess(data: ConfigResponseModel) {
+                //testing warna
+//
+//                data.rightBubbleColor = null
+//                data.rightBubbleBgColor = null
+//                data.leftBubbleBgColor = null
+//                data.leftBubbleColor = null
+
                 loadConfiguration.value = data
                 isRequesting.value = false
                 if (bDataChat.isEmpty()) {

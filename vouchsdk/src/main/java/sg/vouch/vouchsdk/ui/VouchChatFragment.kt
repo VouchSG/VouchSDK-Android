@@ -197,6 +197,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             loadConfiguration.observe(this@VouchChatFragment, Observer {
                 if (it != null) {
+
                     titleChat.text = it.title
                     titleChat.setFontFamily(it.fontStyle.safe())
                     toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
@@ -210,40 +211,40 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                         ColorDrawable(it.backgroundColorChat.parseColor(Color.WHITE))
                     imageProfileChat.setImageUrl(it.avatar?:"")
 
-                    inputField.setCardBackgroundColor(it.inputTextBackgroundColor.parseColor())
+                    inputField.setCardBackgroundColor(it.inputTextBackgroundColor.parseColor(Color.WHITE))
                     inputField.setFontFamily(it.fontStyle.safe())
 
-                    fieldContent.setTextColor(it.inputTextColor.parseColor())
+                    fieldContent.setTextColor(it.inputTextColor.parseColor(Color.BLACK))
                     fieldContent.setFontFamily(it.fontStyle.safe())
 
-                    backgroundSend.setImageDrawable(ColorDrawable(it.sendButtonColor.parseColor()))
-                    backgroundAttachment.setImageDrawable(ColorDrawable(it.attachmentButtonColor.parseColor()))
+                    backgroundSend.setImageDrawable(ColorDrawable(it.sendButtonColor.parseColor(Color.BLACK)))
+                    backgroundAttachment.setImageDrawable(ColorDrawable(it.attachmentButtonColor.parseColor(Color.BLACK)))
 
-                    imageSend.setColorFilter(it.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    imageSend.setColorFilter(it.sendIconColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     imageAttachment.setColorFilter(
-                        it.attachmentIconColor.parseColor(),
+                        it.attachmentIconColor.parseColor(Color.WHITE),
                         PorterDuff.Mode.SRC_IN
                     )
-                    videoButton.background.setColorFilter(it.attachmentButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                    imageButton.background.setColorFilter(it.attachmentButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    videoButton.background.setColorFilter(it.attachmentButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                    imageButton.background.setColorFilter(it.attachmentButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     videoButton.setColorFilter(
-                        it.attachmentIconColor.parseColor(),
+                        it.attachmentIconColor.parseColor(Color.WHITE),
                         PorterDuff.Mode.SRC_IN
                     )
                     imageButton.setColorFilter(
-                            it.attachmentIconColor.parseColor(),
+                            it.attachmentIconColor.parseColor(Color.WHITE),
                     PorterDuff.Mode.SRC_IN
                     )
 
-                    recordButton.background.setColorFilter(it.sendButtonColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                    recordButton.setColorFilter(it.sendIconColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                    recordButton.background.setColorFilter(it.sendButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                    recordButton.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
 
                     buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
-                    buttonGreeting.setBackgroundColor(it.btnBgColor.parseColor())
-                    buttonGreeting.setTextColor(it.xButtonColor.parseColor())
+                    buttonGreeting.background.setColorFilter(it.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                    buttonGreeting.setTextColor(it.leftBubbleColor.parseColor(Color.BLACK))
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
 
-                    textDurationRecord.setTextColor(it.headerBgColor.parseColor())
+                    textDurationRecord.setTextColor(it.headerBgColor.parseColor(Color.BLACK))
 
                     frameGreeting.visibility = View.GONE
 //                    if (changeConnectStatus.value == false) {
@@ -252,7 +253,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
                     var window = activity!!.window
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    window.statusBarColor = it.headerBgColor.parseColor()
+                    window.statusBarColor = it.headerBgColor.parseColor(Color.BLACK)
                 }
             })
 
@@ -561,7 +562,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         }
 
         imageSend.setColorFilter(
-            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(),
+            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(Color.BLACK),
             PorterDuff.Mode.SRC_IN
         )
     }

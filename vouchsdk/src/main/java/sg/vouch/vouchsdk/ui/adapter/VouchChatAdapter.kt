@@ -1,6 +1,7 @@
 package sg.vouch.vouchsdk.ui.adapter
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -103,9 +104,10 @@ class VouchChatAdapter(
                     TYPE_BUTTON -> {
                         vouchButtonItem.text = data.title
                         vouchButtonItem.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
-                        vouchButtonItem.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
+                        vouchButtonItem.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor(
+                            Color.BLACK))
                         borderButton.setColorFilter(
-                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(),
+                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK),
                             PorterDuff.Mode.SRC_IN
                         )
                         buttonItem.setOnClickListener {
@@ -142,9 +144,9 @@ class VouchChatAdapter(
                         titleList.text = data.title
                         titleList.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
-                        vouchButtonList.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
+                        vouchButtonList.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK))
                         borderButtonList.setColorFilter(
-                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(),
+                            viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK),
                             PorterDuff.Mode.SRC_IN
                         )
                         buttonList.setOnClickListener {
@@ -198,12 +200,8 @@ class VouchChatAdapter(
                         }
                     }
                     else -> if (data.isMyChat) {
-                        myCardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor())
-                        myChatContent.setTextColor(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor())
-                        pendingTime.setColorFilter(
-                            viewModel.loadConfiguration.value?.sendIconColor.parseColor(),
-                            PorterDuff.Mode.SRC_IN
-                        )
+                        myCardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK))
+                        myChatContent.setTextColor(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor(Color.WHITE))
 
                         when (data.type) {
                             TYPE_TEXT -> {
@@ -241,8 +239,8 @@ class VouchChatAdapter(
                                 retry.setOnClickListener {
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
                                 }
-                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                                myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                             }
                             else -> {}
                         }
@@ -306,15 +304,15 @@ class VouchChatAdapter(
                                     mListener.onClickPlayVideo(data, it as ImageView, data.type)
                                 }
 
-                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                                playVideo.background.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                                playVideo.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
+                                playVideo.background.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                             }
                             data.type == TYPE_AUDIO && data.mediaUrl.isNotEmpty() -> {
                                 cardAudio.visibility = View.VISIBLE
-                                audioText.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())
-                                playAudio.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_IN)
-                                seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
-                                seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(), PorterDuff.Mode.SRC_ATOP)
+                                audioText.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK))
+                                playAudio.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                                seekbar.progressDrawable.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_ATOP)
+                                seekbar.thumb.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_ATOP)
 
                                 val duration = viewModel.audioDuration[data.mediaUrl] ?: 0
                                 if (duration > 0) {
@@ -428,8 +426,8 @@ class VouchChatAdapter(
                         }
                         chatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
-                        cardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor())
-                        chatContent.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor())
+                        cardBubble.setCardBackgroundColor(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE))
+                        chatContent.setTextColor(viewModel.loadConfiguration.value?.leftBubbleColor.parseColor(Color.BLACK))
                     }
                 }
             }

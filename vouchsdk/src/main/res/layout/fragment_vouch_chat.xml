@@ -101,13 +101,13 @@
             android:layout_marginTop="@dimen/dimens_8dp"
             android:layout_marginEnd="@dimen/dimens_16dp"
             android:layout_marginBottom="@dimen/dimens_16dp"
-            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/poweredText">
 
             <TextView
                 android:id="@+id/buttonGreeting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/button_chat_rounded"
                 android:gravity="center"
                 android:padding="@dimen/dimens_16dp"
                 android:text="Lorem Greeting" />

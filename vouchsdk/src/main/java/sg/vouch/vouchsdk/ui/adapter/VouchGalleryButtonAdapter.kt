@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui.adapter
 
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
@@ -45,9 +46,9 @@ class VouchGalleryButtonAdapter(val mViewModel: VouchChatViewModel, private val 
 
             mView.apply {
                 vouchButtonItem.text = contentData.title
-                vouchButtonItem.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor())
+                vouchButtonItem.setTextColor(viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK))
                 vouchButtonItem.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
-                borderButton.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(), PorterDuff.Mode.SRC_IN)
+                borderButton.setColorFilter(viewModel.loadConfiguration.value?.headerBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                 buttonItem.setOnClickListener { listener.onClickChatButton(contentData.typeValue, contentData) }
             }
         }
