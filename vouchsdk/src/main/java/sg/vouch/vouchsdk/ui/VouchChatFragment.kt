@@ -246,7 +246,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
                     textDurationRecord.setTextColor(it.headerBgColor.parseColor(Color.BLACK))
 
-                    frameGreeting.visibility = View.GONE
+//                    frameGreeting.visibility = View.GONE
 //                    if (changeConnectStatus.value == false) {
 //                        inputField.visibility = View.GONE
 //                    }
