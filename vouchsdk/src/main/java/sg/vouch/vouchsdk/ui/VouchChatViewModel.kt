@@ -734,6 +734,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Send image to server
      */
     fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String) {
+        if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
+            removeDataChat(0)
+        }
+
         if(msgType=="image") {
             insertPendingImage(path)
         }else if(msgType=="video") {
