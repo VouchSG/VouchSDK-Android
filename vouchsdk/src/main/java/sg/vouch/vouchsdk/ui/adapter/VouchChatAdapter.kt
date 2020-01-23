@@ -236,6 +236,13 @@ class VouchChatAdapter(
                                         data.type
                                     )
                                 }
+                                myPlayVideo.setOnClickListener {
+                                    mListener.onClickPlayVideo(
+                                        data,
+                                        it as ImageView,
+                                        data.type
+                                    )
+                                }
                                 retry.setOnClickListener {
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
                                 }

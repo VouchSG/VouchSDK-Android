@@ -65,6 +65,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     private var currentPage = 1
 
     var mMultipartImage: MultipartBody.Part? = null
+    var mPathLocal: String = ""
 
     var startUpdateSong = false
     @SuppressLint("UseSparseArrays")
@@ -364,14 +365,22 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 data.createdAt.safe(),
                 mediaUrl = data.text.safe()
             )
-            "video" -> VouchChatModel(
-                "",
-                "",
-                true,
-                VouchChatType.TYPE_VIDEO,
-                data.createdAt.safe(),
-                mediaUrl = data.text.safe()
-            )
+            "video" ->{
+                val mMediaUrl: String = if(mPathLocal != "") {
+                    mPathLocal
+                } else {
+                    data.text.safe()
+                }
+
+                VouchChatModel(
+                    "",
+                    "",
+                    true,
+                    VouchChatType.TYPE_VIDEO,
+                    data.createdAt.safe(),
+                    mediaUrl = mMediaUrl
+                )
+            }
             else -> VouchChatModel(
                 data.text.safe(),
                 "",
@@ -383,6 +392,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
         bDataChat[position] = chat
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
+        mPathLocal = ""
     }
 
     /**
@@ -734,12 +744,20 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Send image to server
      */
     fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String) {
+        if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
+            removeDataChat(0)
+        }
+
         if(msgType=="image") {
             insertPendingImage(path)
         }else if(msgType=="video") {
             insertPendingVideo(path)
         }
+
+        // save data to local
+        mPathLocal = path
         mMultipartImage = body
+
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onUnAuthorize() {
                 retryRegisterUser()
