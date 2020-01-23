@@ -16,7 +16,10 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import sg.vouch.vouchsdk.utils.Const.SG_LOCALE
 import io.socket.client.Socket
@@ -61,7 +64,8 @@ fun Context.openWebUrl(url: String) {
 fun ImageView.setImageUrlwithoutCrop(url: String) {
     var image = this
 //    Glide.with(this).load(url).into(this)
-    Glide.with(this).asBitmap().load(url).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
+    Glide.with(this).asBitmap().load(url).apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)).override(
+        400).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
         override fun onLoadFailed(errorDrawable: Drawable?) {
             val bitmap = Bitmap.createBitmap(
                 500, // Width
@@ -81,6 +85,7 @@ fun ImageView.setImageUrlwithoutCrop(url: String) {
         }
     })
 }
+
 fun Activity.getScreenWidth(): Int {
     val displayMetrics = DisplayMetrics()
     windowManager.defaultDisplay.getMetrics(displayMetrics)

@@ -393,6 +393,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         bDataChat[position] = chat
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
         mPathLocal = ""
+        mMultipartImage = null
     }
 
     /**
@@ -678,7 +679,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 //                insertPendingImage(body.text.safe())
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
                     override fun onUnAuthorize() {
-                        mMultipartImage = null
                         retryRegisterUser()
                     }
 
@@ -697,7 +697,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 //                insertPendingVideo(body.text.safe())
                 mVouchSDK.replyMessage(body, object : ReplyMessageCallback {
                     override fun onUnAuthorize() {
-                        mMultipartImage = null
                         retryRegisterUser()
                     }
 
@@ -722,11 +721,20 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         mVouchSDK.registerUser(object : RegisterCallback {
             override fun onSuccess(token: String, socketTicket: String) {
                 mVouchCore.createSocket()
-                if (mMultipartImage == null) {
-                    removeDataChat(0)
-                    sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
-                } else {
-                    sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
+
+                var mMessageBodyModel = MessageBodyModel()
+
+                if (mRepository.getLastMessage() != null) {
+                    mMessageBodyModel = mRepository.getLastMessage()?:MessageBodyModel()
+                }
+
+                when {
+                    mMessageBodyModel.msgType == "text" -> {
+                        removeDataChat(0)
+                        sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
+                    }
+                    mMessageBodyModel.msgType == "image" -> sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
+                    mMessageBodyModel.msgType == "video" -> sendImageMessage("video", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
                 }
             }
 
