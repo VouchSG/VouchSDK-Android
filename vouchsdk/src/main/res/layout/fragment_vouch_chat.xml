@@ -129,7 +129,6 @@
 
         <LinearLayout
             android:id="@+id/inputSection"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorWhite"
@@ -140,6 +139,7 @@
                 android:id="@+id/inputField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:layout_marginTop="@dimen/dimens_8dp">
 
                 <LinearLayout

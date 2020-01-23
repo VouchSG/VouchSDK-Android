@@ -203,9 +203,8 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
                     poweredText.setFontFamily(it.fontStyle.safe())
                     poweredText.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
-                    inputSection.visibility =
-                        if (it.poweredByVouch == true) View.VISIBLE else View.GONE
-                    poweredText.setFontFamily(it.fontStyle.safe())
+//                    inputSection.visibility =
+//                    poweredText.setFontFamily(it.fontStyle.safe())
 
                     backgroundContent.background =
                         ColorDrawable(it.backgroundColorChat.parseColor(Color.WHITE))
