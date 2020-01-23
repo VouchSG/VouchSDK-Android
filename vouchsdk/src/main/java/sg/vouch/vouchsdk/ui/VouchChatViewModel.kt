@@ -392,6 +392,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
         bDataChat[position] = chat
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
+        mPathLocal = ""
     }
 
     /**
