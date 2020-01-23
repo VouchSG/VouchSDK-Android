@@ -1,8 +1,7 @@
 package sg.vouch.vouchsdk.utils
 
 import android.Manifest
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -31,7 +30,7 @@ class CameraGalleryHelper {
         private val PERMISSIONS_CAMERA = arrayOf(Manifest.permission.CAMERA)
 
         fun openImagePickerOption(activity: Activity) {
-            if (checkCameraPermission(activity) && checkExternalStoragePermission(activity)) {
+            if (checkExternalStoragePermission(activity)) {
                 try {
                     CropImage.startPickImageActivity(activity)
                 } catch (ex: android.content.ActivityNotFoundException) {
@@ -47,7 +46,7 @@ class CameraGalleryHelper {
                 return true
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                return if (ContextCompat.checkSelfPermission(activity, CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     true
                 } else {
                     activity.requestPermissions(PERMISSIONS_CAMERA, REQUEST_CAMERA_CODE)
@@ -67,8 +66,8 @@ class CameraGalleryHelper {
                 val writeStoragePermissionState = ContextCompat.checkSelfPermission(activity, WRITE_EXTERNAL_STORAGE)
                 val externalStoragePermissionGranted = readStoragePermissionState == PackageManager.PERMISSION_GRANTED
                         && writeStoragePermissionState == PackageManager.PERMISSION_GRANTED
-                if (!externalStoragePermissionGranted) {
-                    activity.requestPermissions(PERMISSIONS_EXTERNAL_STORAGE, REQUEST_GALLERY_CODE)
+                if (!externalStoragePermissionGranted && ContextCompat.checkSelfPermission(activity, CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    activity.requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE, CAMERA), REQUEST_GALLERY_CODE)
                     return false
                 }
                 return true
