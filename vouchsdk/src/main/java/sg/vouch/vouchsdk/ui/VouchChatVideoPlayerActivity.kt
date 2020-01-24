@@ -17,7 +17,7 @@ import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.utils.setImageUrl
 import kotlinx.android.synthetic.main.activity_vouch_chat_video_player.*
 import sg.vouch.vouchsdk.ui.model.VouchChatType
-import sg.vouch.vouchsdk.utils.setImageUrlwithoutCrop
+import sg.vouch.vouchsdk.utils.setImageUrlwithoutCropDetail
 
 class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, OnSeekCompletionListener {
 
@@ -30,7 +30,7 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
         var type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
         if(type == VouchChatType.TYPE_IMAGE){
-            imgView.setImageUrlwithoutCrop(intent.getStringExtra("url-content"))
+            imgView.setImageUrlwithoutCropDetail(intent.getStringExtra("url-content"))
             videoView.visibility = View.GONE
         }else{
             imgView.visibility = View.VISIBLE

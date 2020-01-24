@@ -86,6 +86,30 @@ fun ImageView.setImageUrlwithoutCrop(url: String) {
     })
 }
 
+fun ImageView.setImageUrlwithoutCropDetail(url: String) {
+    var image = this
+//    Glide.with(this).load(url).into(this)
+    Glide.with(this).asBitmap().load(url).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
+        override fun onLoadFailed(errorDrawable: Drawable?) {
+            val bitmap = Bitmap.createBitmap(
+                500, // Width
+                500, // Height
+                Bitmap.Config.ARGB_8888 // Config
+            )
+
+            image.setImageBitmap(bitmap)
+        }
+
+        override fun onResourceCleared(placeholder: Drawable?) {
+
+        }
+
+        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+            image.setImageBitmap(resource)
+        }
+    })
+}
+
 fun Activity.getScreenWidth(): Int {
     val displayMetrics = DisplayMetrics()
     windowManager.defaultDisplay.getMetrics(displayMetrics)
