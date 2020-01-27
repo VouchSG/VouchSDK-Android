@@ -229,7 +229,7 @@ class VouchChatAdapter(
                                     )
                                 }
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position, data.imageUri)
                                 }
                             }
                             TYPE_VIDEO -> {

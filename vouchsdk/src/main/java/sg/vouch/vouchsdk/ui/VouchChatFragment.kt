@@ -634,9 +634,15 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.sendReplyMessage(body)
     }
 
-    override fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String, position : Int) {
+    override fun onClickRetryMedia(
+        msgType: String,
+        body: MultipartBody.Part,
+        path: String,
+        position: Int,
+        imageUri: Uri?
+    ) {
         mViewModel.removeDataChat(position)
-        mViewModel.sendImageMessage(msgType, body, path)
+        mViewModel.sendImageMessage(msgType, body, path, imageUri)
     }
 
     private fun createFileFromInputStream(inputStream: InputStream, mimeType: String?): File? {
