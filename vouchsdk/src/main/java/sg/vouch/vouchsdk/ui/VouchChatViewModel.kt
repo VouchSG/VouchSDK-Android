@@ -311,11 +311,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, path : String) {
+    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, imageUri : Uri) {
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -365,7 +365,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 true,
                 VouchChatType.TYPE_IMAGE,
                 data.createdAt.safe(),
-                imageUri = mUriImage
+                imageUri = mUriImage,
+                mediaUrl = data.text.safe()
             )
             "video" ->{
                 val mMediaUrl: String = if(mPathLocal != "") {
@@ -692,7 +693,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
-//                        insertFailedImage(body)
+                        mUriImage?.let { insertFailedImage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), it) }
                     }
                 })
             }
@@ -790,7 +791,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             override fun onError(message: String) {
                 eventShowMessage.value = message
                 if(msgType=="image") {
-                    insertFailedImage(msgType, body, path)
+                    mUriImage?.let { insertFailedImage(msgType, body, it) }
                 }else if(msgType=="video") {
                     insertFailedVideo(msgType, body, path)
                 }
