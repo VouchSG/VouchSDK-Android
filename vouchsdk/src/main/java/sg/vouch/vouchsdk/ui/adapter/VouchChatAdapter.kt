@@ -209,9 +209,11 @@ class VouchChatAdapter(
                                 myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                                 myCardBubble.setContentPadding(0, 0, 0, 0)
                                 retry.setOnClickListener {
+                                    // Get real position from data chat
+                                    val realPosition = mData.indexOf(data)
                                     mListener.onClickRetryMessage(MessageBodyModel(type = "text",
                                         msgType = "text",
-                                        text = data.title, payload = null), position)
+                                        text = data.title, payload = null), realPosition)
                                 }
                             }
                             TYPE_IMAGE -> {
@@ -228,8 +230,11 @@ class VouchChatAdapter(
                                         data.type
                                     )
                                 }
+
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position, data.imageUri)
+                                    // Get real position from data chat
+                                    val realPosition = mData.indexOf(data)
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, realPosition, data.imageUri)
                                 }
                             }
                             TYPE_VIDEO -> {
@@ -249,7 +254,9 @@ class VouchChatAdapter(
                                     )
                                 }
                                 retry.setOnClickListener {
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, position)
+                                    // Get real position from data chat
+                                    val realPosition = mData.indexOf(data)
+                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, realPosition)
                                 }
                                 myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
                                 myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
