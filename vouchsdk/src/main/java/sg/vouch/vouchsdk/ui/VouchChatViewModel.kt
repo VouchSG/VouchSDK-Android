@@ -365,7 +365,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 true,
                 VouchChatType.TYPE_IMAGE,
                 data.createdAt.safe(),
-                mediaUrl = data.text.safe()
+                imageUri = mUriImage
             )
             "video" ->{
                 val mMediaUrl: String = if(mPathLocal != "") {
@@ -396,6 +396,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
         mPathLocal = ""
         mMultipartImage = null
+        mUriImage = null
     }
 
     /**
