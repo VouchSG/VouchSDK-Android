@@ -215,7 +215,12 @@ class VouchChatAdapter(
                                 }
                             }
                             TYPE_IMAGE -> {
-                                myChatImage.setImageUrlwithoutCrop(data.mediaUrl)
+                                if(data.imageUri == null) {
+                                    myChatImage.setImageUrlwithoutCrop(data.mediaUrl)
+                                } else {
+                                    myChatImage.setImageUrlwithoutCrop(data.imageUri)
+                                }
+
                                 myChatImage.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,

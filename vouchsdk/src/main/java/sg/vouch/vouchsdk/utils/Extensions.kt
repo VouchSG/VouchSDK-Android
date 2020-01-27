@@ -61,7 +61,7 @@ fun Context.openWebUrl(url: String) {
         Glide.with(this).load(url).centerCrop().into(this)
     }
 
-fun ImageView.setImageUrlwithoutCrop(url: String) {
+fun ImageView.setImageUrlwithoutCrop(url: Any) {
     var image = this
 //    Glide.with(this).load(url).into(this)
     Glide.with(this).asBitmap().load(url).apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)).override(

@@ -622,7 +622,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 MultipartBody.Part.createFormData(IMAGE_UPLOAD_KEY, file.name, requestBody)
         }
 
-        mViewModel.sendImageMessage("image", requestPart, imageUri.path!!)
+        mViewModel.sendImageMessage("image", requestPart, imageUri.path!!, imageUri)
 
         val bitmap = MediaStore.Images.Media.getBitmap(resolver, imageUri)
         ivPreview.setImageBitmap(bitmap)
