@@ -28,9 +28,13 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
         hideSystemUi()
 
-        var type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
+        val type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
         if(type == VouchChatType.TYPE_IMAGE){
-            imgView.setImageUrlwithoutCropDetail(intent.getStringExtra("url-content"))
+            if(intent.getParcelableExtra<Uri>("uri-image") != null){
+                imgView.setImageUrlwithoutCropDetail(intent.getParcelableExtra("uri-image")?:"")
+            } else{
+                imgView.setImageUrlwithoutCropDetail(intent.getStringExtra("url-content")?:"")
+            }
             videoView.visibility = View.GONE
         }else{
             imgView.visibility = View.VISIBLE
@@ -84,10 +88,11 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
     companion object {
 
 
-        fun startThisActivity(activity: Activity, url: String, type : VouchChatType){
+        fun startThisActivity(activity: Activity, url: String, type : VouchChatType, imageUri: Uri? = null){
             val intent = Intent(activity, VouchChatVideoPlayerActivity::class.java).apply {
                 putExtra("url-content", url)
                 putExtra("type", Gson().toJson(type))
+                putExtra("uri-image", imageUri)
             }
             activity.startActivity(intent)
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)

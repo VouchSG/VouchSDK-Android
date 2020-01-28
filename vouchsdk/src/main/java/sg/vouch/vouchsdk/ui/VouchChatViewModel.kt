@@ -330,10 +330,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Insert Pending image
      */
-    private fun insertPendingImage(imageUri: Uri) {
+    private fun insertPendingImage(imageUri: Uri? = null, path: String? = "") {
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, isPendingMessage = true)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path?:"", isPendingMessage = true)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -737,7 +737,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         removeDataChat(0)
                         sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
                     }
-                    mMessageBodyModel.msgType == "image" -> sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "", mUriImage)
+                    mMessageBodyModel.msgType == "image" -> sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), mPathLocal, mUriImage)
                     mMessageBodyModel.msgType == "video" -> sendImageMessage("video", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), mPathLocal)
                 }
             }
@@ -761,9 +761,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         if(msgType=="image") {
-            if (imageUri != null) {
-                insertPendingImage(imageUri)
-            }
+            insertPendingImage(imageUri, path)
         }else if(msgType=="video") {
             insertPendingVideo(path)
         }
