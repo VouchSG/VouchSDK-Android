@@ -11,6 +11,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.support.annotation.ColorInt
 import android.support.v4.app.Fragment
+import android.support.v4.widget.CircularProgressDrawable
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
@@ -60,6 +61,36 @@ fun Context.openWebUrl(url: String) {
     fun ImageView.setImageUrl(url: String) {
         Glide.with(this).load(url).centerCrop().into(this)
     }
+
+fun ImageView.setVideoUrlwithoutCrop(url: String, icon : ImageButton, progress : ProgressBar) {
+    var image = this
+    icon.visibility = View.GONE
+    progress.visibility = View.VISIBLE
+    val bitmap = Bitmap.createBitmap(
+        500, // Width
+        500, // Height
+        Bitmap.Config.ARGB_8888 // Config
+    )
+    image.setImageBitmap(bitmap)
+//    Glide.with(this).load(url).into(this)
+    Glide.with(this).asBitmap().load(url).placeholder(createCircularProgressDrawable(this.context)).apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)).override(
+        400).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
+        override fun onLoadFailed(errorDrawable: Drawable?) {
+            icon.visibility = View.VISIBLE
+            progress.visibility = View.GONE
+        }
+
+        override fun onResourceCleared(placeholder: Drawable?) {
+
+        }
+
+        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+            image.setImageBitmap(resource)
+            icon.visibility = View.VISIBLE
+            progress.visibility = View.GONE
+        }
+    })
+}
 
 fun ImageView.setImageUrlwithoutCrop(url: Any) {
     var image = this
@@ -149,8 +180,16 @@ fun Activity.getScreenHeight(): Int {
     return displayMetrics.heightPixels
 }
 
+fun createCircularProgressDrawable(context: Context): CircularProgressDrawable{
+    val circularProgressDrawable = CircularProgressDrawable(context)
+    circularProgressDrawable.strokeWidth = 4f
+    circularProgressDrawable.centerRadius = 30f
+    circularProgressDrawable.start()
+    return circularProgressDrawable
+}
+
 fun ImageView.setImageUrls(url: String, screenWidth: Int, screenHeight: Int) {
-    Glide.with(this).asBitmap().load(url).centerCrop().into(object : CustomViewTarget<ImageView, Bitmap>(this) {
+    Glide.with(this).asBitmap().load(url).placeholder(createCircularProgressDrawable(this.context)).centerCrop().into(object : CustomViewTarget<ImageView, Bitmap>(this) {
         override fun onLoadFailed(errorDrawable: Drawable?) {
 
         }

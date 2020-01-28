@@ -238,7 +238,7 @@ class VouchChatAdapter(
                                 }
                             }
                             TYPE_VIDEO -> {
-                                myImageVideo.setImageUrlwithoutCrop(data.mediaUrl)
+                                myImageVideo.setVideoUrlwithoutCrop(data.mediaUrl, myPlayVideo, myProgressVideo)
                                 myImageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
@@ -311,7 +311,7 @@ class VouchChatAdapter(
                             data.type == TYPE_VIDEO -> {
                                 packVideo.visibility = View.VISIBLE
                                 imageVideo.visibility = View.VISIBLE
-                                imageVideo.setImageUrlwithoutCrop(data.mediaUrl)
+                                imageVideo.setVideoUrlwithoutCrop(data.mediaUrl, playVideo, progressVideo)
                                 imageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
                                         data,
