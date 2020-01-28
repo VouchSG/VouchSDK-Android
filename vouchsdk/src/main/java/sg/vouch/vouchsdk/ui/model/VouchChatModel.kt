@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui.model
 
+import android.net.Uri
 import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.message.response.GalleryElementModel
 import sg.vouch.vouchsdk.data.model.message.response.QuickReplyModel
@@ -17,6 +18,7 @@ data class VouchChatModel(
     val payload: String = "",
     val typeValue: String = "",
     val mediaUrl: String = "",
+    val imageUri: Uri? = null,
 
     /* model for list and button */
     val isFirstListContent: Boolean = false,

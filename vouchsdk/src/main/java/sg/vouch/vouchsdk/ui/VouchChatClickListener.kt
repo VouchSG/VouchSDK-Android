@@ -1,5 +1,6 @@
 package sg.vouch.vouchsdk.ui
 
+import android.net.Uri
 import android.widget.ImageView
 import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
@@ -24,7 +25,7 @@ interface VouchChatClickListener {
 
     fun onClickRetryMessage(body: MessageBodyModel, position : Int)
 
-    fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String, position : Int)
+    fun onClickRetryMedia(msgType : String, body: MultipartBody.Part, path : String, position : Int, imageUri : Uri? = null)
 
     fun resetMediaPlayer()
 

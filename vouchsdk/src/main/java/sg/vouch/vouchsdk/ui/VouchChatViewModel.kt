@@ -6,6 +6,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Handler
 import android.view.View
 import android.widget.ProgressBar
@@ -66,6 +67,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     var mMultipartImage: MultipartBody.Part? = null
     var mPathLocal: String = ""
+    var mUriImage: Uri? = null
 
     var startUpdateSong = false
     @SuppressLint("UseSparseArrays")
@@ -309,11 +311,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, path : String) {
+    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, imageUri : Uri) {
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -328,10 +330,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Insert Pending image
      */
-    private fun insertPendingImage(imageUrl: String) {
+    private fun insertPendingImage(imageUri: Uri) {
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", mediaUrl = imageUrl, isPendingMessage = true)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, isPendingMessage = true)
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -363,6 +365,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 true,
                 VouchChatType.TYPE_IMAGE,
                 data.createdAt.safe(),
+                imageUri = mUriImage,
                 mediaUrl = data.text.safe()
             )
             "video" ->{
@@ -394,6 +397,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
         mPathLocal = ""
         mMultipartImage = null
+        mUriImage = null
     }
 
     /**
@@ -689,7 +693,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
-//                        insertFailedImage(body)
+                        mUriImage?.let { insertFailedImage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), it) }
                     }
                 })
             }
@@ -733,8 +737,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         removeDataChat(0)
                         sendReplyMessage(mRepository.getLastMessage() ?: MessageBodyModel())
                     }
-                    mMessageBodyModel.msgType == "image" -> sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
-                    mMessageBodyModel.msgType == "video" -> sendImageMessage("video", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "")
+                    mMessageBodyModel.msgType == "image" -> sendImageMessage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), "", mUriImage)
+                    mMessageBodyModel.msgType == "video" -> sendImageMessage("video", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), mPathLocal)
                 }
             }
 
@@ -751,13 +755,15 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Send image to server
      */
-    fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String) {
+    fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String, imageUri: Uri? = null) {
         if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
             removeDataChat(0)
         }
 
         if(msgType=="image") {
-            insertPendingImage(path)
+            if (imageUri != null) {
+                insertPendingImage(imageUri)
+            }
         }else if(msgType=="video") {
             insertPendingVideo(path)
         }
@@ -765,6 +771,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         // save data to local
         mPathLocal = path
         mMultipartImage = body
+        mUriImage = imageUri
 
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onUnAuthorize() {
@@ -784,7 +791,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             override fun onError(message: String) {
                 eventShowMessage.value = message
                 if(msgType=="image") {
-                    insertFailedImage(msgType, body, path)
+                    mUriImage?.let { insertFailedImage(msgType, body, it) }
                 }else if(msgType=="video") {
                     insertFailedVideo(msgType, body, path)
                 }
