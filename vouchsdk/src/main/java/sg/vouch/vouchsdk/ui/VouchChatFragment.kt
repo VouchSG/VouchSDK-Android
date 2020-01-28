@@ -535,7 +535,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType) {
         isFromVideoPlayerActivity = true
-        VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, type)
+        VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, type, data.imageUri)
     }
 
     override fun afterTextChanged(s: Editable?) = Unit

@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.item_vouch_list.view.*
 import kotlinx.android.synthetic.main.item_vouch_my_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_other_chat.view.*
 import kotlinx.android.synthetic.main.item_vouch_quick_reply.view.*
+import okhttp3.MultipartBody
 import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.data.model.message.body.MessageBodyModel
 import sg.vouch.vouchsdk.ui.VouchChatClickListener
@@ -256,7 +257,7 @@ class VouchChatAdapter(
                                 retry.setOnClickListener {
                                     // Get real position from data chat
                                     val realPosition = mData.indexOf(data)
-                                    mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, realPosition)
+                                    mListener.onClickRetryMedia(data.msgType, mData[realPosition].body?: MultipartBody.Part.createFormData("", ""), data.path, realPosition)
                                 }
                                 myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
                                 myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
