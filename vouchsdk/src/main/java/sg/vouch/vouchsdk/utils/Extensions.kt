@@ -76,8 +76,8 @@ fun ImageView.setVideoUrlwithoutCrop(url: String, icon : ImageButton, progress :
     Glide.with(this).asBitmap().load(url).placeholder(createCircularProgressDrawable(this.context)).apply(RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)).override(
         400).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
         override fun onLoadFailed(errorDrawable: Drawable?) {
-            icon.visibility = View.VISIBLE
-            progress.visibility = View.GONE
+//            icon.visibility = View.VISIBLE
+//            progress.visibility = View.GONE
         }
 
         override fun onResourceCleared(placeholder: Drawable?) {
