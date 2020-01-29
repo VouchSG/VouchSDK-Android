@@ -766,10 +766,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Send image to server
      */
     fun sendImageMessage(msgType : String, body: MultipartBody.Part, path : String, imageUri: Uri? = null) {
-        if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
-            removeDataChat(0)
-        }
-
         var dataChatTemp = VouchChatModel()
 
         if(msgType=="image") {
@@ -777,11 +773,17 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }else if(msgType=="video") {
             dataChatTemp = insertPendingVideo(path)
         }
+        if (bDataChat != null && bDataChat[1].type == VouchChatType.TYPE_QUICK_REPLY) {
+            removeDataChat(1)
+        }
+        // save data to local
+        mPathLocal = path
+        mMultipartImage = body
+        mUriImage = imageUri
 
         saveDataToLocalTemp(dataChatTemp)
 
         sendImageMessageToApi(msgType, body, dataChatTemp)
-
     }
 
     private fun sendImageMessageToApi(msgType : String, body: MultipartBody.Part, dataChatTemp: VouchChatModel) {
