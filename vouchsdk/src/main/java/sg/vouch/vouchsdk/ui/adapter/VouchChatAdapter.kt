@@ -205,10 +205,12 @@ class VouchChatAdapter(
 
                         when (data.type) {
                             TYPE_TEXT -> {
+                                retry.isEnabled = true
                                 myChatContent.text = data.title
                                 myChatContent.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
                                 myCardBubble.setContentPadding(0, 0, 0, 0)
                                 retry.setOnClickListener {
+                                    retry.isEnabled = false
                                     // Get real position from data chat
                                     val realPosition = mData.indexOf(data)
                                     mListener.onClickRetryMessage(MessageBodyModel(type = "text",
@@ -217,6 +219,7 @@ class VouchChatAdapter(
                                 }
                             }
                             TYPE_IMAGE -> {
+                                retry.isEnabled = true
                                 if(data.imageUri == null) {
                                     myChatImage.setImageUrlwithoutCrop(data.mediaUrl)
                                 } else {
@@ -232,12 +235,14 @@ class VouchChatAdapter(
                                 }
 
                                 retry.setOnClickListener {
+                                    retry.isEnabled = false
                                     // Get real position from data chat
                                     val realPosition = mData.indexOf(data)
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, realPosition, data.imageUri)
                                 }
                             }
                             TYPE_VIDEO -> {
+                                retry.isEnabled = true
                                 myImageVideo.setVideoUrlwithoutCrop(data.mediaUrl, myPlayVideo, myProgressVideo)
                                 myImageVideo.setOnClickListener {
                                     mListener.onClickPlayVideo(
@@ -254,6 +259,7 @@ class VouchChatAdapter(
                                     )
                                 }
                                 retry.setOnClickListener {
+                                    retry.isEnabled = false
                                     // Get real position from data chat
                                     val realPosition = mData.indexOf(data)
                                     mListener.onClickRetryMedia(data.msgType, data.body!!, data.path, realPosition)
