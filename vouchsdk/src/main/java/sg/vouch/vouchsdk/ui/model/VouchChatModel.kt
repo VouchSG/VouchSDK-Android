@@ -37,5 +37,8 @@ data class VouchChatModel(
     val isFailedMessage: Boolean = false,
     val msgType : String = "",
     val body: MultipartBody.Part? = null,
-    val path : String = ""
+    val path : String = "",
+
+    /* id */
+    val idSent: String = ""
 )

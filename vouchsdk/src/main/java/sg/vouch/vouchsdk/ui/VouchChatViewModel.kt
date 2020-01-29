@@ -284,7 +284,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                         VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
                 }, 1000)
 
-             }
+            }
             else {
                 if (!bDataChat.isEmpty() && bDataChat[0].type == VouchChatType.TYPE_TYPING) {
                     removeDataChat(0)
@@ -311,11 +311,11 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
-    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, imageUri : Uri) {
+    private fun insertFailedImage(msgType : String, body: MultipartBody.Part, imageUri : Uri, path: String) {
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
+            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -330,20 +330,18 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Insert Pending image
      */
-    private fun insertPendingImage(imageUri: Uri? = null, path: String? = "") {
-        bDataChat.add(
-            0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path?:"", isPendingMessage = true)
-        )
+    private fun insertPendingImage(imageUri: Uri? = null, path: String? = ""): VouchChatModel {
+        val pendingDataImage = VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path?:"", isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
+        bDataChat.add(0, pendingDataImage)
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+        return pendingDataImage
     }
 
-    private fun insertPendingVideo(videoUrl: String) {
-        bDataChat.add(
-            0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true)
-        )
+    private fun insertPendingVideo(videoUrl: String): VouchChatModel {
+        val pendingDataVideo = VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true)
+        bDataChat.add(0, pendingDataVideo)
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+        return pendingDataVideo
     }
 
     /**
@@ -394,7 +392,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             )
         }
         bDataChat[position] = chat
-        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_UPDATE, startPosition = position)
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_FORCE_UPDATE, startPosition = position)
         mPathLocal = ""
         mMultipartImage = null
         mUriImage = null
@@ -652,7 +650,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Send message
      */
-    fun sendReplyMessage(body: MessageBodyModel) {
+    fun sendReplyMessage(body: MessageBodyModel, idSent: String = "") {
         if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
             removeDataChat(0)
         }
@@ -688,12 +686,13 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onSuccess(data: MessageResponseModel) {
                         println("type image => $data")
-                        updateUserMessage(0, data)
+                        val position = getDataPosition(idSent)
+                        updateUserMessage(position, data)
                     }
 
                     override fun onError(message: String) {
                         eventShowMessage.value = message
-                        mUriImage?.let { insertFailedImage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), it) }
+                        mUriImage?.let { insertFailedImage("image", mMultipartImage ?: MultipartBody.Part.createFormData("", ""), it, body.text?:"") }
                     }
                 })
             }
@@ -715,6 +714,17 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 })
             }
 
+        }
+    }
+
+    /**
+     * Get data position
+     */
+    private fun getDataPosition(idSent: String): Int {
+        return if(bDataChat.indexOfLast { it.idSent == idSent} > 0){
+            bDataChat.indexOfLast { it.idSent == idSent}
+        } else {
+            0
         }
     }
 
@@ -760,17 +770,21 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             removeDataChat(0)
         }
 
+        var dataChatTemp = VouchChatModel()
+
         if(msgType=="image") {
-            insertPendingImage(imageUri, path)
+            dataChatTemp = insertPendingImage(imageUri, path)
         }else if(msgType=="video") {
-            insertPendingVideo(path)
+            dataChatTemp = insertPendingVideo(path)
         }
 
-        // save data to local
-        mPathLocal = path
-        mMultipartImage = body
-        mUriImage = imageUri
+        saveDataToLocalTemp(dataChatTemp)
 
+        sendImageMessageToApi(msgType, body, dataChatTemp)
+
+    }
+
+    private fun sendImageMessageToApi(msgType : String, body: MultipartBody.Part, dataChatTemp: VouchChatModel) {
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onUnAuthorize() {
                 retryRegisterUser()
@@ -783,18 +797,25 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     type = msgType
                 )
 
-                sendReplyMessage(message)
+                sendReplyMessage(message, dataChatTemp.idSent)
             }
 
             override fun onError(message: String) {
                 eventShowMessage.value = message
                 if(msgType=="image") {
-                    mUriImage?.let { insertFailedImage(msgType, body, it) }
+                    mUriImage?.let { insertFailedImage(msgType, body, it, dataChatTemp.mediaUrl) }
                 }else if(msgType=="video") {
-                    insertFailedVideo(msgType, body, path)
+                    insertFailedVideo(msgType, body, dataChatTemp.mediaUrl)
                 }
             }
         })
+    }
+
+    private fun saveDataToLocalTemp(data: VouchChatModel) {
+        // save data to local
+        mPathLocal = data.mediaUrl
+        mMultipartImage = data.body
+        mUriImage = data.imageUri
     }
 
     fun sendAudioMessage(body: SendAudioBodyModel) {
