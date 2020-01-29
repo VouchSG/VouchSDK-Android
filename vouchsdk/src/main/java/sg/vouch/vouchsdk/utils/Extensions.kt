@@ -117,7 +117,7 @@ fun ImageView.setImageUrlwithoutCrop(url: Any) {
     })
 }
 
-fun ImageView.setImageUrlwithoutCropDetail(url: String) {
+fun ImageView.setImageUrlwithoutCropDetail(url: Any) {
     var image = this
 //    Glide.with(this).load(url).into(this)
     Glide.with(this).asBitmap().load(url).into(object : CustomViewTarget<ImageView, Bitmap>(this) {
