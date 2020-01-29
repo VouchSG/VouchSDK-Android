@@ -783,10 +783,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
         saveDataToLocalTemp(dataChatTemp)
 
-        sendImageMessageToApi(msgType, body, dataChatTemp)
+        sendImageMessageToServer(msgType, body, dataChatTemp)
     }
 
-    private fun sendImageMessageToApi(msgType : String, body: MultipartBody.Part, dataChatTemp: VouchChatModel) {
+    private fun sendImageMessageToServer(msgType : String, body: MultipartBody.Part, dataChatTemp: VouchChatModel) {
         mVouchSDK.sendImage(body, object : ImageMessageCallback {
             override fun onUnAuthorize() {
                 retryRegisterUser()
