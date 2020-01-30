@@ -67,7 +67,6 @@ class CameraGalleryHelper {
                 val externalStoragePermissionGranted = readStoragePermissionState == PackageManager.PERMISSION_GRANTED
                         && writeStoragePermissionState == PackageManager.PERMISSION_GRANTED
                 if (!externalStoragePermissionGranted && ContextCompat.checkSelfPermission(activity, CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    activity.requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE, CAMERA), REQUEST_GALLERY_CODE)
                     return false
                 }
                 return true
