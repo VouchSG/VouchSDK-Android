@@ -83,6 +83,7 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
     override fun onSeekComplete() {
         // no use
+        videoView.restart()
     }
 
     companion object {
