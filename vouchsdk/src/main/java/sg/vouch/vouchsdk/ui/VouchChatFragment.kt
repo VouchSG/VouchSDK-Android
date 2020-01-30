@@ -409,23 +409,29 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             }
         }
             R.id.imageButton -> {
-                CameraGalleryHelper.openImagePickerOption(requireActivity())
-                lyAttach.visibility = View.GONE
-                inputField.visibility = View.VISIBLE
+                (activity as (VouchChatActivity)).openMedia(true)
             }
             R.id.videoButton -> {
-
-                VideoPicker.Builder(requireActivity())
-                    .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
-                    .directory(VideoPicker.Directory.DEFAULT)
-                    .extension(VideoPicker.Extension.MP4)
-                    .enableDebuggingMode(true)
-                    .build()
-                lyAttach.visibility = View.GONE
-                inputField.visibility = View.VISIBLE
+                (activity as (VouchChatActivity)).openMedia(false)
             }
             else -> { }
         }
+    }
+
+    fun openPhoto(){
+        CameraGalleryHelper.openImagePickerOption(requireActivity())
+        lyAttach.visibility = View.GONE
+        inputField.visibility = View.VISIBLE
+    }
+    fun openVideo(){
+        VideoPicker.Builder(requireActivity())
+            .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
+            .directory(VideoPicker.Directory.DEFAULT)
+            .extension(VideoPicker.Extension.MP4)
+            .enableDebuggingMode(true)
+            .build()
+        lyAttach.visibility = View.GONE
+        inputField.visibility = View.VISIBLE
     }
 
     override fun onClickChatButton(type: String, data: VouchChatModel) {
