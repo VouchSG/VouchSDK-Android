@@ -323,7 +323,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         removeDataChat(0)
         bDataChat.add(
             0,
-            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body)
+            VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
@@ -338,7 +338,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun insertPendingVideo(videoUrl: String): VouchChatModel {
-        val pendingDataVideo = VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true)
+        val pendingDataVideo = VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
         bDataChat.add(0, pendingDataVideo)
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
         return pendingDataVideo
@@ -347,7 +347,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * Update sender message
      */
-    private fun updateUserMessage(position: Int, data: MessageResponseModel) {
+    private fun updateUserMessage(position: Int, data: MessageResponseModel, idSent: String = "") {
         val chat = when (data.msgType) {
             "text" -> VouchChatModel(
                 data.text.safe(),
@@ -357,15 +357,17 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 data.createdAt.safe(),
                 mediaUrl = data.mediaUrl ?: ""
             )
-            "image" -> VouchChatModel(
-                "",
-                "",
-                true,
-                VouchChatType.TYPE_IMAGE,
-                data.createdAt.safe(),
-                imageUri = mUriImage,
-                mediaUrl = data.text.safe()
-            )
+            "image" -> {
+                VouchChatModel(
+                    "",
+                    "",
+                    true,
+                    VouchChatType.TYPE_IMAGE,
+                    data.createdAt.safe(),
+                    imageUri = mUriImage,
+                    mediaUrl = data.text.safe()
+                )
+            }
             "video" ->{
                 val mMediaUrl: String = if(mPathLocal != "") {
                     mPathLocal
@@ -391,7 +393,21 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 mediaUrl = data.mediaUrl ?: ""
             )
         }
-        bDataChat[position] = chat
+
+        if(data.msgType == "image" || data.msgType == "video"){
+            if(bDataChat.any { it.idSent == idSent }){
+                bDataChat.find { it.idSent == idSent }.let{
+                    it?.isPendingMessage = false
+                    it?.createdAt = data.createdAt.safe()
+                    it?.mediaUrl = data.text.safe()
+                }
+            } else {
+                bDataChat[position] = chat
+            }
+        } else {
+            bDataChat[position] = chat
+        }
+
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_FORCE_UPDATE, startPosition = position)
         mPathLocal = ""
         mMultipartImage = null
@@ -687,7 +703,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                     override fun onSuccess(data: MessageResponseModel) {
                         println("type image => $data")
                         val position = getDataPosition(idSent)
-                        updateUserMessage(position, data)
+                        updateUserMessage(position, data, idSent)
                     }
 
                     override fun onError(message: String) {
@@ -705,7 +721,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
                     override fun onSuccess(data: MessageResponseModel) {
                         println("type video => $data")
-                        updateUserMessage(0, data)
+                        val position = getDataPosition(idSent)
+                        updateUserMessage(position, data, idSent)
                     }
 
                     override fun onError(message: String) {
@@ -721,10 +738,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
      * Get data position
      */
     private fun getDataPosition(idSent: String): Int {
-        return if(bDataChat.indexOfLast { it.idSent == idSent} > 0){
-            bDataChat.indexOfLast { it.idSent == idSent}
-        } else {
+        return if(bDataChat.indexOfFirst { it.idSent == idSent} == -1){
             0
+        } else {
+            bDataChat.indexOfFirst{ it.idSent == idSent}
         }
     }
 
