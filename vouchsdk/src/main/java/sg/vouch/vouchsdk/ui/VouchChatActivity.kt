@@ -19,8 +19,7 @@ import net.alhazmy13.mediapicker.Video.VideoPicker
 import sg.vouch.vouchsdk.utils.getImageOrientation
 import sg.vouch.vouchsdk.utils.resaveBitmap
 import java.io.File
-
-
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -53,7 +52,7 @@ class VouchChatActivity : AppCompatActivity() {
 
                 println(imageUri.toString())
                 if(orientation != 0){
-                    var file = resaveBitmap(imageUri.path!!, p1, "pickImageResult.jpeg", orientation.toFloat())
+                    var file = resaveBitmap(imageUri.path!!, p1, "pickImageResult${TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())}.jpeg", orientation.toFloat())
                     val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
                             as VouchChatFragment
                     fragment.sendImageChat(Uri.fromFile(file))
