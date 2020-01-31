@@ -7,7 +7,9 @@ import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
+import android.os.StrictMode
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -398,8 +400,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             if(bDataChat.any { it.idSent == idSent }){
                 bDataChat.find { it.idSent == idSent }.let{
                     it?.isPendingMessage = false
-                    it?.createdAt = data.createdAt.safe()
-                    it?.mediaUrl = data.text.safe()
+                    it?.createdAt = chat.createdAt
+                    it?.mediaUrl = chat.mediaUrl
                 }
             } else {
                 bDataChat[position] = chat

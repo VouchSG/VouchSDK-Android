@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.StrictMode
 import android.provider.MediaStore
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -585,6 +586,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     fun sendVideoChat(videoUri : Uri){
+        if (Build.VERSION.SDK_INT >= 24) {
+            try {
+                val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+                m.invoke(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         val requestBody: RequestBody?
         val requestPart: MultipartBody.Part?
         val mimeType = CameraGalleryHelper.getMimeType(videoUri.path!!)
@@ -598,6 +607,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
     }
     fun sendImageChat(imageUri: Uri) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            try {
+                val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         val resolver = context?.contentResolver
         val scheme = imageUri.scheme
         val requestBody: RequestBody?
