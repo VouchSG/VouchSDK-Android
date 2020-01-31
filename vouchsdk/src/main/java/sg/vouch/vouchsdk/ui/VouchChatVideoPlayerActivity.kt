@@ -28,6 +28,8 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
         hideSystemUi()
 
+        lyVideoPreview.visibility = View.GONE
+
         val type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
         if(type == VouchChatType.TYPE_IMAGE){
             if(intent.getParcelableExtra<Uri>("uri-image") != null){
