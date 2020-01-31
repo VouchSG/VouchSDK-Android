@@ -14,10 +14,10 @@ data class VouchChatModel(
     val subTitle: String = "",
     val isMyChat: Boolean = false,
     val type: VouchChatType = VouchChatType.TYPE_TEXT,
-    val createdAt: String = "",
+    var createdAt: String = "",
     val payload: String = "",
     val typeValue: String = "",
-    val mediaUrl: String = "",
+    var mediaUrl: String = "",
     val imageUri: Uri? = null,
 
     /* model for list and button */
@@ -33,7 +33,7 @@ data class VouchChatModel(
 
     /* model for gallery */
     val galleryElements: List<GalleryElementModel> = emptyList(),
-    val isPendingMessage: Boolean = false,
+    var isPendingMessage: Boolean = false,
     val isFailedMessage: Boolean = false,
     val msgType : String = "",
     val body: MultipartBody.Part? = null,
