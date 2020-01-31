@@ -72,10 +72,12 @@ class VouchChatActivity : AppCompatActivity() {
             VouchPreviewVideoActivity.startThisActivity(this, uri.toString())
         }
         else if(requestCode == 888){
-            val mPaths = data!!.getStringExtra("url")
-            val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
-                    as VouchChatFragment
-            fragment.sendVideoChat(Uri.parse(mPaths))
+            if(data != null) {
+                val mPaths = data!!.getStringExtra("url")
+                val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                        as VouchChatFragment
+                fragment.sendVideoChat(Uri.parse(mPaths))
+            }
         }
     }
 

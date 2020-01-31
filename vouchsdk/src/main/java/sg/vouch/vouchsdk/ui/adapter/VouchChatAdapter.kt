@@ -265,8 +265,8 @@ class VouchChatAdapter(
                                     val realPosition = mData.indexOf(data)
                                     mListener.onClickRetryMedia(data.msgType, mData[realPosition].body?: MultipartBody.Part.createFormData("", ""), data.path, realPosition)
                                 }
-                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
-                                myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.setColorFilter(viewModel.loadConfiguration.value?.rightBubbleBgColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                                myPlayVideo.background.setColorFilter(viewModel.loadConfiguration.value?.leftBubbleBgColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
                             }
                             else -> {}
                         }
