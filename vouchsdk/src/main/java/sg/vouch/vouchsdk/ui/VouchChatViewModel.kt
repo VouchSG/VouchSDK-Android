@@ -451,6 +451,9 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             eventUpdateList.value =
                 VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = bDataChat.size)
         } else {
+            if (bDataChat.firstOrNull()?.type == VouchChatType.TYPE_QUICK_REPLY) {
+                removeDataChat(0)
+            }
             bDataChat.addAll(0, content)
             eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
         }
