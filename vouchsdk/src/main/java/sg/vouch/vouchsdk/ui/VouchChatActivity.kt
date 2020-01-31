@@ -68,17 +68,30 @@ class VouchChatActivity : AppCompatActivity() {
 
         else if (requestCode === VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode === Activity.RESULT_OK) {
             val mPaths = data!!.getStringArrayListExtra(VideoPicker.EXTRA_VIDEO_PATH)
+            var uri = Uri.fromFile(File(mPaths[0]))
+            VouchPreviewVideoActivity.startThisActivity(this, uri.toString())
+        }
+        else if(requestCode == 888){
+            val mPaths = data!!.getStringExtra("url")
             val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
                     as VouchChatFragment
-
-
-            fragment.sendVideoChat(Uri.fromFile(File(mPaths[0])))
+            fragment.sendVideoChat(Uri.parse(mPaths))
         }
     }
 
     override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        readytoOpen()
+
+
+        var media = false
+        for(data in permissions){
+            if(data.equals(WRITE_EXTERNAL_STORAGE) || data.equals(CAMERA)){
+                media = true
+            }
+        }
+        if(media) {
+            readytoOpenMedia()
+        }
     }
 
     fun openMedia(isCamera : Boolean){
@@ -88,11 +101,11 @@ class VouchChatActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE, CAMERA), 101)
             }
         }else{
-            readytoOpen()
+            readytoOpenMedia()
         }
     }
     var isCamera = true
-    fun readytoOpen(){
+    fun readytoOpenMedia(){
         val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
                 as VouchChatFragment
         if(isCamera){

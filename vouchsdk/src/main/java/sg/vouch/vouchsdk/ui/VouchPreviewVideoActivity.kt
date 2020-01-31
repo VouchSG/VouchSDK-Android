@@ -4,22 +4,25 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.view.ViewCompat
+import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.ImageView
 import com.devbrackets.android.exomedia.listener.OnPreparedListener
 import com.devbrackets.android.exomedia.listener.OnSeekCompletionListener
 import com.google.gson.Gson
-import sg.vouch.vouchsdk.R
-import sg.vouch.vouchsdk.utils.setImageUrl
 import kotlinx.android.synthetic.main.activity_vouch_chat_video_player.*
+import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.ui.model.VouchChatType
+import sg.vouch.vouchsdk.utils.setImageUrl
 import sg.vouch.vouchsdk.utils.setImageUrlwithoutCropDetail
 
-class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, OnSeekCompletionListener {
+
+// create by deannrchsnl on 2020-01-31
+// contact me at deannurchusnulchotimah@gmail.com
+
+
+class VouchPreviewVideoActivity : AppCompatActivity(), OnPreparedListener,
+    OnSeekCompletionListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,24 +31,18 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
         hideSystemUi()
 
-        val type : VouchChatType = Gson().fromJson(intent.getStringExtra("type"), VouchChatType::class.java)
-        if(type == VouchChatType.TYPE_IMAGE){
-            if(intent.getParcelableExtra<Uri>("uri-image") != null){
-                imgView.setImageUrlwithoutCropDetail(intent.getParcelableExtra("uri-image")?:"")
-            } else{
-                imgView.setImageUrlwithoutCropDetail(intent.getStringExtra("url-content")?:"")
-            }
-            videoView.visibility = View.GONE
-        }else{
-            imgView.visibility = View.VISIBLE
-            img.setImageUrl(intent.getStringExtra("url-content"))
-            videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
-            videoView.setOnPreparedListener(this@VouchChatVideoPlayerActivity)
+        videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
+        videoView.setOnPreparedListener(this@VouchPreviewVideoActivity)
 
+        closePreviewImage.setOnClickListener { onBackPressed() }
+        checkPreviewImage.setOnClickListener {
+            var inten = Intent()
+            inten.putExtra("url", intent.getStringExtra("url-content"))
+            setResult(Activity.RESULT_OK,inten)
+            finish()
         }
 
-
-        closeImage.setOnClickListener { onBackPressed() }
+        closeImage.visibility = View.GONE
     }
 
     @SuppressLint("InlinedApi")
@@ -70,7 +67,6 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
     override fun onPrepared() {
         frameThumbnail.visibility = View.GONE
-        videoView.start()
     }
 
     override fun onBackPressed() {
@@ -86,15 +82,11 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
     }
 
     companion object {
-
-
-        fun startThisActivity(activity: Activity, url: String, type : VouchChatType, imageUri: Uri? = null){
-            val intent = Intent(activity, VouchChatVideoPlayerActivity::class.java).apply {
+        fun startThisActivity(activity: Activity, url: String){
+            val intent = Intent(activity, VouchPreviewVideoActivity::class.java).apply {
                 putExtra("url-content", url)
-                putExtra("type", Gson().toJson(type))
-                putExtra("uri-image", imageUri)
             }
-            activity.startActivity(intent)
+            activity.startActivityForResult(intent, 888)
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
     }

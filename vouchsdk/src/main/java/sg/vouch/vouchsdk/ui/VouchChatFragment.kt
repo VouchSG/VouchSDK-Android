@@ -397,10 +397,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             }R.id.recordButton -> {
             if (mIsRecording) {
-                recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
-                mWaveRecorder.stopRecording()
-                mIsRecording = mWaveRecorder.isRecording
-                lyAttach.visibility = View.GONE
+                recordButton.isEnabled = false
+                Handler().postDelayed({
+                    recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
+                    mWaveRecorder.stopRecording()
+                    mIsRecording = mWaveRecorder.isRecording
+                    lyAttach.visibility = View.GONE
+                    recordButton.isEnabled = true
+                }, 500)
             } else {
                 recordButton.setImageResource(R.drawable.ic_stop_24)
                 mWaveRecorder.startRecording()
