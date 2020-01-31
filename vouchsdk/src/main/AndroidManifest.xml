@@ -25,6 +25,10 @@
             android:name="sg.vouch.vouchsdk.ui.VouchChatVideoPlayerActivity"
             android:screenOrientation="user"
             android:theme="@style/VouchDetailAppTheme" />
+        <activity
+            android:name="sg.vouch.vouchsdk.ui.VouchPreviewVideoActivity"
+            android:screenOrientation="user"
+            android:theme="@style/VouchDetailAppTheme" />
     </application>
 
 </manifest>
