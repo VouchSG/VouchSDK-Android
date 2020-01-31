@@ -14,6 +14,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.StrictMode
 import android.support.v4.content.ContextCompat
 import net.alhazmy13.mediapicker.Video.VideoPicker
 import sg.vouch.vouchsdk.utils.getImageOrientation
@@ -42,7 +43,14 @@ class VouchChatActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        if (Build.VERSION.SDK_INT >= 24) {
+            try {
+                val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+                m.invoke(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val imageUri = CropImage.getPickImageResultUri(this, data)
             if (imageUri != null) {
