@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.view.ViewCompat
 import android.view.View
 import android.widget.ImageView
+import com.devbrackets.android.exomedia.listener.OnCompletionListener
 import com.devbrackets.android.exomedia.listener.OnPreparedListener
 import com.devbrackets.android.exomedia.listener.OnSeekCompletionListener
 import com.google.gson.Gson
@@ -19,7 +20,8 @@ import kotlinx.android.synthetic.main.activity_vouch_chat_video_player.*
 import sg.vouch.vouchsdk.ui.model.VouchChatType
 import sg.vouch.vouchsdk.utils.setImageUrlwithoutCropDetail
 
-class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, OnSeekCompletionListener {
+class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, OnSeekCompletionListener, OnCompletionListener {
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +45,7 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
             img.setImageUrl(intent.getStringExtra("url-content"))
             videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
             videoView.setOnPreparedListener(this@VouchChatVideoPlayerActivity)
-
+            videoView.setOnCompletionListener(this@VouchChatVideoPlayerActivity)
         }
 
 
@@ -72,7 +74,6 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
 
     override fun onPrepared() {
         frameThumbnail.visibility = View.GONE
-        videoView.start()
     }
 
     override fun onBackPressed() {
@@ -84,9 +85,11 @@ class VouchChatVideoPlayerActivity : AppCompatActivity(), OnPreparedListener, On
     }
 
     override fun onSeekComplete() {
-        videoView.start()
     }
-
+    override fun onCompletion() {
+        videoView.reset()
+        videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
+    }
     companion object {
 
 
