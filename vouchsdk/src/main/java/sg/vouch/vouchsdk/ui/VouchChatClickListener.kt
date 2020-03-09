@@ -15,7 +15,7 @@ interface VouchChatClickListener {
 
     fun onClickChatButton(type: String, data: VouchChatModel)
 
-    fun onClickPlayAudio(status : String)
+    fun onClickPlayAudio()
 
     fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType)
 

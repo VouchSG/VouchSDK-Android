@@ -1,8 +1,7 @@
 package sg.vouch.vouchsdk.ui
 
 import android.Manifest
-import android.Manifest.permission.CAMERA
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.Manifest.permission.*
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -28,6 +27,13 @@ import java.util.concurrent.TimeUnit
  * Bandung, on 2019-08-28
  */
 class VouchChatActivity : AppCompatActivity() {
+
+    /**
+     * variable is used to indicate the type used whether from the camera or from the gallery
+     * true = from camera
+     * false = from gallery
+     */
+    var isCamera = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,20 +99,46 @@ class VouchChatActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
 
-        var media = false
+        var media = 0
         for(data in permissions){
             if(data.equals(WRITE_EXTERNAL_STORAGE) || data.equals(CAMERA)){
-                media = true
+                media = 2
+            }else if(data.equals(RECORD_AUDIO)){
+                media = 1
             }
         }
-        if(media) {
+        if(media == 2) {
             readytoOpenMedia()
+        }else if(media == 1){
+            val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                    as VouchChatFragment
+            fragment.openAudio()
         }
     }
 
+    /**
+     * call method open video in fragment
+     */
+    fun openAudio(){
+        val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                as VouchChatFragment
+
+        if(!checkPermissionAudio()){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(RECORD_AUDIO), 101)
+            }
+        }else{
+            fragment.openAudio()
+        }
+    }
+
+    /**
+     * The method is used to get the isCamera variable data from the fragment
+     * @param isCamera Boolean value ex. true, false
+     */
     fun openMedia(isCamera : Boolean){
         this.isCamera = isCamera
-        if(!checkPermission()){
+        if(!checkPermissionMedia()){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE, CAMERA), 101)
             }
@@ -114,7 +146,10 @@ class VouchChatActivity : AppCompatActivity() {
             readytoOpenMedia()
         }
     }
-    var isCamera = true
+
+    /**
+     * call method open media in fragment
+     */
     fun readytoOpenMedia(){
         val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
                 as VouchChatFragment
@@ -125,7 +160,7 @@ class VouchChatActivity : AppCompatActivity() {
         }
     }
 
-    fun checkPermission():Boolean{
+    fun checkPermissionMedia():Boolean{
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             return true
         }
@@ -141,6 +176,24 @@ class VouchChatActivity : AppCompatActivity() {
             }
             return true
         }
+        return true
+    }
+
+    fun checkPermissionAudio():Boolean{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val audioRecordPermissionState = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            )
+            val audioRecordPermissionGranted
+                    = audioRecordPermissionState == PackageManager.PERMISSION_GRANTED
+            if (!audioRecordPermissionGranted) {
+                return false
+            }
+
+            return true
+        }
+
         return true
     }
 }

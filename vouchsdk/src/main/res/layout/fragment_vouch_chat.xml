@@ -250,12 +250,34 @@
                         android:textSize="@dimen/size_12sp"
                         tools:text="00:00:00" />
 
-                    <ImageButton
-                        android:id="@+id/recordButton"
-                        android:layout_width="@dimen/dimens_72dp"
-                        android:layout_height="@dimen/dimens_72dp"
-                        android:background="@drawable/bg_button_rec_audio"
-                        android:src="@drawable/ic_mic_white_24dp" />
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <View
+                            android:id="@+id/viewBackground"
+                            android:layout_width="@dimen/dimens_72dp"
+                            android:background="@drawable/bg_button_rec_audio"
+                            android:layout_height="@dimen/dimens_72dp"/>
+                        <ImageView
+                            android:id="@+id/recordButton"
+                            android:layout_width="@dimen/dimens_32dp"
+                            android:layout_height="@dimen/dimens_32dp"
+                            android:layout_centerInParent="true"
+                            android:src="@drawable/ic_mic_white_24dp" />
+
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:layout_width="@dimen/dimens_40dp"
+                            android:layout_height="@dimen/dimens_40dp"
+                            android:scaleX="3"
+                            android:scaleY="3"
+                            android:id="@+id/loadAudio"
+                            android:visibility="gone"
+                            app:lottie_autoPlay="true"
+                            android:layout_centerInParent="true"
+                            app:lottie_fileName="load.json"
+                            app:lottie_loop="true" />
+                    </RelativeLayout>
+
                 </LinearLayout>
 
                 <LinearLayout

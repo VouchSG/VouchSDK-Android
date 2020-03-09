@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.devbrackets.android.exomedia.listener.OnCompletionListener
 import com.devbrackets.android.exomedia.listener.OnPreparedListener
 import com.devbrackets.android.exomedia.listener.OnSeekCompletionListener
 import com.google.gson.Gson
@@ -22,7 +23,7 @@ import sg.vouch.vouchsdk.utils.setImageUrlwithoutCropDetail
 
 
 class VouchPreviewVideoActivity : AppCompatActivity(), OnPreparedListener,
-    OnSeekCompletionListener {
+    OnSeekCompletionListener, OnCompletionListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class VouchPreviewVideoActivity : AppCompatActivity(), OnPreparedListener,
 
         videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
         videoView.setOnPreparedListener(this@VouchPreviewVideoActivity)
+        videoView.setOnCompletionListener(this@VouchPreviewVideoActivity)
 
         closePreviewImage.setOnClickListener { onBackPressed() }
         checkPreviewImage.setOnClickListener {
@@ -78,9 +80,11 @@ class VouchPreviewVideoActivity : AppCompatActivity(), OnPreparedListener,
     }
 
     override fun onSeekComplete() {
-        videoView.start()
     }
-
+    override fun onCompletion() {
+        videoView.reset()
+        videoView.setVideoURI(Uri.parse(intent.getStringExtra("url-content")))
+    }
     companion object {
         fun startThisActivity(activity: Activity, url: String){
             val intent = Intent(activity, VouchPreviewVideoActivity::class.java).apply {

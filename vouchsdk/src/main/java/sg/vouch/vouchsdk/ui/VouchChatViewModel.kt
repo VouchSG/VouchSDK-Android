@@ -61,6 +61,8 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     val loadConfiguration = MutableLiveData<ConfigResponseModel>()
     val eventChangeStateToGreeting = MutableLiveData<Boolean>()
     val eventScroll = MutableLiveData<Void>()
+    val eventOnSuccessAudio = MutableLiveData<Void>()
+    val eventOnFailedAudio = MutableLiveData<Void>()
     var currentLocation = Pair(0.0, 0.0)
 
     val eventUpdateList = MutableLiveData<VouchChatUpdateEvent>()
@@ -90,10 +92,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         getLayoutConfiguration()
     }
 
-    override fun onConnected() {
-        changeConnectStatus.value = true
-    }
-
     private fun getLayoutConfiguration() {
         mVouchSDK.getConfig(object : GetConfigCallback {
 
@@ -121,6 +119,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
 
+    /**
+     * The method is used to call API chat
+     * @param reset Boolean value ex. true, false
+     */
     fun getChatContent(reset: Boolean = false) {
         isRequesting.value = true
 
@@ -175,6 +177,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
 
+    /**
+     * The method is used to update list message
+     * @param message MessageResponseModel
+     */
     override fun onReceivedNewMessage(message: MessageResponseModel) {
         if(!bDataChat.isEmpty() && bDataChat[0].type == VouchChatType.TYPE_TYPING){
             removeDataChat(0)
@@ -188,8 +194,26 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         }, 1000)
     }
 
+    var saveWhenDisconnect :VouchChatModel? = null
+    var saveWhenDisconnect2 : VouchChatModel? = null
+
+    override fun onConnected() {
+        changeConnectStatus.value = true
+
+        if(!bDataChat.isEmpty() && saveWhenDisconnect2 != null && saveWhenDisconnect2!!.title.equals(bDataChat[0].title)){
+            bDataChat.add(0, saveWhenDisconnect!!)
+            eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+            saveWhenDisconnect2 = null
+        }
+    }
+
     override fun onDisconnected(isActionFromUser: Boolean) {
         changeConnectStatus.value = false
+        if(!bDataChat.isEmpty() && bDataChat[0].type == VouchChatType.TYPE_QUICK_REPLY){
+            saveWhenDisconnect = bDataChat[0]
+            saveWhenDisconnect2 = bDataChat[1]
+            removeDataChat(0)
+        }
         if (!isActionFromUser) {
             retryConnectionHandler()
         }
@@ -210,6 +234,10 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         mVouchSDK.reconnect(this@VouchChatViewModel, forceReconnect = true)
     }
 
+    /**
+     * The method is used when success get current location
+     * @param location Location
+     */
     override fun onSuccess(location: Location?) {
         currentLocation = Pair(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
         sendLocation()
@@ -264,6 +292,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
     }
     /**
      * Insert GIF Typing
+     * @param typing Boolean value ex. true, false
      */
     override fun onTyping(typing: Boolean) {
         if(typing != isTyping){
@@ -305,6 +334,26 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
     }
+    /**
+     * Insert Pending image
+     */
+    private fun insertPendingImage(imageUri: Uri? = null, path: String? = ""): VouchChatModel {
+        val pendingDataImage = VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path?:"", isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
+        bDataChat.add(0, pendingDataImage)
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+        return pendingDataImage
+    }
+
+    private fun insertPendingVideo(videoUrl: String): VouchChatModel {
+        val pendingDataVideo = VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
+        bDataChat.add(0, pendingDataVideo)
+        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
+        return pendingDataVideo
+    }
+
+    /**
+     * Insert Failed message
+     */
     private fun insertFailedMessage(body: MessageBodyModel) {
         removeDataChat(0)
         bDataChat.add(
@@ -328,22 +377,6 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = path, isPendingMessage = true, isFailedMessage = true, msgType = msgType, body = body, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
         )
         eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
-    }
-    /**
-     * Insert Pending image
-     */
-    private fun insertPendingImage(imageUri: Uri? = null, path: String? = ""): VouchChatModel {
-        val pendingDataImage = VouchChatModel("", "", true, VouchChatType.TYPE_IMAGE, "-", imageUri = imageUri, mediaUrl = path?:"", isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
-        bDataChat.add(0, pendingDataImage)
-        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
-        return pendingDataImage
-    }
-
-    private fun insertPendingVideo(videoUrl: String): VouchChatModel {
-        val pendingDataVideo = VouchChatModel("", "", true, VouchChatType.TYPE_VIDEO, "-", mediaUrl = videoUrl, isPendingMessage = true, idSent = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toString())
-        bDataChat.add(0, pendingDataVideo)
-        eventUpdateList.value = VouchChatUpdateEvent(type = VouchChatEnum.TYPE_INSERTED, startPosition = 0)
-        return pendingDataVideo
     }
 
     /**
@@ -618,6 +651,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
 
     /**
      * Remove chat
+     * @param position Int value ex. 0, 1
      */
     fun removeDataChat(position: Int, endPosition: Int? = null) {
         if (position == -1) {
@@ -846,6 +880,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             override fun onSuccess(data: SendAudioResponseModel) {
+                eventOnSuccessAudio.value = null
             }
 
             override fun onError(message: String) {
@@ -854,6 +889,7 @@ class VouchChatViewModel(application: Application) : AndroidViewModel(applicatio
                 }else{
                     eventShowMessage.value = message
                 }
+                eventOnFailedAudio.value = null
 
             }
         })

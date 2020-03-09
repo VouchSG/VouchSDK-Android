@@ -11,14 +11,6 @@ import android.os.SystemClock;
 // contact me at deannurchusnulchotimah@gmail.com
 
 abstract class CountdownTimerPause
-/**
- * @param millisInFuture The number of millis in the future from the call
- * to [.start] until the countdown is done and [.onFinish]
- * is called
- * @param countDownInterval The interval in millis at which to execute
- * [.onTick] callbacks
- * @param runAtStart True if timer should start running, false if not
- */
     (
     /**
      * Real time remaining until timer completes
@@ -56,15 +48,11 @@ abstract class CountdownTimerPause
     val isPaused: Boolean
         get() = mPauseTimeRemaining > 0
 
-    /**
-     * Tests whether the timer is running. (Performs logical negation on [.isPaused])
-     * @return true if the timer is currently running, false otherwise.
-     */
+
     val isRunning: Boolean
         get() = !isPaused
 
 
-    // handles counting down
     private val mHandler = object : Handler() {
 
         override fun handleMessage(msg: Message) {

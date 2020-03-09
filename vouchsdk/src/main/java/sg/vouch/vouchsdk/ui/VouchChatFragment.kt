@@ -67,8 +67,7 @@ import java.util.concurrent.TimeUnit
  * @Author by Radhika Yusuf
  * Bandung, on 2019-08-28
  */
-class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener,
-    VoiceRecordDialog.VoiceRecordDialogCallback {
+class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchChatClickListener{
 
     private lateinit var mViewModel: VouchChatViewModel
     private lateinit var mLayoutManager: LinearLayoutManager
@@ -78,11 +77,15 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     var isFromVideoPlayerActivity: Boolean = false
 
 
+    var isSendAudio = false
+
     //
     private lateinit var mStopWatch: StopWatch
     private var mIsRecording = false
     private lateinit var mWaveRecorder: WaveAudioRecorder
 
+
+    var startTime = 0
     //
 
     override fun onCreateView(
@@ -113,9 +116,18 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             }
         }
         setupListData()
-        setupTextListener()
+        setupListener()
         mViewModel.start()
 
+
+
+        var window = activity!!.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = resources.getColor(R.color.colorPrimaryChat)
+    }
+
+    private fun setupListener() {
+        fieldContent.addTextChangedListener(this@VouchChatFragment)
         buttonGreeting.setOnClickListener(this@VouchChatFragment)
         attachmentButton.setOnClickListener(this@VouchChatFragment)
         sendButton.setOnClickListener(this@VouchChatFragment)
@@ -123,18 +135,9 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         imageButton.setOnClickListener(this@VouchChatFragment)
         recordButton.setOnClickListener(this)
         closeImage.setOnClickListener(this)
-
         fieldContent.setOnFocusChangeListener { view, b ->
             lyAttach.visibility = View.GONE
         }
-
-        var window = activity!!.window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.statusBarColor = resources.getColor(R.color.colorPrimaryChat)
-    }
-
-    private fun setupTextListener() {
-        fieldContent.addTextChangedListener(this@VouchChatFragment)
     }
 
     private fun setupListData() {
@@ -181,7 +184,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
             changeConnectStatus.observe(this@VouchChatFragment, Observer {
                 imageIndicator.setImageResource(if (it == true) R.drawable.circle_green else R.drawable.circle_red)
-//                inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true) View.VISIBLE else View.GONE
+                inputField.visibility = if (it == true && eventChangeStateToGreeting.value != true && lyAttach.visibility == View.GONE) View.VISIBLE else View.GONE
             })
 
             eventShowMessage.observe(this@VouchChatFragment, Observer {
@@ -236,7 +239,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     PorterDuff.Mode.SRC_IN
                     )
 
-                    recordButton.background.setColorFilter(it.sendButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                    viewBackground.background.setColorFilter(it.sendButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     recordButton.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
 
                     buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
@@ -299,9 +302,29 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 }
             })
 
+            eventOnSuccessAudio.observe(this@VouchChatFragment, Observer {
+                lyAttach.visibility = View.GONE
+                inputField.visibility = View.VISIBLE
+                loadAudio.visibility = View.GONE
+                recordButton.visibility = View.VISIBLE
+                textDurationRecord.setText("00:00:00")
+            })
+
+            eventOnFailedAudio.observe(this@VouchChatFragment, Observer {
+                loadAudio.visibility = View.GONE
+                recordButton.visibility = View.VISIBLE
+                textDurationRecord.setText("00:00:00")
+                startRecord()
+            })
+
+
         }
     }
 
+    /**
+     * The method is used to send quick reply
+     * @param data MessageBodyModel
+     */
     override fun onClickQuickReply(data: MessageBodyModel) {
         if (data.msgType == "location") {
             checkMapsPermissions()
@@ -326,6 +349,32 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         resetMediaPlayer()
     }
 
+    /**
+     * The method is used when audio start record
+     */
+    fun startRecord(){
+        mWaveRecorder = WaveAudioRecorder(requireContext().externalCacheDir!!) {
+            if(isSendAudio) {
+                recordButton.visibility = View.GONE
+                loadAudio.visibility = View.VISIBLE
+                textDurationRecord.text = ""
+                onGettingBase64Audio(it)
+                isSendAudio = false
+            }
+            mStopWatch.stop()
+        }
+        mStopWatch = StopWatch()
+        mStopWatch.setTickListener {
+            val second = it / 1000
+            val minute = second / 60
+            val hour = minute / 60
+            textDurationRecord.text =
+                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
+        }
+
+
+        textDurationRecord.setText("00:00:00")
+    }
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.buttonGreeting -> {
@@ -346,38 +395,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     fieldContent.setText("")
                     mSendButtonStatus = false
                 } else {
-                    if (checkAudioRecordPermission()) {
-//                        VoiceRecordDialog.newInstance().show(childFragmentManager,
-//                            "VouchChatFragment@VoiceRecordDialog")
-
-                        lyAttach.visibility = View.VISIBLE
-                        inputField.visibility = View.GONE
-                        containerAudioRec.visibility = View.VISIBLE
-                        containerMediaChoose.visibility = View.GONE
-
-
-
-                        //
-
-                        mWaveRecorder = WaveAudioRecorder(requireContext().externalCacheDir!!) {
-                            onGettingBase64Audio(it)
-                            mStopWatch.stop()
-                            lyAttach.visibility = View.GONE
-                            inputField.visibility = View.VISIBLE
-                            textDurationRecord.setText("00:00:00")
-                        }
-                        mStopWatch = StopWatch()
-                        mStopWatch.setTickListener {
-                            val second = it / 1000
-                            val minute = second / 60
-                            val hour = minute / 60
-                            textDurationRecord.text =
-                                "${timeUnitToString(hour)}:${timeUnitToString(minute)}:${timeUnitToString(second % 60)}"
-                        }
-
-
-                        textDurationRecord.setText("00:00:00")
-                    }
+                    (activity as (VouchChatActivity)).openAudio()
                 }
             }
             R.id.attachmentButton -> {
@@ -392,18 +410,20 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                 lyAttach.visibility = View.GONE
                 inputField.visibility = View.VISIBLE
                 if (mIsRecording) {
-                    mWaveRecorder.stopRecording()
-                    mStopWatch.stop()
                     recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
+                    mWaveRecorder.stopRecording()
+                    mIsRecording = mWaveRecorder.isRecording
+                    recordButton.isEnabled = true
+                    mStopWatch.stop()
                 }
             }R.id.recordButton -> {
             if (mIsRecording) {
+                isSendAudio = true
                 recordButton.isEnabled = false
                 Handler().postDelayed({
                     recordButton.setImageResource(R.drawable.ic_mic_white_24dp)
                     mWaveRecorder.stopRecording()
                     mIsRecording = mWaveRecorder.isRecording
-                    lyAttach.visibility = View.GONE
                     recordButton.isEnabled = true
                 }, 500)
             } else {
@@ -423,11 +443,28 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         }
     }
 
+    /**
+     * The method is used to open layout record audio
+     */
+    fun openAudio(){
+        lyAttach.visibility = View.VISIBLE
+        containerAudioRec.visibility = View.VISIBLE
+        containerMediaChoose.visibility = View.GONE
+        startRecord()
+        inputField.visibility = View.GONE
+    }
+
+    /**
+     * The method is used to take picture from gallery or camera
+     */
     fun openPhoto(){
         CameraGalleryHelper.openImagePickerOption(requireActivity())
         lyAttach.visibility = View.GONE
         inputField.visibility = View.VISIBLE
     }
+    /**
+     * The method is used to take video from gallery or camera
+     */
     fun openVideo(){
         VideoPicker.Builder(requireActivity())
             .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
@@ -439,6 +476,11 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         inputField.visibility = View.VISIBLE
     }
 
+    /**
+     * The method is used when user click button in list
+     * @param type String
+     * @param data VouchChatModel
+     */
     override fun onClickChatButton(type: String, data: VouchChatModel) {
         when (type) {
             CHAT_BUTTON_TYPE_POSTBACK -> {
@@ -461,11 +503,14 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
     }
 
     private val myHandler = Handler()
-
-    override fun onClickPlayAudio(status : String) {
+    /**
+     * The method is used to playing audio
+     */
+    override fun onClickPlayAudio() {
         mViewModel.startUpdateSong = true
         myHandler.postDelayed(updateSongTime,100)
     }
+
     override fun setupMediaPlayer() {
         var startTrack = false
 
@@ -491,14 +536,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
                 if (mViewModel.mMediaPlayer?.isPlaying == true ) {
                     mViewModel.mMediaPlayer?.seekTo(audioSeek)
-                    onClickPlayAudio("")
+                    onClickPlayAudio()
                 }
             }
 
         })
     }
-
-    var startTime = 0
     private val updateSongTime = object : Runnable {
         override fun run() {
             if (mViewModel.startUpdateSong) {
@@ -524,7 +567,9 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
             }
         }
     }
-
+    /**
+     * The method is used to reset media player and layout audio
+     */
     override fun resetMediaPlayer() {
         val position = mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia)
         val tempView = recyclerViewChat.layoutManager?.findViewByPosition(position)
@@ -544,6 +589,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         recyclerViewChat.adapter?.notifyItemChanged(mViewModel.bDataChat.indexOf(mViewModel.currentAudioMedia))
     }
 
+    /**
+     * The method is used to playing video
+     * @param data VouchChatModel
+     * @param imageView ImageView value ex. myPlayVideo, playVideo
+     * @param type VouchChatType value ex. TYPE_TEXT, TYPE_QUICK_REPLY
+     */
     override fun onClickPlayVideo(data: VouchChatModel, imageView: ImageView, type : VouchChatType) {
         isFromVideoPlayerActivity = true
         VouchChatVideoPlayerActivity.startThisActivity(requireActivity(), data.mediaUrl, type, data.imageUri)
@@ -570,25 +621,18 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         )
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 5115) {
-            grantResults.forEach {
-                if (it != PackageManager.PERMISSION_GRANTED) {
-                    return
-                }
-            }
-        }
-    }
-
-    override fun onGettingBase64Audio(base64Audio: String) {
+    /**
+     * The method is used to send audio
+     * @param base64Audio String value ex. /+MYxAAEaAIEeUAQAgBgNgP/////KQQ/////Lvrg+lcWYHgtjadzsbTq+yREu495tq9c6v/7vt/of7mna9v6/btUnU17Jun9/+MYxCkT26KW+YGBAj9v6vUh+zab//v/96C3/pu6H+pv//r/ycIIP4pcWWTRBBBAMXgNdbRaABQAAABRWKwgjQVX0ECmrb///+MYxBQSM0sWWYI4A++Z/////////////0rOZ3MP//7H44QEgxgdvRVMXHZseL//540B4JAvMPEgaA4/0nHjxLhRgAoAYAgA/+MYxAYIAAJfGYEQAMAJAIAQMAwX936/q/tWtv/2f/+v//6v/+7qTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+     */
+    fun onGettingBase64Audio(base64Audio: String) {
         mViewModel.sendAudioMessage(SendAudioBodyModel(base64Audio))
     }
 
+    /**
+     * The method is used to send video
+     * @param videoUri Uri value ex. file:///storage/emulated/0/DCIM/Camera/VID_20140312_171146.mp4
+     */
     fun sendVideoChat(videoUri : Uri){
         if (Build.VERSION.SDK_INT >= 24) {
             try {
@@ -610,6 +654,11 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         mViewModel.sendImageMessage("video", requestPart, videoUri.path!!)
 
     }
+
+    /**
+     * The method is used to send image
+     * @param imageUri Uri value ex. file:///storage/emulated/0/DCIM/Camera/VID_20140312_171146.jpg
+     */
     fun sendImageChat(imageUri: Uri) {
         if (Build.VERSION.SDK_INT >= 24) {
             try {
@@ -656,11 +705,24 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         ivPreview.visibility = View.GONE
     }
 
+    /**
+     * The method is used to send failed message
+     * @param body MessageBodyModel
+     * @param position Int value ex. 0, 1
+     */
     override fun onClickRetryMessage(body: MessageBodyModel, position : Int) {
         mViewModel.removeDataChat(position)
         mViewModel.sendReplyMessage(body)
     }
 
+    /**
+     * The method is used to send failed media message
+     * @param msgType String
+     * @param body MultipartBody.Part
+     * @param path String value ex. sdcard/Images/test_image.jpg
+     * @param position Int value ex. 0, 1
+     * @param imageUri Uri value ex. file:///storage/emulated/0/DCIM/Camera/VID_20140312_171146.jpg
+     */
     override fun onClickRetryMedia(
         msgType: String,
         body: MultipartBody.Part,
@@ -745,25 +807,4 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         return true
     }
 
-    private fun checkAudioRecordPermission(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val audioRecordPermissionState = ContextCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.RECORD_AUDIO
-            )
-
-            val audioRecordPermissionGranted
-                    = audioRecordPermissionState == PackageManager.PERMISSION_GRANTED
-
-            if (!audioRecordPermissionGranted) {
-                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 5115)
-
-                return false
-            }
-
-            return true
-        }
-
-        return true
-    }
 }

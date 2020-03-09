@@ -381,7 +381,7 @@ class VouchChatAdapter(
                                         seekbar.isEnabled = true
                                         playAudio.setImageDrawable(context.getDrawable(R.drawable.ic_pause_black_24dp))
                                         mListener.setupMediaPlayer()
-                                        mListener.onClickPlayAudio("")
+                                        mListener.onClickPlayAudio()
                                     } else if (viewModel.currentAudioMedia != VouchChatModel()
                                         && getAudioId(viewModel.currentAudioMedia) == getAudioId(data)
                                         && (viewModel.audioSeek[getAudioId(viewModel.currentAudioMedia)] ?: 0) > 0) {
@@ -425,7 +425,7 @@ class VouchChatAdapter(
                                                 }
                                             )
                                             viewModel.mMediaPlayer?.start()
-                                            mListener.onClickPlayAudio("")
+                                            mListener.onClickPlayAudio()
                                         }
                                     }
 

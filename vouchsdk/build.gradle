@@ -39,6 +39,7 @@ android {
         outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
     }
+
 }
 
 repositories {
