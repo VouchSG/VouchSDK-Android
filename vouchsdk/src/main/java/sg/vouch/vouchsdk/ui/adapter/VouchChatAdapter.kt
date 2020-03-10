@@ -5,8 +5,8 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -127,11 +127,12 @@ class VouchChatAdapter(
                         }
                     }
                     TYPE_GALLERY -> {
-                        recyclerGallery.layoutManager = LinearLayoutManager(
-                            mView.context,
-                            LinearLayoutManager.HORIZONTAL,
-                            false
-                        )
+                        recyclerGallery.layoutManager =
+                            LinearLayoutManager(
+                                mView.context,
+                                LinearLayoutManager.HORIZONTAL,
+                                false
+                            )
                         recyclerGallery.adapter = VouchGalleryAdapter(
                             viewModel,
                             mListener,

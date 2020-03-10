@@ -3,7 +3,7 @@ package sg.vouch.vouchsdk.ui
 import android.Manifest
 import android.Manifest.permission.*
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import sg.vouch.vouchsdk.R
 import sg.vouch.vouchsdk.VouchSDK
@@ -14,12 +14,17 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StrictMode
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import net.alhazmy13.mediapicker.Video.VideoPicker
 import sg.vouch.vouchsdk.utils.getImageOrientation
 import sg.vouch.vouchsdk.utils.resaveBitmap
 import java.io.File
 import java.util.concurrent.TimeUnit
+import android.content.DialogInterface
+import androidx.appcompat.app.AlertDialog
+import sg.vouch.vouchsdk.BuildConfig
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+
 
 
 /**
@@ -94,25 +99,57 @@ class VouchChatActivity : AppCompatActivity() {
             }
         }
     }
-
+    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener, positif: String) {
+        AlertDialog.Builder(this@VouchChatActivity)
+            .setMessage(message)
+            .setPositiveButton(positif, okListener)
+            .create()
+            .show()
+    }
     override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-
-        var media = 0
-        for(data in permissions){
-            if(data.equals(WRITE_EXTERNAL_STORAGE) || data.equals(CAMERA)){
-                media = 2
-            }else if(data.equals(RECORD_AUDIO)){
-                media = 1
+        if (grantResults.size > 0) {
+            val accepted = grantResults[0] === PackageManager.PERMISSION_GRANTED
+            if(accepted){
+                if(requestCode == 102){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(arrayOf(CAMERA), 103)
+                    }
+                }else{
+                    permissionResult(permissions)
+                }
             }
-        }
-        if(media == 2) {
-            readytoOpenMedia()
-        }else if(media == 1){
-            val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
-                    as VouchChatFragment
-            fragment.openAudio()
+            else{
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (shouldShowRequestPermissionRationale(permissions[0])) {
+                        showMessageOKCancel("You need to allow access the permissions",
+                            DialogInterface.OnClickListener { dialog, which ->
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    requestPermissions(
+                                        permissions,
+                                        requestCode
+                                    )
+                                }
+                            }, "Ok")
+                        return
+                    }
+                    else{
+                        var permission = permissions[0]
+                        showMessageOKCancel("You have previously declined this permission.\nYou must approve this permission in $permission in the app settings on your device.",
+                            DialogInterface.OnClickListener { dialog, which ->
+                                val intent = Intent(
+                                    ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.fromParts("package", packageName, null)
+                                )
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(intent)
+                            }, "Setting")
+                        return
+                    }
+                }
+
+            }
+
         }
     }
 
@@ -132,6 +169,24 @@ class VouchChatActivity : AppCompatActivity() {
         }
     }
 
+    fun permissionResult(permissions: Array<out String>){
+        var media = 0
+        for(data in permissions){
+            if(data.equals(WRITE_EXTERNAL_STORAGE) || data.equals(CAMERA)){
+                media = 2
+            }else if(data.equals(RECORD_AUDIO)){
+                media = 1
+            }
+        }
+        if(media == 2) {
+            readytoOpenMedia()
+        }else if(media == 1){
+            val fragment = supportFragmentManager.findFragmentById(R.id.frameContent)
+                    as VouchChatFragment
+            fragment.openAudio()
+        }
+    }
+
     /**
      * The method is used to get the isCamera variable data from the fragment
      * @param isCamera Boolean value ex. true, false
@@ -140,7 +195,7 @@ class VouchChatActivity : AppCompatActivity() {
         this.isCamera = isCamera
         if(!checkPermissionMedia()){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE, CAMERA), 101)
+                requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE), 102)
             }
         }else{
             readytoOpenMedia()
@@ -165,13 +220,11 @@ class VouchChatActivity : AppCompatActivity() {
             return true
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val readStoragePermissionState = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
+            val readStoragePermissionState = ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE)
             val writeStoragePermissionState = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE)
-            val externalStoragePermissionGranted = readStoragePermissionState == PackageManager.PERMISSION_GRANTED
-                    && writeStoragePermissionState == PackageManager.PERMISSION_GRANTED
-            if (!externalStoragePermissionGranted && ContextCompat.checkSelfPermission(this, CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            val cameraPermissionState = ContextCompat.checkSelfPermission(this, CAMERA)
+            val externalStoragePermissionGranted = cameraPermissionState == PackageManager.PERMISSION_GRANTED && readStoragePermissionState == PackageManager.PERMISSION_GRANTED && writeStoragePermissionState == PackageManager.PERMISSION_GRANTED
+            if (!externalStoragePermissionGranted) {
                 return false
             }
             return true

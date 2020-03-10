@@ -2,7 +2,7 @@ package sg.vouch.vouchsdk.ui.adapter
 
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View

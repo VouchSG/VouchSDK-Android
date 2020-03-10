@@ -11,18 +11,16 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DimenRes;
-import android.support.annotation.DrawableRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DimenRes;
+import androidx.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.SeekBar;
 
 import com.makeramen.roundedimageview.Corner;
 import com.makeramen.roundedimageview.RoundedDrawable;
 import sg.vouch.vouchsdk.R;
 import pl.droidsonroids.gif.GifImageView;
-import sg.vouch.vouchsdk.utils.CountdownTimerPause;
 
 /**
  * @Author by Radhika Yusuf

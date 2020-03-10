@@ -1,7 +1,7 @@
 package sg.vouch.vouchsdk.ui.adapter
 
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,7 +62,8 @@ class VouchGalleryAdapter(
             mView.titleGallery.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
             mView.descGallery.setFontFamily(viewModel.loadConfiguration.value?.fontStyle.safe())
 
-            mView.recyclerGalleryButton.layoutManager = LinearLayoutManager(mView.context)
+            mView.recyclerGalleryButton.layoutManager =
+                LinearLayoutManager(mView.context)
             mView.recyclerGalleryButton.adapter =
                 VouchGalleryButtonAdapter(viewModel, listener).apply {
                     mData.addAll(

@@ -6,8 +6,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.annotation.RequiresApi
-import android.support.v4.content.ContextCompat
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import android.widget.Toast
 import com.theartofdev.edmodo.cropper.CropImage
 import sg.vouch.vouchsdk.BuildConfig

@@ -9,9 +9,9 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.media.ExifInterface
 import android.net.Uri
-import android.support.annotation.ColorInt
-import android.support.v4.app.Fragment
-import android.support.v4.widget.CircularProgressDrawable
+import androidx.annotation.ColorInt
+import androidx.fragment.app.Fragment
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
@@ -192,8 +192,9 @@ fun Activity.getScreenHeight(): Int {
     return displayMetrics.heightPixels
 }
 
-fun createCircularProgressDrawable(context: Context): CircularProgressDrawable{
-    val circularProgressDrawable = CircularProgressDrawable(context)
+fun createCircularProgressDrawable(context: Context): CircularProgressDrawable {
+    val circularProgressDrawable =
+        CircularProgressDrawable(context)
     circularProgressDrawable.strokeWidth = 4f
     circularProgressDrawable.centerRadius = 30f
     circularProgressDrawable.start()

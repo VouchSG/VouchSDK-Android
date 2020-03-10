@@ -2,8 +2,8 @@ package sg.vouch.vouchsdk.ui
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import android.location.Location
 import android.media.MediaPlayer
 import android.net.Uri

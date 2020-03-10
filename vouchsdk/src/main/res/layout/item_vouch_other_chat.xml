@@ -34,7 +34,7 @@
         android:orientation="vertical"
         android:visibility="visible">
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/packVideo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,9 +79,9 @@
                     android:padding="1dp"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardCornerRadius="@dimen/dimens_8dp">
@@ -98,7 +98,7 @@
                 app:riv_border_width="@dimen/dimens_1dp"
                 app:riv_corner_radius="@dimen/dimens_8dp"
                 tools:src="@drawable/ic_mic_white_24dp" />
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
     <LinearLayout
@@ -111,7 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/cardBubble"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
                     android:paddingBottom="@dimen/dimens_8dp"
                     android:textColor="@color/colorTextPrimary"
                     tools:text="Hello" />
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <View
@@ -142,7 +142,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/cardAudio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -189,7 +189,7 @@
                     android:thumbTint="@color/colorPrimaryDarkChat"
                     tools:progress="50" />
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
         <View
             android:layout_width="match_parent"
@@ -198,7 +198,7 @@
     </LinearLayout>
 
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/thinking"
         android:layout_width="@dimen/dimens_80dp"
         android:layout_height="@dimen/dimens_24dp"
@@ -215,7 +215,7 @@
             app:lottie_autoPlay="true"
             app:lottie_fileName="load.json"
             app:lottie_loop="true" />
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/dateTime"
