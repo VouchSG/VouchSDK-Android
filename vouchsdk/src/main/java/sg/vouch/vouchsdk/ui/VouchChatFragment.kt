@@ -227,7 +227,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     backgroundSend.setImageDrawable(ColorDrawable(it.sendButtonColor.parseColor(Color.BLACK)))
                     backgroundAttachment.setImageDrawable(ColorDrawable(it.attachmentButtonColor.parseColor(Color.BLACK)))
 
-                    imageSend.setColorFilter(it.sendIconColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
+                    imageSend.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
                     imageAttachment.setColorFilter(
                         it.attachmentIconColor.parseColor(Color.WHITE),
                         PorterDuff.Mode.SRC_IN
@@ -620,7 +620,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         }
 
         imageSend.setColorFilter(
-            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(Color.BLACK),
+            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(Color.WHITE),
             PorterDuff.Mode.SRC_IN
         )
     }
