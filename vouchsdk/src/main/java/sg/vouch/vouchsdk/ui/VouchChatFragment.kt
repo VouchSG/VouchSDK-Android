@@ -247,7 +247,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     viewBackground.background.setColorFilter(it.sendButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     recordButton.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
 
-                    buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
+                    if(it.greetingButtonTitle != null && !it.greetingButtonTitle.equals("")){
+                        buttonGreeting.text = it.greetingButtonTitle
+                    }else{
+                        buttonGreeting.text = "Get Started"
+                    }
+
                     buttonGreeting.background.setColorFilter(it.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     buttonGreeting.setTextColor(it.leftBubbleColor.parseColor(Color.BLACK))
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
@@ -621,7 +626,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
         }
 
         imageSend.setColorFilter(
-            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(Color.BLACK),
+            mViewModel.loadConfiguration.value?.sendIconColor.parseColor(Color.WHITE),
             PorterDuff.Mode.SRC_IN
         )
     }
