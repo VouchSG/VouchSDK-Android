@@ -208,6 +208,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
 
                     titleChat.text = it.title
                     titleChat.setFontFamily(it.fontStyle.safe())
+                    titleChat.setTextColor(it.iconColor.parseColor(Color.WHITE))
                     toolbarChat.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
                     poweredText.setFontFamily(it.fontStyle.safe())
                     poweredText.background = ColorDrawable(it.headerBgColor.parseColor(Color.BLACK))
@@ -228,10 +229,7 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     backgroundAttachment.setImageDrawable(ColorDrawable(it.attachmentButtonColor.parseColor(Color.BLACK)))
 
                     imageSend.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
-                    imageAttachment.setColorFilter(
-                        it.attachmentIconColor.parseColor(Color.WHITE),
-                        PorterDuff.Mode.SRC_IN
-                    )
+                    imageAttachment.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
                     videoButton.background.setColorFilter(it.attachmentButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     imageButton.background.setColorFilter(it.attachmentButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     videoButton.setColorFilter(
@@ -246,7 +244,12 @@ class VouchChatFragment : Fragment(), TextWatcher, View.OnClickListener, VouchCh
                     viewBackground.background.setColorFilter(it.sendButtonColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     recordButton.setColorFilter(it.sendIconColor.parseColor(Color.WHITE), PorterDuff.Mode.SRC_IN)
 
-                    buttonGreeting.text = it.greetingButtonTitle ?: "Get Started"
+                    if(it.greetingButtonTitle != null && !it.greetingButtonTitle.equals("")){
+                        buttonGreeting.text = it.greetingButtonTitle
+                    }else{
+                        buttonGreeting.text = "Get Started"
+                    }
+
                     buttonGreeting.background.setColorFilter(it.leftBubbleColor.parseColor(Color.BLACK), PorterDuff.Mode.SRC_IN)
                     buttonGreeting.setTextColor(it.leftBubbleColor.parseColor(Color.BLACK))
                     buttonGreeting.setFontFamily(it.fontStyle.safe())
